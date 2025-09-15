@@ -9,6 +9,8 @@ public abstract class Bullet : MonoBehaviour
     public Vector3 Direction;
     public float Speed = 10f;
     public float LifeTime = 1f;
+
+    public int Damage = 10;
     protected virtual void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -18,17 +20,12 @@ public abstract class Bullet : MonoBehaviour
             Debug.LogError("No rigidbody attached to the bullet");
         }
         _rigidbody.linearVelocity = Direction.normalized * Speed;
-        Destroy(gameObject, LifeTime);  
+        Destroy(gameObject, LifeTime);
     }
 
     // Update is called once per frame
     void Update()
     {
 
-    }
-    protected virtual void CheckLifetime()
-    {
-        
-        
-    }
+    } 
 }

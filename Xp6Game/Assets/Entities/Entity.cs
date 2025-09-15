@@ -2,15 +2,23 @@ using UnityEngine;
 
 public class Entity : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    [SerializeField]
+    protected int maxHealth = 100;
+    [SerializeField]
+    protected int currentHealth = 100;
+
+    [SerializeField]
+    public bool canBeDamaged = true;
+    protected virtual void Start()
     {
-        
+        currentHealth = maxHealth;
+
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
-        
+
     }
 }
