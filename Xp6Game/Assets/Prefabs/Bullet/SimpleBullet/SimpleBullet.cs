@@ -20,7 +20,8 @@ public class SimpleBullet : Bullet
     {
         if (collision.gameObject.TryGetComponent<Enemy>(out var enemy))
         {
-            enemy.SendMessage("TakeDamage", 10);
+            enemy.SendMessage("TakeDamage", Damage);
+            
             Destroy(gameObject);
         }
     }

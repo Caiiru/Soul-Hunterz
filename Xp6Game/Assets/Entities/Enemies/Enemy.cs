@@ -1,30 +1,28 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
-public class Enemy : MonoBehaviour
+public class Enemy : Entity
 {
-    [SerializeField]
-    int maxHealth = 100;
-    [SerializeField]
-    int currentHealth = 100;
 
-    [SerializeField]
-    bool canBeDamaged = true;
-
-    void Start()
+    protected override void Start()
     {
-        currentHealth = maxHealth;
+        base.Start();
 
     }
 
     // Update is called once per frame
-    void Update()
+    protected override void Update()
     {
 
     }
 
     protected virtual void TakeDamage(int damage)
     {
+        PopupTextManager.instance.ShowPopupText(
+            damage.ToString(),
+            new Vector3(transform.position.x, transform.position.y + transform.localScale.y + 1, transform.position.z),
+            Color.red);
+            
         if (!canBeDamaged)
             return;
 
