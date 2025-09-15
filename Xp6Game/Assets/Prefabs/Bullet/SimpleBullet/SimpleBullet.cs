@@ -7,12 +7,21 @@ public class SimpleBullet : Bullet
     {
         Direction = transform.forward;
         base.Start();
-        
-    } 
+
+    }
 
     // Update is called once per frame
     void Update()
     {
-        
+
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.TryGetComponent<Enemy>(out var enemy))
+        {
+            enemy.SendMessage("TakeDamage", 10);
+            Destroy(gameObject);
+        }
     }
 }
