@@ -12,8 +12,8 @@ public class PopupText : MonoBehaviour
     public float MoveLifeTime = 0.3f;
     public float MoveUpDistance = 1f;
 
-    public float RandomRangeX = 0.5f;
-    public float RandomRangeY = 0.5f;
+    public float RandomRangeX = 1f;
+    public float RandomRangeY = 0.75f;
 
 
     [Space]
@@ -58,8 +58,7 @@ public class PopupText : MonoBehaviour
     }
 
     void TweenMoveY()
-    {
-        //Do Move
+    { 
         transform.DOMoveY(transform.position.y + MoveUpDistance + RandomRangeY, MoveLifeTime).SetEase(Ease.InBack);
     }
     void TweenScale()
