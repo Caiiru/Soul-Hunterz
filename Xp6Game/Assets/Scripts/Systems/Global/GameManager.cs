@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -29,8 +31,26 @@ public class GameManager : MonoBehaviour
     [Header("Start Game Settings")]
     public GameObject PlayerPrefab;
     public GameObject StartAltarPrefab;
-
     public Transform[] altarSpawnPositions;
+
+    [Space]
+    [Header("Enemies Settings")]
+    public Transform[] enemySpawnPositions;
+    public GameObject enemyPrefab;
+    public int maxEnemies = 5;
+    public float enemySpawnInterval = 5f;
+    private float enemySpawnTimer = 0f;
+    private int currentEnemyCount = 0;
+    public List<GameObject> activeEnemies = new List<GameObject>();
+
+    [Space]
+    [Header("Win Settings")]
+    public GameObject winAltarPrefab;
+    public Transform[] winAltarSpawnPositions;
+
+    public int enemiesToDefeatToWin = 10;
+    private int enemiesDefeated = 0;
+
     void Start()
     {
         ChangeGameState(GameState.StartingGame);
@@ -81,6 +101,11 @@ public class GameManager : MonoBehaviour
             case GameState.GameOver:
                 // Handle Game Over logic
                 break;
+            case GameState.Win:
+                // Handle Win logic
+
+                break;
+
             default:
                 break;
         }
@@ -96,9 +121,62 @@ public class GameManager : MonoBehaviour
         GameObject altar = Instantiate(StartAltarPrefab, altarSpawnPosition.position, Quaternion.identity);
 
         GameObject player = Instantiate(PlayerPrefab, altarSpawnPosition.position + new Vector3(0, 1.5f, 0), Quaternion.identity);
-        
+
         ChangeGameState(GameState.Playing);
     }
+
+    private void FixedUpdate()
+    {
+        HandleSpawning();
+    }
+    private void HandleSpawning()
+    {
+        if (IsGameState(GameState.Playing))
+        {
+            enemySpawnTimer += Time.fixedDeltaTime;
+            if (enemySpawnTimer >= enemySpawnInterval && currentEnemyCount < maxEnemies)
+            {
+                SpawnEnemy();
+                enemySpawnTimer = 0f;
+            }
+        }
+    }
+    private void SpawnEnemy()
+    {
+        if (enemySpawnPositions.Length == 0 || enemyPrefab == null)
+            return;
+
+        System.Random random = new System.Random();
+        int spawnIndex = random.Next(enemySpawnPositions.Length);
+        Transform spawnPosition = enemySpawnPositions[spawnIndex];
+
+        GameObject newEnemy = Instantiate(enemyPrefab, spawnPosition.position, Quaternion.identity);
+        activeEnemies.Add(newEnemy);
+        currentEnemyCount++;
+    }
+
+
+    public void EnemyDefeated(Enemy enemy)
+    {
+        if (activeEnemies.Contains(enemy.gameObject))
+        {
+            activeEnemies.Remove(enemy.gameObject);
+            currentEnemyCount--;
+            enemiesDefeated++;
+        }
+
+        if (currentEnemyCount < 0)
+            currentEnemyCount = 0;
+
+
+        // Check for win condition
+        
+        if (enemiesDefeated >= enemiesToDefeatToWin)
+        {
+            ChangeGameState(GameState.Win);
+        }
+    }
+
 }
 
 public enum GameState
@@ -108,5 +186,6 @@ public enum GameState
     StartingGame,
     Playing,
     Paused,
+    Win,
     GameOver
 }
