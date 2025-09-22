@@ -103,6 +103,7 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.Win:
                 // Handle Win logic
+                SpawnWinAltar();
 
                 break;
 
@@ -123,6 +124,14 @@ public class GameManager : MonoBehaviour
         GameObject player = Instantiate(PlayerPrefab, altarSpawnPosition.position + new Vector3(0, 1.5f, 0), Quaternion.identity);
 
         ChangeGameState(GameState.Playing);
+    }
+
+    void SpawnWinAltar()
+    {
+        System.Random random = new System.Random();
+        int spawnIndex = random.Next(winAltarSpawnPositions.Length);
+        Transform altarSpawnPosition = winAltarSpawnPositions[spawnIndex];
+        GameObject altar = Instantiate(winAltarPrefab, altarSpawnPosition.position, Quaternion.identity);
     }
 
     private void FixedUpdate()
@@ -170,9 +179,10 @@ public class GameManager : MonoBehaviour
 
 
         // Check for win condition
-        
+        if (!IsGameState(GameState.Playing)) return;
         if (enemiesDefeated >= enemiesToDefeatToWin)
         {
+            Debug.Log("All required enemies defeated! You win!");
             ChangeGameState(GameState.Win);
         }
     }
