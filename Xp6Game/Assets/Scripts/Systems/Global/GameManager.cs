@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour
     [Space]
     [Header("Start Game Settings")]
     public GameObject PlayerPrefab;
+    public Camera playerCamera; // Reference to the player's camera
     public GameObject StartAltarPrefab;
     public Transform[] altarSpawnPositions;
 
@@ -54,6 +55,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         // ChangeGameState(GameState.StartingGame);
+        HandleGameState();
     }
 
     // Update is called once per frame
@@ -122,7 +124,7 @@ public class GameManager : MonoBehaviour
         GameObject altar = Instantiate(StartAltarPrefab, altarSpawnPosition.position, Quaternion.identity);
 
         GameObject player = Instantiate(PlayerPrefab, altarSpawnPosition.position + new Vector3(0, 1.5f, 0), Quaternion.identity);
-
+        playerCamera = player.GetComponentInChildren<Camera>();
         ChangeGameState(GameState.Playing);
     }
 
