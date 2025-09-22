@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
         }
     }
     #endregion
-    public GameState CurrentGameState { get; private set; }
+    public GameState CurrentGameState;
 
     #region Events
     public delegate void GameStateChangeHandler(GameState newState);
@@ -53,7 +53,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        ChangeGameState(GameState.StartingGame);
+        // ChangeGameState(GameState.StartingGame);
     }
 
     // Update is called once per frame

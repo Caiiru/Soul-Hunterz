@@ -12,22 +12,36 @@ public class GameInitiator : MonoBehaviour
 
 
     public async void Start()
-    { 
-        await Initialize(); 
-    }
-
-    // Update is called once per frame
-    void Update()
     {
-
+        await InitializeMainMenu();
     }
- 
-    private async UniTask Initialize()
+
+    private async UniTask InitializeMainMenu()
+    {
+        await SceneManager.LoadSceneAsync(mainMenuScene.name, LoadSceneMode.Additive);
+    }
+    public async UniTask InitializeGame()
     {
         await SceneManager.LoadSceneAsync(gameScene.name, LoadSceneMode.Additive);
+
+        GameManager.Instance.ChangeGameState(GameState.MainMenu);
 
         Debug.Log("Game Scene Loaded");
     }
 
-
+    #region Singleton
+    public static GameInitiator Instance;
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            Instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+    }
+    #endregion
 }
