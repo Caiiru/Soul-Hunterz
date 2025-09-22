@@ -4,7 +4,7 @@ using FMODUnity;
 public class AnimationSoundEvents : MonoBehaviour
 {
     [System.Serializable]
-    public struct AnimationEventSound
+    public struct AnimationEventSound 
     {
         public string eventName;                 // só pra identificar no inspector
         public EventReference soundEvent;        // referência do evento FMOD
