@@ -7,7 +7,9 @@ public class PlayerInventory : MonoBehaviour
 
     [SerializeField] Canvas inventoryCanvas;
 
-    private CharacterInput _characterInput;
+    // private CharacterInput _characterInput;
+
+    KeyCode inventoryKey = KeyCode.E;
 
     public IModifier[] modifiers = new IModifier[10];
 
@@ -22,7 +24,7 @@ public class PlayerInventory : MonoBehaviour
     {
 
         // inventoryCanvas = GetComponent<Canvas>();
-        _characterInput = GetComponent<CharacterInput>();
+        // _characterInput = GetComponent<CharacterInput>();
         isInventoryOpen = true;
         ToggleInventory();
 
@@ -36,7 +38,7 @@ public class PlayerInventory : MonoBehaviour
 
     void CheckInput()
     {
-        if (_characterInput.IsInventoryKeyPressed())
+        if (Input.GetKeyDown(inventoryKey))
         {
             ToggleInventory();
         }
@@ -44,10 +46,7 @@ public class PlayerInventory : MonoBehaviour
 
     void ToggleInventory()
     {
-        isInventoryOpen = !isInventoryOpen;
-        // Update UI accordingly
-
-        inventoryCanvas.enabled = isInventoryOpen;
+        isInventoryOpen = !isInventoryOpen; 
         OnPlayerInventoryToggle?.Invoke(isInventoryOpen);
     }
 }

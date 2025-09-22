@@ -4,19 +4,10 @@ using UnityEngine.EventSystems;
 
 public class ModifierUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
 {
-    [SerializeField] bool canDrag = false;
-    [SerializeField] bool isDragging = false;
-
-    private bool _isMouseOver = false;
-
-    private Camera _playerCamera;
+    [SerializeField] bool canDrag = false; 
+ 
     void Start()
     {
-        _playerCamera = GameManager.Instance.playerCamera;
-        if (_playerCamera == null)
-            Debug.LogError("Player Camera not found in GameManager.");
-
-
         PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
     }
 
