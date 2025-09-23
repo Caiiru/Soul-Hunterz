@@ -3,28 +3,12 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ComponentSlot : MonoBehaviour, IDropHandler, IBeginDragHandler
+public class ComponentSlot : MonoBehaviour 
 {
     private RectTransform _transform;
 
     public IComponent currentComponent;
-    public ComponentUI currentComponentUI;
-    public void OnDrop(PointerEventData eventData)
-    {
-        return;
-        if (eventData.pointerDrag != null)
-        {
-            Debug.Log("Component Drop: " + this.transform.name);
-            Vector2 targetPosition = transform.position;
-            // Vector2 targetPosition = new Vector2(_transform.anchoredPosition.x - _transform.sizeDelta.x/2, _transform.anchoredPosition.y - _transform.sizeDelta.y/2);
-            var component = eventData.pointerDrag.transform.gameObject;
-            component.transform.SetParent(this.transform);
-            // component.transform.GetComponent<RectTransform>().transform.position = targetPosition;
-            // component.transform.position = Vector3.zero;
-            component.GetComponent<RectTransform>().anchoredPosition = Vector3.zero;
-
-        }
-    }
+    public ComponentUI currentComponentUI; 
 
     public void OverrideComponent(ComponentUI component)
     {
@@ -41,12 +25,7 @@ public class ComponentSlot : MonoBehaviour, IDropHandler, IBeginDragHandler
     void Start()
     {
         _transform = GetComponent<RectTransform>();
-    }
-
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-
-    }
+    } 
 
     public void ClearSlot()
     {
@@ -58,8 +37,7 @@ public class ComponentSlot : MonoBehaviour, IDropHandler, IBeginDragHandler
     {
         return currentComponent == null & currentComponentUI == null;
     }
-
-    // Update is called once per frame
+ 
 
 
 

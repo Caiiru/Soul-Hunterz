@@ -11,7 +11,7 @@ public interface IComponent
 }
 
 [System.Serializable]
-public struct ModifierData
+public struct ComponentData
 {
     public string ModifierName;
     public string Description;

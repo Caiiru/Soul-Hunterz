@@ -2,6 +2,7 @@ using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
 {
@@ -45,7 +46,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         normalScale = transform.localScale;
 
         dragScale = normalScale * 0.8f;
-        
+
         transform.DOScale(dragScale, 0.1f);
 
         // this.transform.SetParent(canvasParent);
@@ -54,7 +55,6 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     {
         if (!canDrag) return;
 
-        transform.DOScale(normalScale, 0.1f);
 
         Collider2D hitCollider = Physics2D.OverlapPoint(transform.position);
         if (hitCollider != null && hitCollider.TryGetComponent(out ComponentSlot componentSlot))
@@ -83,6 +83,11 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     public void SetSlot(ComponentSlot slot)
     {
         currentSlot = slot;
+    }
+
+    public void SetComponentVisual(ComponentSO visualData)
+    {
+        this.GetComponent<Image>().sprite = visualData.Icon;
     }
 
 }

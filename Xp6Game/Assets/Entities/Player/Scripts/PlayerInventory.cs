@@ -9,10 +9,25 @@ public class PlayerInventory : MonoBehaviour
     [SerializeField] Canvas inventoryCanvas;
 
     // private CharacterInput _characterInput;
+    [Header("Inventory KeyCodes")]
+    public KeyCode inventoryKey = KeyCode.E;
 
-    KeyCode inventoryKey = KeyCode.E;
+    public KeyCode debugComponent = KeyCode.O;
+    public KeyCode debugWeapon = KeyCode.P;
 
-    public AbstractWeapon[] weapons = new AbstractWeapon[3];
+
+    [Header("Weapons and Components")]
+    [SerializeField] private int weaponCount = 3;
+    public GameObject[] weapons;
+
+    [SerializeField] private int componentCount = 10;
+    public GameObject[] components;
+
+    [Space]
+    [Header("Debug Prefabs")]
+    public GameObject simpleComponentPrefab;
+    public GameObject simpleWeaponPrefab;
+
 
     #region Events
 
@@ -28,6 +43,9 @@ public class PlayerInventory : MonoBehaviour
         // isInventoryOpen = true;
         // ToggleInventory();
 
+        weapons = new GameObject[weaponCount];
+        components = new GameObject[componentCount];
+
     }
 
     // Update is called once per frame
@@ -42,6 +60,7 @@ public class PlayerInventory : MonoBehaviour
         {
             ToggleInventory();
         }
+        DebugWeapon();
     }
 
     void ToggleInventory()
@@ -50,27 +69,51 @@ public class PlayerInventory : MonoBehaviour
         OnPlayerInventoryToggle?.Invoke(isInventoryOpen);
     }
 
-    public void ChangeWeapon(AbstractWeapon weapon, int slot)
+    public void AddWeapon(AbstractWeapon weapon)
     {
-        if (slot > weapons.Length)
-        {
+        if (!hasWeaponSlot())
             return;
-        }
 
-        weapons[slot] = weapon;
-        OnPlayerGetWeapon?.Invoke(weapon,slot);
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            if (weapons[i] == null)
+            {
+                OnPlayerGetWeapon?.Invoke(weapon, i);
+                return;
+            }
+        }
+    }
+    public void AddComponent(GameObject component)
+    {
+
     }
 
+    public void DebugComponent()
+    {
+        if (Input.GetKeyDown(debugWeapon))
+        {
+            GameObject comp = Instantiate(simpleComponentPrefab);
+            AddComponent(comp);
+        }
+    }
     public void DebugWeapon()
     {
-        if (Input.GetKeyDown(KeyCode.O))
+        if (Input.GetKeyDown(debugWeapon))
         {
-            SimpleWeapon weapon = new SimpleWeapon();
-            weapon.Components = new IComponent[5];
-            ChangeWeapon(weapon, 0);
-
-
+            GameObject weapon = Instantiate(simpleWeaponPrefab,this.transform.parent);
+            AddWeapon(weapon.GetComponent<AbstractWeapon>());
         }
+    }
+
+    private bool hasWeaponSlot()
+    {
+        foreach (var weapon in weapons)
+        {
+            if (weapon != null)
+                return false;
+        }
+
+        return true;
     }
 
 }

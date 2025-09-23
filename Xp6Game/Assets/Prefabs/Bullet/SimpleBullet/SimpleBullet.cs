@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class SimpleBullet : Bullet
 {
-
+    
     protected override void Start()
     {
         Direction = transform.forward;

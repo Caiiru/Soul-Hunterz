@@ -55,7 +55,7 @@ public class InventoryVisual : MonoBehaviour
     {
         GameObject visual = Instantiate(weaponVisualPrefab, weaponsPanel);
 
-
+        visual.GetComponent<UIWeaponVisual>().UpdateVisual(weapon, componentUIPrefab); 
     }
 
     void Update()
