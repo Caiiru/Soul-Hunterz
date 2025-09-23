@@ -4,7 +4,7 @@ using UnityEngine;
 public abstract class AbstractWeapon : MonoBehaviour
 {
     public WeaponSO WeaponData;
-    public IModifier[] Modifiers;
+    public IComponent[] Components;
 
     public List<ModifierData> ModifierDatas = new List<ModifierData>();
     [Space]
@@ -42,7 +42,7 @@ public abstract class AbstractWeapon : MonoBehaviour
             Rarity = WeaponData.Rarity;
             RarityColor = WeaponData.RarityColor;
 
-            Modifiers = new IModifier[WeaponData.ModifierCount];
+            Components = new IComponent[WeaponData.ModifierCount];
             meshPrefab = WeaponData.meshPrefab;
             if (meshPrefab != null)
             {

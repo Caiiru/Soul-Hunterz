@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using CMF;
 using UnityEngine;
 
@@ -11,22 +12,21 @@ public class PlayerInventory : MonoBehaviour
 
     KeyCode inventoryKey = KeyCode.E;
 
-    public IModifier[] modifiers = new IModifier[10];
+    public AbstractWeapon[] weapons = new AbstractWeapon[3];
 
     #region Events
 
     public delegate void PlayerInventoryHandler(bool isOpen);
     public static event PlayerInventoryHandler OnPlayerInventoryToggle;
 
+    public delegate void PlayerGetWeapon(AbstractWeapon weapon, int slot);
+    public static event PlayerGetWeapon OnPlayerGetWeapon;
 
     #endregion
     void Start()
     {
-
-        // inventoryCanvas = GetComponent<Canvas>();
-        // _characterInput = GetComponent<CharacterInput>();
-        isInventoryOpen = true;
-        ToggleInventory();
+        // isInventoryOpen = true;
+        // ToggleInventory();
 
     }
 
@@ -46,7 +46,31 @@ public class PlayerInventory : MonoBehaviour
 
     void ToggleInventory()
     {
-        isInventoryOpen = !isInventoryOpen; 
+        isInventoryOpen = !isInventoryOpen;
         OnPlayerInventoryToggle?.Invoke(isInventoryOpen);
     }
+
+    public void ChangeWeapon(AbstractWeapon weapon, int slot)
+    {
+        if (slot > weapons.Length)
+        {
+            return;
+        }
+
+        weapons[slot] = weapon;
+        OnPlayerGetWeapon?.Invoke(weapon,slot);
+    }
+
+    public void DebugWeapon()
+    {
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            SimpleWeapon weapon = new SimpleWeapon();
+            weapon.Components = new IComponent[5];
+            ChangeWeapon(weapon, 0);
+
+
+        }
+    }
+
 }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public interface IModifier
+public interface IComponent
 {
     public string ModifierName { get; }
     public string Description { get; }
