@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "WeaponSO", menuName = "Weapons/New WeaponSO", order = 1)]
 public class WeaponSO : ScriptableObject
 {
+    [Header("Base Params")]
     public string WeaponName;
     public string Description;
     public Sprite Icon;
@@ -10,12 +12,14 @@ public class WeaponSO : ScriptableObject
     public Color RarityColor;
     public GameObject meshPrefab;
 
+    [Header("Attack Params")]
     public float AttackRange;
     public float AttackRate;
     public float AttackDamage;
 
+    [Header("Components Params")]
     public int ModifierCount;
-    // Visual
+    public List<ComponentSO> components; 
 
 
 }

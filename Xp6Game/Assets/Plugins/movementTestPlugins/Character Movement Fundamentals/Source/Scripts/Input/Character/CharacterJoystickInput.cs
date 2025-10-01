@@ -51,7 +51,12 @@ namespace CMF
 			return _verticalInput;
 		}
 
-		public override bool IsJumpKeyPressed()
+        public override bool IsInventoryKeyPressed()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override bool IsJumpKeyPressed()
 		{
 			return Input.GetKey(jumpKey);
 		}
