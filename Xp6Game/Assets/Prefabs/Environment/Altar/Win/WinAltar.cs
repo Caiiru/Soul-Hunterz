@@ -2,7 +2,7 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
-public class WinAltar : MonoBehaviour
+public class WinAltar : MonoBehaviour, Interactable
 {
     [SerializeField]
     TextMeshProUGUI interactText;
@@ -29,23 +29,49 @@ public class WinAltar : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-         if (other.gameObject.CompareTag("Player"))
+        if (!other.gameObject.CompareTag("Player"))
         {
-            interactText.enabled = true;
-            interactText.transform.DOMoveY(interactText.transform.position.y + interactDistance, interactTimeTween).SetEase(Ease.InOutSine);
-            Debug.Log("Player reached the Win Altar!");
-            // GameManager.Instance.ChangeGameState(GameState.MainMenu);
+            return;
         }
+        ActivatePopup();
+
+        // GameManager.Instance.ChangeGameState(GameState.MainMenu);
+
     }
-    
+
     void OnTriggerExit(Collider collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            interactText.transform.DOMoveY(interactText.transform.position.y - interactDistance, interactTimeTween).SetEase(Ease.InOutSine).OnComplete(() =>
-            {
-                interactText.enabled = false;
-            });
+            DesactivatePopup();
         }
+    }
+
+    void ActivatePopup()
+    {
+
+        interactText.enabled = true;
+        interactText.alpha = 1f;
+        interactText.transform.DOMoveY(interactText.transform.position.y + interactDistance, interactTimeTween).SetEase(Ease.InOutSine);
+        if (!CanInteract())
+        {
+            interactText.alpha = 0.5f;
+        }
+    }
+    void DesactivatePopup()
+    {
+        interactText.transform.DOMoveY(interactText.transform.position.y - interactDistance, interactTimeTween).SetEase(Ease.InOutSine).OnComplete(() =>
+             {
+                 interactText.enabled = false;
+             });
+    }
+    public bool CanInteract()
+    {
+        return true;
+    }
+
+    public void Interact()
+    {
+        Debug.Log("Interact with WinAltar");
     }
 }
