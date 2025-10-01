@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerInteract : MonoBehaviour
 {
+    public int interactRadius = 4;
     StarterAssetsInputs _playerInput;
 
     void Start()
@@ -20,10 +21,37 @@ public class PlayerInteract : MonoBehaviour
     {
         if (_playerInput.interact)
         {
-            Debug.Log("Interact");
+            CastInteract();
         }
 
     }
 
-    
+    void CastInteract()
+    {
+        var hit = Physics.OverlapSphere(transform.position, 4);
+
+        if (hit == null)
+            return;
+
+        foreach (var obj in hit)
+        {
+            if (obj.TryGetComponent<Interactable>(out Interactable comp))
+            {
+                if (!comp.CanInteract())
+                    continue;
+
+                comp.Interact();
+                return;
+            }
+        }
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        //Sphere Gizmos to Interact Radius
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, interactRadius);       
+    }
+
+
 }
