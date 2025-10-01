@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -12,6 +13,10 @@ namespace StarterAssets
 		public Vector2 look;
 		public bool jump;
 		public bool sprint;
+
+		public bool interact;
+
+		public bool inventory;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -28,7 +33,7 @@ namespace StarterAssets
 
 		public void OnLook(InputValue value)
 		{
-			if(cursorInputForLook)
+			if (cursorInputForLook)
 			{
 				LookInput(value.Get<Vector2>());
 			}
@@ -43,13 +48,32 @@ namespace StarterAssets
 		{
 			SprintInput(value.isPressed);
 		}
+
+		public void OnInteract(InputValue value)
+		{
+			InteractInput(value.isPressed);
+		}
+		public void OnInventory(InputValue value)
+		{
+			InventoryInput(value.isPressed);
+		}
+
+
 #endif
 
+		public void InventoryInput(bool newInventoryState)
+		{
+			inventory = newInventoryState;
+		}
+		public void InteractInput(bool newInteractState)
+		{
+			interact = newInteractState;
 
+		}
 		public void MoveInput(Vector2 newMoveDirection)
 		{
 			move = newMoveDirection;
-		} 
+		}
 
 		public void LookInput(Vector2 newLookDirection)
 		{
@@ -76,5 +100,5 @@ namespace StarterAssets
 			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
 		}
 	}
-	
+
 }
