@@ -6,7 +6,7 @@ public class PlayerInventory : MonoBehaviour
 {
     [SerializeField] bool isInventoryOpen = false;
 
-    [SerializeField] Canvas inventoryCanvas;
+    [SerializeField] Transform inventoryTransform;
 
     // private CharacterInput _characterInput;
     [Header("Inventory KeyCodes")]
@@ -73,7 +73,7 @@ public class PlayerInventory : MonoBehaviour
     {
         if (!hasWeaponSlot())
             return;
-
+        Debug.Log($"weapon list count: {weapon.ComponentList.Count}");
         for (int i = 0; i < weapons.Length; i++)
         {
             if (weapons[i] == null)
@@ -100,7 +100,8 @@ public class PlayerInventory : MonoBehaviour
     {
         if (Input.GetKeyDown(debugWeapon))
         {
-            GameObject weapon = Instantiate(simpleWeaponPrefab,this.transform.parent);
+            GameObject weapon = Instantiate(simpleWeaponPrefab, this.transform.parent);
+            weapon.GetComponent<AbstractWeapon>().InitializeWeapon();
             AddWeapon(weapon.GetComponent<AbstractWeapon>());
         }
     }
@@ -114,6 +115,11 @@ public class PlayerInventory : MonoBehaviour
         }
 
         return true;
+    }
+
+    public Transform GetInventoryTransform()
+    {
+        return inventoryTransform;
     }
 
 }

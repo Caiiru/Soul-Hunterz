@@ -51,7 +51,13 @@ public class GameManager : MonoBehaviour
     public Transform[] winAltarSpawnPositions;
 
     public int enemiesToDefeatToWin = 10;
+    [SerializeField]
     private int enemiesDefeated = 0;
+
+
+    [Space]
+    [Header("Player References")]
+    public GameObject currentPlayer;
 
     void Start()
     {
@@ -124,10 +130,18 @@ public class GameManager : MonoBehaviour
         Transform altarSpawnPosition = altarSpawnPositions[spawnIndex];
         GameObject altar = Instantiate(StartAltarPrefab, altarSpawnPosition.position, Quaternion.identity);
 
-        GameObject player = Instantiate(PlayerPrefab, altarSpawnPosition.position + new Vector3(0, 1.5f, 0), Quaternion.identity);
-        // playerCamera = player.GetComponentInChildren<Camera>();
-        cinemachineCamera.Target.TrackingTarget = player.transform;
+        SpawnPlayer(altarSpawnPosition.position);
+
+        
         ChangeGameState(GameState.Playing);
+    }
+
+    void SpawnPlayer(Vector3 spawnPosition)
+    {
+        GameObject player = Instantiate(PlayerPrefab, spawnPosition + new Vector3(0, 1.5f, 0), Quaternion.identity); 
+        currentPlayer = player;
+        cinemachineCamera.Target.TrackingTarget = currentPlayer.transform;
+
     }
 
     void SpawnWinAltar()
@@ -189,6 +203,11 @@ public class GameManager : MonoBehaviour
             Debug.Log("All required enemies defeated! You win!");
             ChangeGameState(GameState.Win);
         }
+    }
+
+    public GameObject GetPlayer()
+    {
+        return currentPlayer;
     }
 
 }
