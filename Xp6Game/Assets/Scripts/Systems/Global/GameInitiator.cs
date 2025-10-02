@@ -7,8 +7,8 @@ using UnityEngine.SceneManagement;
 public class GameInitiator : MonoBehaviour
 {
     [SerializeField] private SceneAsset mainMenuScene;
-
     [SerializeField] private SceneAsset gameScene;
+    [SerializeField] private SceneAsset endScene;
 
 
     public async void Start()
@@ -23,10 +23,10 @@ public class GameInitiator : MonoBehaviour
     public async UniTask InitializeGame()
     {
         await SceneManager.LoadSceneAsync(gameScene.name, LoadSceneMode.Additive);
+        // GameManager.Instance.
 
-        GameManager.Instance.ChangeGameState(GameState.MainMenu);
-
-        Debug.Log("Game Scene Loaded");
+        // GameManager.Instance.ChangeGameState(GameState.MainMenu);
+ 
     }
 
     #region Singleton

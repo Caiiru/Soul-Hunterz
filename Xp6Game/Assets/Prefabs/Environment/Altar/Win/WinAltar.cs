@@ -76,6 +76,6 @@ public class WinAltar : MonoBehaviour, Interactable
 
     public void Interact()
     {
-        Debug.Log("Interact with WinAltar");
+        GameManager.Instance.WinGame();
     }
 }

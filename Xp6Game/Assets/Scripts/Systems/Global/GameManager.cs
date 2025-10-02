@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -27,18 +30,42 @@ public class GameManager : MonoBehaviour
     public static event GameStateChangeHandler OnGameStateChange;
 
     #endregion
+    [Space]
+    [Header("Bind Objects")]
+
+    public GameObject EventSystemPrefab;
+    public GameObject GlobalVolumePrefab;
 
     [Space]
-    [Header("Start Game Settings")]
+    public GameObject PopupManagerPrefab;
+    [Space]
     public GameObject PlayerPrefab;
-    public CinemachineCamera cinemachineCamera; // Reference to the player's camera
-    public GameObject StartAltarPrefab;
-    public Transform[] altarSpawnPositions;
+    public GameObject CameraPrefab;
+    public GameObject StartZonePrefab;
+    public GameObject EndZonePrefab;
+    public GameObject EnemyPrefab;
+    public GameObject EnvironmentPrefab;
+
+
+
+    [Space]
+    [Header("Binded Objects")]
+    [SerializeField] private GameObject _playerGO;
+    private GameObject _popupManagerGO;
+    private GameObject _cameraGO;
+    private CinemachineCamera _cinemachineCamera;
+    private GameObject _environment;
+    private GameObject _startZone;
+    private GameObject _endZone;
+
+    [Space]
+    [Header("Start Settings")]
+
+    public List<GameObject> altarSpawnPositions;
 
     [Space]
     [Header("Enemies Settings")]
-    public Transform[] enemySpawnPositions;
-    public GameObject enemyPrefab;
+    public GameObject[] enemySpawnPositions;
     public int maxEnemies = 5;
     public float enemySpawnInterval = 5f;
     private float enemySpawnTimer = 0f;
@@ -47,27 +74,69 @@ public class GameManager : MonoBehaviour
 
     [Space]
     [Header("Win Settings")]
-    public GameObject winAltarPrefab;
     public Transform[] winAltarSpawnPositions;
-
     public int enemiesToDefeatToWin = 10;
-    [SerializeField]
-    private int enemiesDefeated = 0;
+    [SerializeField] private int enemiesDefeated = 0;
 
 
-    [Space]
-    [Header("Player References")]
-    public GameObject currentPlayer;
-
-    void Start()
+    #region Begin Game
+    private async void Start()
     {
-        // ChangeGameState(GameState.StartingGame);
-        HandleGameState();
+        BindObjects();
+        await SpawnObjects();
+        PrepareGame();
+
+        await BeginGame();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void BindObjects()
     {
+        _cameraGO = Instantiate(CameraPrefab);
+        _cinemachineCamera = _cameraGO.GetComponentInChildren<CinemachineCamera>();
+
+        Instantiate(GlobalVolumePrefab);
+        Instantiate(EventSystemPrefab);
+
+        _popupManagerGO = Instantiate(PopupManagerPrefab);
+    }
+    private async UniTask SpawnObjects()
+    {
+        _environment = Instantiate(EnvironmentPrefab);
+        altarSpawnPositions = GameObject.FindGameObjectsWithTag("AltarSpawnPos").ToList();
+
+        SpawnStartAltar();
+        SpawnWinAltar();
+        SpawnPlayer();
+        //Spawn enemies pool 
+        await UniTask.CompletedTask;
+    }
+    private void PrepareGame()
+    {
+        ActivateStartAltar();
+        ChangePlayerPosition(_startZone.transform.position + Vector3.up);
+
+    }
+    async UniTask BeginGame()
+    {
+        ChangeGameState(GameState.Playing);
+        await UniTask.CompletedTask;
+    }
+
+    #endregion
+    private void FixedUpdate()
+    {
+        // HandleSpawning();
+    }
+    void SpawnPlayer()
+    {
+        GameObject player = Instantiate(PlayerPrefab);
+        _playerGO = player;
+        _cinemachineCamera.Target.TrackingTarget = _playerGO.transform;
+
+    }
+    void ChangePlayerPosition(Vector3 newPosition)
+    {
+        _playerGO.transform.position = newPosition;
 
     }
 
@@ -98,8 +167,6 @@ public class GameManager : MonoBehaviour
                 // Handle Loading logic
                 break;
             case GameState.StartingGame:
-                // Handle Starting Game logic
-                StartGame();
                 break;
             case GameState.Playing:
                 // Handle Playing logic
@@ -111,8 +178,8 @@ public class GameManager : MonoBehaviour
                 // Handle Game Over logic
                 break;
             case GameState.Win:
-                // Handle Win logic
-                SpawnWinAltar();
+                // Handle Win 
+                ActivateWinAltar();
 
                 break;
 
@@ -121,41 +188,41 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void StartGame()
-    {
-        System.Random random = new System.Random();
-        int spawnIndex = random.Next(altarSpawnPositions.Length);
-        Debug.Log("Selected Altar Spawn Index: " + spawnIndex);
-
-        Transform altarSpawnPosition = altarSpawnPositions[spawnIndex];
-        GameObject altar = Instantiate(StartAltarPrefab, altarSpawnPosition.position, Quaternion.identity);
-
-        SpawnPlayer(altarSpawnPosition.position);
-
-        
-        ChangeGameState(GameState.Playing);
-    }
-
-    void SpawnPlayer(Vector3 spawnPosition)
-    {
-        GameObject player = Instantiate(PlayerPrefab, spawnPosition + new Vector3(0, 1.5f, 0), Quaternion.identity); 
-        currentPlayer = player;
-        cinemachineCamera.Target.TrackingTarget = currentPlayer.transform;
-
-    }
+    #region Altar Handling
 
     void SpawnWinAltar()
     {
-        System.Random random = new System.Random();
-        int spawnIndex = random.Next(winAltarSpawnPositions.Length);
-        Transform altarSpawnPosition = winAltarSpawnPositions[spawnIndex];
-        GameObject altar = Instantiate(winAltarPrefab, altarSpawnPosition.position, Quaternion.identity);
+        _endZone = Instantiate(EndZonePrefab, Vector3.zero, Quaternion.identity);
+        _endZone.SetActive(false); 
+    }
+    void ActivateWinAltar()
+    {
+        _endZone.SetActive(true);
+        _endZone.transform.position = GetRandomAltarSpawn().transform.position;
     }
 
-    private void FixedUpdate()
+    void SpawnStartAltar()
     {
-        HandleSpawning();
+        _startZone = Instantiate(StartZonePrefab);
+        _startZone.SetActive(false);
     }
+    void ActivateStartAltar()
+    {
+        _startZone.transform.position = GetRandomAltarSpawn().transform.position;
+        _startZone.SetActive(true);
+    }
+
+    GameObject GetRandomAltarSpawn()
+    {
+        System.Random random = new System.Random();
+        int spawnIndex = random.Next(altarSpawnPositions.Count);
+        GameObject altarSpawnPosition = altarSpawnPositions[spawnIndex];
+        altarSpawnPositions.RemoveAt(spawnIndex);
+
+        return altarSpawnPosition;
+    }
+    #endregion
+
     private void HandleSpawning()
     {
         if (IsGameState(GameState.Playing))
@@ -170,14 +237,14 @@ public class GameManager : MonoBehaviour
     }
     private void SpawnEnemy()
     {
-        if (enemySpawnPositions.Length == 0 || enemyPrefab == null)
+        if (enemySpawnPositions.Length == 0 || EnemyPrefab == null)
             return;
 
         System.Random random = new System.Random();
         int spawnIndex = random.Next(enemySpawnPositions.Length);
-        Transform spawnPosition = enemySpawnPositions[spawnIndex];
+        Transform spawnPosition = enemySpawnPositions[spawnIndex].transform;
 
-        GameObject newEnemy = Instantiate(enemyPrefab, spawnPosition.position, Quaternion.identity);
+        GameObject newEnemy = Instantiate(EnemyPrefab, spawnPosition.position, Quaternion.identity);
         activeEnemies.Add(newEnemy);
         currentEnemyCount++;
     }
@@ -204,10 +271,18 @@ public class GameManager : MonoBehaviour
             ChangeGameState(GameState.Win);
         }
     }
+    public void WinGame()
+    {
+        ChangeGameState(GameState.Win);
+    }
+    public void LoseGame()
+    {
+        ChangeGameState(GameState.GameOver);
+    }
 
     public GameObject GetPlayer()
     {
-        return currentPlayer;
+        return _playerGO;
     }
 
 }
