@@ -24,6 +24,9 @@ public abstract class AbstractWeapon : MonoBehaviour
     public GameObject meshPrefab;
 
     public virtual void Start()
+    { 
+    }
+    void OnEnable()
     {
         InitializeWeapon();
     }

@@ -9,8 +9,9 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     [SerializeField] bool canDrag = false;
 
     Vector3 startDragPosition;
-
+    [SerializeField]
     Transform inventoryCanvas;
+    [SerializeField]
     Transform oldParent;
 
     ComponentSlot currentSlot;
@@ -23,8 +24,12 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
         inventoryCanvas = transform.parent.parent.parent;
 
+        inventoryCanvas = GetPlayerInventory();
+
         // canvasParent = transform.parent.parent;
     }
+
+
 
     private void HandleInventoryToggle(bool isOpen)
     {
@@ -43,7 +48,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         startDragPosition = this.transform.position;
         oldParent = transform.parent;
         transform.SetParent(inventoryCanvas);
-        normalScale = transform.localScale;
+        normalScale = transform.lossyScale;
 
         dragScale = normalScale * 0.8f;
 
@@ -67,7 +72,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
             }
         }
 
-
+        transform.DOScale(normalScale, 0.1f);
         this.transform.DOMove(startDragPosition, 0.2f).OnComplete(() => transform.SetParent(oldParent));
 
     }
@@ -88,6 +93,11 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     public void SetComponentVisual(ComponentSO visualData)
     {
         this.GetComponent<Image>().sprite = visualData.Icon;
+    }
+    private Transform GetPlayerInventory()
+    {
+        GameObject player = GameManager.Instance.GetPlayer();
+        return player.GetComponentInChildren<PlayerInventory>().GetInventoryTransform();
     }
 
 }

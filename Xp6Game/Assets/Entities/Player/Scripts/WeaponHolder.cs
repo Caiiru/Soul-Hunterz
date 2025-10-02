@@ -30,7 +30,6 @@ public class WeaponHolder : MonoBehaviour
 
     bool CanFire()
     {
-
         return Input.GetButton("Fire1") && currentWeapon != null && _canFire;
     }
 
@@ -47,5 +46,11 @@ public class WeaponHolder : MonoBehaviour
     void OnDisable()
     {
         PlayerInventory.OnPlayerInventoryToggle -= HandleInventoryToggle;   
+    }
+
+    internal void HoldWeapon(GameObject weapon)
+    {
+        currentWeaponGO = weapon;
+        currentWeapon = weapon.GetComponent<AbstractWeapon>();
     }
 }

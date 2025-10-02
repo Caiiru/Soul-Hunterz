@@ -6,7 +6,6 @@ public class SimpleEnemy : Enemy
     
     override protected void TakeDamage(int damage)
     {
-        base.TakeDamage(damage);
-        Debug.Log("SimpleEnemy took " + damage + " damage.");
+        base.TakeDamage(damage); 
     }   
 }

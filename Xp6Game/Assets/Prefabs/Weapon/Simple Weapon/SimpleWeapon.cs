@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class SimpleWeapon : AbstractWeapon
 { 
+    [Header("Bullet Settings")]
     private float nextFire = 0.0f;
     public GameObject bulletPrefab;
     public override void Attack(Transform attackPoint, Vector3 direction)

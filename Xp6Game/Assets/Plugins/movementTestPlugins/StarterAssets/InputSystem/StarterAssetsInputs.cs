@@ -15,7 +15,6 @@ namespace StarterAssets
 		public bool sprint;
 
 		public bool interact;
-
 		public bool inventory;
 
 		[Header("Movement Settings")]
@@ -29,6 +28,13 @@ namespace StarterAssets
 		[Header("Actions")]
 		[SerializeField] private InputActionReference interactActionReference;
 		[SerializeField] private InputActionReference inventoryActionReference;
+
+		#region Events
+		public delegate void ChangeWeaponHandler(int slot);
+		public static event ChangeWeaponHandler OnChangeWeapon;
+
+		#endregion
+
 
 
 #if ENABLE_INPUT_SYSTEM
@@ -64,6 +70,20 @@ namespace StarterAssets
 			InventoryInput(value.isPressed);
 		}
 
+		public void OnFirstWeapon(InputValue value)
+		{
+			ChangeWeapon(0);
+		}
+		public void OnSecondWeapon(InputValue value)
+		{
+
+			ChangeWeapon(1);
+		}
+		public void OnThirdWeapon(InputValue value)
+		{
+
+		}
+
 
 #endif
 
@@ -95,6 +115,11 @@ namespace StarterAssets
 		{
 			sprint = newSprintState;
 		}
+		public void ChangeWeapon(int slot)
+		{
+			OnChangeWeapon?.Invoke(slot);
+		}
+
 
 		private void OnApplicationFocus(bool hasFocus)
 		{

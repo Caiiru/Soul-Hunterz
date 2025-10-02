@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using CMF;
+using StarterAssets;
 using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
 {
     [SerializeField] bool isInventoryOpen = false;
 
-    [SerializeField] Canvas inventoryCanvas;
+    [SerializeField] Transform inventoryTransform;
 
     // private CharacterInput _characterInput;
     [Header("Inventory KeyCodes")]
@@ -17,6 +18,7 @@ public class PlayerInventory : MonoBehaviour
 
 
     [Header("Weapons and Components")]
+    private WeaponHolder _weaponHolder;
     [SerializeField] private int weaponCount = 3;
     public GameObject[] weapons;
 
@@ -43,15 +45,32 @@ public class PlayerInventory : MonoBehaviour
         // isInventoryOpen = true;
         // ToggleInventory();
 
-        weapons = new GameObject[weaponCount];
-        components = new GameObject[componentCount];
-
+        Initialize();
     }
 
     // Update is called once per frame
     void Update()
     {
         CheckInput();
+    }
+    private void Initialize()
+    {
+        _weaponHolder = GetComponent<WeaponHolder>();
+        if (!_weaponHolder) Debug.LogWarning("Weapon Holder not find");
+        weapons = new GameObject[weaponCount];
+        components = new GameObject[componentCount];
+        HandleEvents();
+
+
+
+        GameObject weapon = Instantiate(simpleWeaponPrefab, this.transform);
+        weapon.GetComponent<AbstractWeapon>().InitializeWeapon();
+        AddWeapon(weapon.GetComponent<AbstractWeapon>());
+        _weaponHolder.HoldWeapon(weapon);
+    }
+    private void HandleEvents()
+    {
+        StarterAssetsInputs.OnChangeWeapon += ChangeWeapon;
     }
 
     void CheckInput()
@@ -83,6 +102,13 @@ public class PlayerInventory : MonoBehaviour
             }
         }
     }
+
+    public void ChangeWeapon(int slot)
+    {
+        Debug.Log($"Change Weapon on Inventory to Slot {slot}");
+
+
+    }
     public void AddComponent(GameObject component)
     {
 
@@ -100,8 +126,10 @@ public class PlayerInventory : MonoBehaviour
     {
         if (Input.GetKeyDown(debugWeapon))
         {
-            GameObject weapon = Instantiate(simpleWeaponPrefab,this.transform.parent);
+            GameObject weapon = Instantiate(simpleWeaponPrefab, this.transform);
+            weapon.GetComponent<AbstractWeapon>().InitializeWeapon();
             AddWeapon(weapon.GetComponent<AbstractWeapon>());
+            _weaponHolder.HoldWeapon(weapon);
         }
     }
 
@@ -114,6 +142,17 @@ public class PlayerInventory : MonoBehaviour
         }
 
         return true;
+    }
+
+    public Transform GetInventoryTransform()
+    {
+        return inventoryTransform;
+    }
+
+
+    void OnDisable()
+    {
+        StarterAssetsInputs.OnChangeWeapon -= ChangeWeapon;
     }
 
 }
