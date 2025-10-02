@@ -34,9 +34,9 @@ public class Enemy : Entity
 
     protected virtual void Die()
     {
-        Destroy(gameObject); 
-
         // Notify Game Manager
-        GameManager.Instance.EnemyDefeated(this);
+        GameManager.Instance.EnemyDefeated();
+
+        gameObject.SetActive(false);
     }
 }

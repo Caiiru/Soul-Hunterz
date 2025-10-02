@@ -37,7 +37,9 @@ public class GameManager : MonoBehaviour
     public GameObject GlobalVolumePrefab;
 
     [Space]
+    public GameObject EnemyManagerPrefab;
     public GameObject PopupManagerPrefab;
+
     [Space]
     public GameObject PlayerPrefab;
     public GameObject CameraPrefab;
@@ -57,20 +59,15 @@ public class GameManager : MonoBehaviour
     private GameObject _environment;
     private GameObject _startZone;
     private GameObject _endZone;
+    [SerializeField] private EnemyManager _enemyManager;
+
+    public EnemyManager GetEnemyManager => _enemyManager;
 
     [Space]
     [Header("Start Settings")]
 
     public List<GameObject> altarSpawnPositions;
 
-    [Space]
-    [Header("Enemies Settings")]
-    public GameObject[] enemySpawnPositions;
-    public int maxEnemies = 5;
-    public float enemySpawnInterval = 5f;
-    private float enemySpawnTimer = 0f;
-    private int currentEnemyCount = 0;
-    public List<GameObject> activeEnemies = new List<GameObject>();
 
     [Space]
     [Header("Win Settings")]
@@ -98,12 +95,16 @@ public class GameManager : MonoBehaviour
         Instantiate(EventSystemPrefab);
 
         _popupManagerGO = Instantiate(PopupManagerPrefab);
+        var enemyManagerGO = Instantiate(EnemyManagerPrefab);
+
+        _enemyManager = enemyManagerGO.GetComponent<EnemyManager>();
+
     }
     private async UniTask SpawnObjects()
     {
         _environment = Instantiate(EnvironmentPrefab);
+        await _enemyManager.Initialize();
         altarSpawnPositions = GameObject.FindGameObjectsWithTag("AltarSpawnPos").ToList();
-
         SpawnStartAltar();
         SpawnWinAltar();
         SpawnPlayer();
@@ -119,6 +120,7 @@ public class GameManager : MonoBehaviour
     async UniTask BeginGame()
     {
         ChangeGameState(GameState.Playing);
+        _enemyManager.StartSpawning();
         await UniTask.CompletedTask;
     }
 
@@ -179,7 +181,6 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.Win:
                 // Handle Win 
-                ActivateWinAltar();
 
                 break;
 
@@ -193,7 +194,7 @@ public class GameManager : MonoBehaviour
     void SpawnWinAltar()
     {
         _endZone = Instantiate(EndZonePrefab, Vector3.zero, Quaternion.identity);
-        _endZone.SetActive(false); 
+        _endZone.SetActive(false);
     }
     void ActivateWinAltar()
     {
@@ -221,54 +222,15 @@ public class GameManager : MonoBehaviour
 
         return altarSpawnPosition;
     }
-    #endregion
+    #endregion 
 
-    private void HandleSpawning()
+    public void EnemyDefeated()
     {
-        if (IsGameState(GameState.Playing))
-        {
-            enemySpawnTimer += Time.fixedDeltaTime;
-            if (enemySpawnTimer >= enemySpawnInterval && currentEnemyCount < maxEnemies)
-            {
-                SpawnEnemy();
-                enemySpawnTimer = 0f;
-            }
-        }
-    }
-    private void SpawnEnemy()
-    {
-        if (enemySpawnPositions.Length == 0 || EnemyPrefab == null)
-            return;
-
-        System.Random random = new System.Random();
-        int spawnIndex = random.Next(enemySpawnPositions.Length);
-        Transform spawnPosition = enemySpawnPositions[spawnIndex].transform;
-
-        GameObject newEnemy = Instantiate(EnemyPrefab, spawnPosition.position, Quaternion.identity);
-        activeEnemies.Add(newEnemy);
-        currentEnemyCount++;
-    }
-
-
-    public void EnemyDefeated(Enemy enemy)
-    {
-        if (activeEnemies.Contains(enemy.gameObject))
-        {
-            activeEnemies.Remove(enemy.gameObject);
-            currentEnemyCount--;
-            enemiesDefeated++;
-        }
-
-        if (currentEnemyCount < 0)
-            currentEnemyCount = 0;
-
-
         // Check for win condition
         if (!IsGameState(GameState.Playing)) return;
         if (enemiesDefeated >= enemiesToDefeatToWin)
         {
-            Debug.Log("All required enemies defeated! You win!");
-            ChangeGameState(GameState.Win);
+            ActivateWinAltar();
         }
     }
     public void WinGame()
