@@ -1,6 +1,8 @@
 using DG.Tweening;
+using StarterAssets;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class WinAltar : MonoBehaviour, Interactable
 {
@@ -53,6 +55,8 @@ public class WinAltar : MonoBehaviour, Interactable
         interactText.enabled = true;
         interactText.alpha = 1f;
         interactText.transform.DOMoveY(interactText.transform.position.y + interactDistance, interactTimeTween).SetEase(Ease.InOutSine);
+
+        interactText.text = $"Press {StarterAssetsInputs.Instance.GetInteractAction().action.GetBindingDisplayString(0)} to interact";
         if (!CanInteract())
         {
             interactText.alpha = 0.5f;

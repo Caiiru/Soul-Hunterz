@@ -25,6 +25,12 @@ namespace StarterAssets
 		public bool cursorLocked = true;
 		public bool cursorInputForLook = true;
 
+
+		[Header("Actions")]
+		[SerializeField] private InputActionReference interactActionReference;
+		[SerializeField] private InputActionReference inventoryActionReference;
+
+
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value)
 		{
@@ -99,6 +105,26 @@ namespace StarterAssets
 		{
 			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
 		}
+
+		public InputActionReference GetInteractAction()
+		{
+			return interactActionReference;
+		}
+
+
+		#region Singleton
+
+		public static StarterAssetsInputs Instance;
+		void Awake()
+		{
+			Instance = this;
+
+		}
+		#endregion
+
+
+
+
 	}
 
 }
