@@ -43,7 +43,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         startDragPosition = this.transform.position;
         oldParent = transform.parent;
         transform.SetParent(inventoryCanvas);
-        normalScale = transform.localScale;
+        normalScale = transform.lossyScale;
 
         dragScale = normalScale * 0.8f;
 
@@ -67,7 +67,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
             }
         }
 
-
+        transform.DOScale(normalScale, 0.1f);
         this.transform.DOMove(startDragPosition, 0.2f).OnComplete(() => transform.SetParent(oldParent));
 
     }
