@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class EndMenuManager : MonoBehaviour
 {
@@ -12,6 +13,12 @@ public class EndMenuManager : MonoBehaviour
     void Update()
     {
 
+    }
+
+    public void BackToMainMenu()
+    {
+// ;        GameManager.Instance.ChangeGameState(GameState.MainMenu);
+        SceneManager.LoadScene("Game", LoadSceneMode.Single);
     }
 
     public void QuitGame()

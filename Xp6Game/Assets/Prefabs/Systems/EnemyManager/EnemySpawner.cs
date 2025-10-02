@@ -56,6 +56,9 @@ public class EnemySpawner : MonoBehaviour
     private void SpawnEnemy()
     {
         GameObject enemy = _enemyManager.GetEnemy();
+
+        if (enemy == null) return;
+        
         int randomIndex = _random.Next(enemySpawnPosition.Length);
         enemy.transform.position = enemySpawnPosition[randomIndex].transform.position;
         enemy.SetActive(true); 

@@ -60,6 +60,13 @@ public class PlayerInventory : MonoBehaviour
         weapons = new GameObject[weaponCount];
         components = new GameObject[componentCount];
         HandleEvents();
+
+
+
+        GameObject weapon = Instantiate(simpleWeaponPrefab, this.transform);
+        weapon.GetComponent<AbstractWeapon>().InitializeWeapon();
+        AddWeapon(weapon.GetComponent<AbstractWeapon>());
+        _weaponHolder.HoldWeapon(weapon);
     }
     private void HandleEvents()
     {
@@ -85,7 +92,7 @@ public class PlayerInventory : MonoBehaviour
     {
         if (!hasWeaponSlot())
             return;
-       
+
         for (int i = 0; i < weapons.Length; i++)
         {
             if (weapons[i] == null)

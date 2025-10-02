@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -19,7 +20,7 @@ public class GameManager : MonoBehaviour
         else
         {
             Instance = this;
-            DontDestroyOnLoad(this.gameObject);
+            // DontDestroyOnLoad(this.gameObject);
         }
     }
     #endregion
@@ -180,8 +181,8 @@ public class GameManager : MonoBehaviour
                 // Handle Game Over logic
                 break;
             case GameState.Win:
-                // Handle Win 
-
+                // Handle Win  
+                SceneManager.LoadScene("EndMenuScene", LoadSceneMode.Single);
                 break;
 
             default:
@@ -226,8 +227,10 @@ public class GameManager : MonoBehaviour
 
     public void EnemyDefeated()
     {
+        Debug.Log("One more enemy defeated");
         // Check for win condition
         if (!IsGameState(GameState.Playing)) return;
+        enemiesDefeated++;
         if (enemiesDefeated >= enemiesToDefeatToWin)
         {
             ActivateWinAltar();
