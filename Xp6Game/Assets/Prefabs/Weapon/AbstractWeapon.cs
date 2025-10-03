@@ -3,10 +3,9 @@ using UnityEngine;
 
 public abstract class AbstractWeapon : MonoBehaviour
 {
-    public WeaponSO WeaponData;
-    public IModifier[] Modifiers;
+    public WeaponSO WeaponData; 
 
-    public List<ModifierData> ModifierDatas = new List<ModifierData>();
+    public List<ComponentSO> ComponentList = new List<ComponentSO>();
     [Space]
     [Header("Stats")]
 
@@ -25,6 +24,9 @@ public abstract class AbstractWeapon : MonoBehaviour
     public GameObject meshPrefab;
 
     public virtual void Start()
+    { 
+    }
+    void OnEnable()
     {
         InitializeWeapon();
     }
@@ -42,12 +44,12 @@ public abstract class AbstractWeapon : MonoBehaviour
             Rarity = WeaponData.Rarity;
             RarityColor = WeaponData.RarityColor;
 
-            Modifiers = new IModifier[WeaponData.ModifierCount];
+            ComponentList = WeaponData.components;
             meshPrefab = WeaponData.meshPrefab;
             if (meshPrefab != null)
             {
                 GameObject mesh = Instantiate(WeaponData.meshPrefab, transform);
-                Debug.Log("Spawn Absrtact Weapon mesh");
+                Debug.Log("Spawn Weapon mesh");
             }
         }
     }

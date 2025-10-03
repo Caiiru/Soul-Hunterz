@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -13,12 +14,28 @@ namespace StarterAssets
 		public bool jump;
 		public bool sprint;
 
+		public bool interact;
+		public bool inventory;
+
 		[Header("Movement Settings")]
 		public bool analogMovement;
 
 		[Header("Mouse Cursor Settings")]
 		public bool cursorLocked = true;
 		public bool cursorInputForLook = true;
+
+
+		[Header("Actions")]
+		[SerializeField] private InputActionReference interactActionReference;
+		[SerializeField] private InputActionReference inventoryActionReference;
+
+		#region Events
+		public delegate void ChangeWeaponHandler(int slot);
+		public static event ChangeWeaponHandler OnChangeWeapon;
+
+		#endregion
+
+
 
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value)
@@ -28,7 +45,7 @@ namespace StarterAssets
 
 		public void OnLook(InputValue value)
 		{
-			if(cursorInputForLook)
+			if (cursorInputForLook)
 			{
 				LookInput(value.Get<Vector2>());
 			}
@@ -43,13 +60,46 @@ namespace StarterAssets
 		{
 			SprintInput(value.isPressed);
 		}
+
+		public void OnInteract(InputValue value)
+		{
+			InteractInput(value.isPressed);
+		}
+		public void OnInventory(InputValue value)
+		{
+			InventoryInput(value.isPressed);
+		}
+
+		public void OnFirstWeapon(InputValue value)
+		{
+			ChangeWeapon(0);
+		}
+		public void OnSecondWeapon(InputValue value)
+		{
+
+			ChangeWeapon(1);
+		}
+		public void OnThirdWeapon(InputValue value)
+		{
+
+		}
+
+
 #endif
 
+		public void InventoryInput(bool newInventoryState)
+		{
+			inventory = newInventoryState;
+		}
+		public void InteractInput(bool newInteractState)
+		{
+			interact = newInteractState;
 
+		}
 		public void MoveInput(Vector2 newMoveDirection)
 		{
 			move = newMoveDirection;
-		} 
+		}
 
 		public void LookInput(Vector2 newLookDirection)
 		{
@@ -65,6 +115,11 @@ namespace StarterAssets
 		{
 			sprint = newSprintState;
 		}
+		public void ChangeWeapon(int slot)
+		{
+			OnChangeWeapon?.Invoke(slot);
+		}
+
 
 		private void OnApplicationFocus(bool hasFocus)
 		{
@@ -75,6 +130,26 @@ namespace StarterAssets
 		{
 			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
 		}
+
+		public InputActionReference GetInteractAction()
+		{
+			return interactActionReference;
+		}
+
+
+		#region Singleton
+
+		public static StarterAssetsInputs Instance;
+		void Awake()
+		{
+			Instance = this;
+
+		}
+		#endregion
+
+
+
+
 	}
-	
+
 }

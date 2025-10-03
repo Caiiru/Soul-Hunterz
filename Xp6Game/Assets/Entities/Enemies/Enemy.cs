@@ -9,6 +9,11 @@ public class Enemy : Entity
         base.Start();
 
     }
+    void OnEnable()
+    {
+        currentHealth = maxHealth;
+        canBeDamaged = true;
+    }
 
     // Update is called once per frame
     protected override void Update()
@@ -34,9 +39,9 @@ public class Enemy : Entity
 
     protected virtual void Die()
     {
-        Destroy(gameObject); 
-
         // Notify Game Manager
-        GameManager.Instance.EnemyDefeated(this);
+        canBeDamaged = false;
+        GameManager.Instance.EnemyDefeated();
+        gameObject.SetActive(false);
     }
 }

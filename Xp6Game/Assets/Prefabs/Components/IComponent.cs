@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public interface IModifier
+public interface IComponent
 {
     public string ModifierName { get; }
     public string Description { get; }
@@ -11,7 +11,7 @@ public interface IModifier
 }
 
 [System.Serializable]
-public struct ModifierData
+public struct ComponentData
 {
     public string ModifierName;
     public string Description;

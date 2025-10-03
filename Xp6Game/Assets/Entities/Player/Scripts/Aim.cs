@@ -9,7 +9,8 @@ public class Aim : MonoBehaviour
     private Transform playerMesh;
     void Start()
     {
-        playerCamera = transform.GetComponentInChildren<Camera>();
+        // playerCamera = transform.GetComponentInChildren<Camera>();
+        playerCamera = Camera.main;
         // _mousePositionAction = InputSystem.actions.FindAction("Look");
         if (playerMesh == null)
             playerMesh = transform.GetChild(0);
