@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class SimpleBullet : Bullet
 {
-    
+    [Header("VFX")]
+    public GameObject hitVFX;
     protected override void Start()
     {
         Direction = transform.forward;
@@ -21,8 +22,13 @@ public class SimpleBullet : Bullet
         if (collision.gameObject.TryGetComponent<Enemy>(out var enemy))
         {
             enemy.SendMessage("TakeDamage", Damage);
-            
-            Destroy(gameObject);
+
         }
+        if (hitVFX)
+        {
+            Instantiate(hitVFX, transform.position, transform.rotation);
+        }
+
+        Destroy(gameObject);
     }
 }

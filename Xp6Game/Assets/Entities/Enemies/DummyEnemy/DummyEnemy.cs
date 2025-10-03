@@ -1,0 +1,85 @@
+using System;
+using Cysharp.Threading.Tasks;
+using UnityEngine;
+
+public class DummyEnemy : Enemy
+{
+
+    private Animator _animator;
+
+    public float attackCooldown = 5;
+    private float _attackTimer;
+    private bool _canAttack = false;
+
+    [SerializeField] private Transform _firePoint;
+    [Space]
+    [Header("Bullet & VFX")]
+
+    public GameObject bulletPrefab;
+    public GameObject fireVFXPrefab;
+    protected override void Start()
+    {
+        base.Start();
+        VFXDebugManager.OnInputPressed += OnInputPressed;
+        _animator = GetComponentInChildren<Animator>();
+        _attackTimer = 0;
+    }
+    protected override void Update()
+    {
+        base.Update();
+        HandleTimer();
+    }
+
+    private async UniTask HandleTimer()
+    {
+        if (!_canAttack) return;
+        _attackTimer += Time.deltaTime;
+        if (_attackTimer >= attackCooldown)
+        {
+            // _attackTimer = 0;
+            await Aim();
+        }
+    }
+
+
+    private void OnInputPressed(int key)
+    {
+        if (key == 0)
+            StartShooting();
+        if (key == 1)
+            StopShooting();
+    }
+
+    private void StartShooting()
+    {
+        _canAttack = true;
+        Aim();
+    }
+
+
+    private void StopShooting()
+    {
+        _canAttack = false;
+    }
+
+
+    async UniTask Aim()
+    { 
+        await UniTask.Delay(1000);
+        _animator.SetTrigger("aim"); 
+        
+        await UniTask.CompletedTask;
+        // Attack();
+    }
+    private void Attack()
+    {
+        Debug.Log("Attacking"); 
+        _attackTimer = 0;
+        GameObject bullet = Instantiate(bulletPrefab, _firePoint.transform.position, Quaternion.identity);
+        // bullet.transform.position = _firePoint.transform.position;
+        if (!fireVFXPrefab) return;
+        GameObject fireVFX = Instantiate(fireVFXPrefab);
+        fireVFX.transform.position = _firePoint.transform.position;
+    }
+
+}

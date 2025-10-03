@@ -31,8 +31,6 @@ public class EnemyManager : MonoBehaviour
         {
             _enemySpawner = gameObject.AddComponent<EnemySpawner>();
         }
-
-
     }
 
     async UniTask SpawnEnemyPool()
