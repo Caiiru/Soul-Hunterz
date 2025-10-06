@@ -13,6 +13,7 @@ public class WeaponSO : ScriptableObject
     public GameObject meshPrefab;
 
     [Header("Attack Params")]
+    public GameObject bullet;
     public float AttackRange;
     public float AttackRate;
     public float AttackDamage;

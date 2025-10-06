@@ -4,10 +4,10 @@ public class SimpleBullet : Bullet
 {
     [Header("VFX")]
     public GameObject hitVFX;
-    protected override void Start()
+
+    
+    void Start()
     {
-        Direction = transform.forward;
-        base.Start();
 
     }
 
@@ -19,6 +19,8 @@ public class SimpleBullet : Bullet
 
     void OnCollisionEnter(Collision collision)
     {
+        if (!wasInstancied) return;
+        Debug.Log($"Bullet colission with {collision.transform.name}");
         if (collision.gameObject.TryGetComponent<Enemy>(out var enemy))
         {
             enemy.SendMessage("TakeDamage", Damage);
@@ -30,5 +32,10 @@ public class SimpleBullet : Bullet
         }
 
         Destroy(gameObject);
+    }
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position, transform.position+ Direction);
     }
 }

@@ -11,7 +11,9 @@ public abstract class Bullet : MonoBehaviour
     public float LifeTime = 1f;
 
     public int Damage = 10;
-    protected virtual void Start()
+
+    protected bool wasInstancied = false;
+    protected virtual void OnEnable()
     {
         _rigidbody = GetComponent<Rigidbody>();
         _collider = GetComponent<Collider>();
@@ -19,13 +21,18 @@ public abstract class Bullet : MonoBehaviour
         {
             Debug.LogError("No rigidbody attached to the bullet");
         }
-        _rigidbody.linearVelocity = Direction.normalized * Speed;
-        Destroy(gameObject, LifeTime);
     }
 
     // Update is called once per frame
     void Update()
     {
 
-    } 
+    }
+
+    public virtual void Initialize()
+    {
+        wasInstancied = true;
+        _rigidbody.linearVelocity = Direction.normalized * Speed;
+        Destroy(gameObject, LifeTime);
+    }
 }

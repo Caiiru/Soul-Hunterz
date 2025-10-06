@@ -1,21 +1,34 @@
 using UnityEngine;
 
 public class SimpleWeapon : AbstractWeapon
-{ 
+{
     [Header("Bullet Settings")]
     private float nextFire = 0.0f;
-    public GameObject bulletPrefab;
-    public override void Attack(Transform attackPoint, Vector3 direction)
+    public override void Attack()
     {
-        if(Time.time >= nextFire)
+        if (Time.time >= nextFire)
         {
-            Shoot(attackPoint, direction);
+            Shoot();
             nextFire = Time.time + AttackRate;
         }
     }
 
-    public void Shoot(Transform attackPoint, Vector3 direction)
+    public void Shoot()
     {
-        Instantiate(bulletPrefab, attackPoint.position, attackPoint.rotation);
+        Debug.Log("Attacking with simple weapon");
+        GameObject _bulletGO = Instantiate(bulletPrefab, _firePoint.position, Quaternion.identity);
+
+        // foreach (var component in ComponentList)
+        // {
+        //     if (component == null)
+        //         continue;
+        //     component.Execute(_bulletGO);
+        // }
+
+        var bullet = _bulletGO.GetComponent<Bullet>();
+        bullet.Direction = transform.forward;
+        bullet.Initialize();
+        
+        
     }
 }
