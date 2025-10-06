@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using CMF;
 using StarterAssets;
@@ -60,6 +61,7 @@ public class PlayerInventory : MonoBehaviour
         weapons = new GameObject[weaponCount];
         components = new GameObject[componentCount];
         HandleEvents();
+        StartCoroutine(AddDebugWeapon());
 
 
 
@@ -68,6 +70,8 @@ public class PlayerInventory : MonoBehaviour
     {
         StarterAssetsInputs.OnChangeWeapon += ChangeWeapon;
     }
+
+
 
     void CheckInput()
     {
@@ -126,8 +130,9 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-    public void AddDebugWeapon()
+    public IEnumerator AddDebugWeapon()
     {
+        yield return new WaitForSeconds(1);
         GameObject weapon = Instantiate(simpleWeaponPrefab, this.transform);
         weapon.GetComponent<AbstractWeapon>().InitializeWeapon();
         AddWeapon(weapon.GetComponent<AbstractWeapon>());
