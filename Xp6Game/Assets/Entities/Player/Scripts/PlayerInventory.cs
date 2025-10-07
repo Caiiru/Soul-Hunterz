@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using CMF;
 using StarterAssets;
@@ -60,18 +61,17 @@ public class PlayerInventory : MonoBehaviour
         weapons = new GameObject[weaponCount];
         components = new GameObject[componentCount];
         HandleEvents();
+        StartCoroutine(AddDebugWeapon());
 
 
 
-        GameObject weapon = Instantiate(simpleWeaponPrefab, this.transform);
-        weapon.GetComponent<AbstractWeapon>().InitializeWeapon();
-        AddWeapon(weapon.GetComponent<AbstractWeapon>());
-        _weaponHolder.HoldWeapon(weapon);
     }
     private void HandleEvents()
     {
         StarterAssetsInputs.OnChangeWeapon += ChangeWeapon;
     }
+
+
 
     void CheckInput()
     {
@@ -79,7 +79,7 @@ public class PlayerInventory : MonoBehaviour
         {
             ToggleInventory();
         }
-        DebugWeapon();
+        InputDebugWeapon();
     }
 
     void ToggleInventory()
@@ -122,17 +122,23 @@ public class PlayerInventory : MonoBehaviour
             AddComponent(comp);
         }
     }
-    public void DebugWeapon()
+    public void InputDebugWeapon()
     {
         if (Input.GetKeyDown(debugWeapon))
         {
-            GameObject weapon = Instantiate(simpleWeaponPrefab, this.transform);
-            weapon.GetComponent<AbstractWeapon>().InitializeWeapon();
-            AddWeapon(weapon.GetComponent<AbstractWeapon>());
-            _weaponHolder.HoldWeapon(weapon);
+            AddDebugWeapon();
         }
     }
 
+    public IEnumerator AddDebugWeapon()
+    {
+        yield return new WaitForSeconds(1);
+        GameObject weapon = Instantiate(simpleWeaponPrefab, this.transform);
+        weapon.GetComponent<AbstractWeapon>().InitializeWeapon();
+        AddWeapon(weapon.GetComponent<AbstractWeapon>());
+        _weaponHolder.HoldWeapon(weapon);
+        weapon.transform.position = _weaponHolder.firePoint.position;
+    }
     private bool hasWeaponSlot()
     {
         foreach (var weapon in weapons)

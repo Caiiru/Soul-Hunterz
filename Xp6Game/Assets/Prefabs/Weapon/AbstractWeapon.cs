@@ -3,8 +3,9 @@ using UnityEngine;
 
 public abstract class AbstractWeapon : MonoBehaviour
 {
-    public WeaponSO WeaponData; 
+    public WeaponSO WeaponData;
 
+    public GameObject bulletPrefab;
     public List<ComponentSO> ComponentList = new List<ComponentSO>();
     [Space]
     [Header("Stats")]
@@ -13,7 +14,7 @@ public abstract class AbstractWeapon : MonoBehaviour
     public float AttackRate;
     public float AttackDamage;
 
-
+    public Transform _firePoint;
     // Visual
 
     public Sprite Icon;
@@ -24,11 +25,11 @@ public abstract class AbstractWeapon : MonoBehaviour
     public GameObject meshPrefab;
 
     public virtual void Start()
-    { 
+    {
     }
     void OnEnable()
     {
-        InitializeWeapon();
+        // InitializeWeapon();
     }
     public virtual void InitializeWeapon()
     {
@@ -46,12 +47,17 @@ public abstract class AbstractWeapon : MonoBehaviour
 
             ComponentList = WeaponData.components;
             meshPrefab = WeaponData.meshPrefab;
-            if (meshPrefab != null)
+            if (meshPrefab == null)
             {
-                GameObject mesh = Instantiate(WeaponData.meshPrefab, transform);
-                Debug.Log("Spawn Weapon mesh");
+                Debug.LogError("Weaponn without mesh");
+                return; 
             }
+            GameObject mesh = Instantiate(WeaponData.meshPrefab, transform);
+            _firePoint = mesh.transform.GetChild(0).transform;
+
+            bulletPrefab = WeaponData.bullet;
+
         }
     }
-    public virtual void Attack(Transform attackPoint, Vector3 direction) { }
+    public virtual void Attack() { }
 }
