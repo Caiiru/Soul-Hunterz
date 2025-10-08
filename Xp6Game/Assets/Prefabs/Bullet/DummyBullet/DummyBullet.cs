@@ -1,14 +1,14 @@
 using UnityEngine;
 
-public class SimpleBullet : Bullet
+public class DummyBullet : Bullet
 {
+
     [Header("VFX")]
     public GameObject hitVFX;
-
-    
     void Start()
     {
-        
+        Direction = transform.forward;
+        Initialize();
     }
 
     // Update is called once per frame
@@ -16,7 +16,6 @@ public class SimpleBullet : Bullet
     {
 
     }
-
     void OnCollisionEnter(Collision collision)
     {
         if (!wasInstancied) return;
@@ -36,6 +35,6 @@ public class SimpleBullet : Bullet
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position+ Direction);
+        Gizmos.DrawLine(transform.position, transform.position + Direction);
     }
 }
