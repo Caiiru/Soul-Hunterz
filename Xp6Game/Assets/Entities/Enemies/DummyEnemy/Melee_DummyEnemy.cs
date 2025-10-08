@@ -64,12 +64,15 @@ public class Melee_DummyEnemy : Enemy
 
     IEnumerator SpawnSlash()
     {
+        if(slashes[currentSlash]==null){
+            yield break; 
+        }
         GameObject _slash = Instantiate(slashes[currentSlash].SlashPrefab, transform.position, SwordJoint.rotation);
         _slash.GetComponentInChildren<VisualEffect>().Stop();
         yield return new WaitForSeconds(slashes[currentSlash].delay);
         _slash.GetComponentInChildren<VisualEffect>().Play();
         Destroy(_slash, 2f);
-        
+
     }
 
 }
