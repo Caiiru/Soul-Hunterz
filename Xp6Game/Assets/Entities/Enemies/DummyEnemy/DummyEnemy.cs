@@ -73,13 +73,14 @@ public class DummyEnemy : Enemy
     }
     private void Attack()
     {
-        Debug.Log("Attacking"); 
+        Debug.Log("Attacking");
         _attackTimer = 0;
         GameObject bullet = Instantiate(bulletPrefab, _firePoint.transform.position, Quaternion.identity);
         // bullet.transform.position = _firePoint.transform.position;
         if (!fireVFXPrefab) return;
         GameObject fireVFX = Instantiate(fireVFXPrefab);
         fireVFX.transform.position = _firePoint.transform.position;
+        Destroy(fireVFX, 2f);
     }
 
 }

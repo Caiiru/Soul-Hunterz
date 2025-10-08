@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.VFX;
 
 public class Idle_DummyEnemy : Enemy
 {
@@ -20,6 +21,8 @@ public class Idle_DummyEnemy : Enemy
 
         GameObject takeDamageVFX = Instantiate(takeDamageVFXPrefab);
         takeDamageVFX.transform.position = transform.position;
+        // takeDamageVFX.GetComponentInChildren<VisualEffect>().
+        Destroy(takeDamageVFX, 7f);
 
     }
 
