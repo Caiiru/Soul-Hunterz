@@ -86,9 +86,9 @@ MonoBehaviour:
   - title: Slash
     position:
       serializedVersion: 2
-      x: 409
+      x: 394
       y: -323
-      width: 1147
+      width: 1162
       height: 1670
     contents:
     - model: {fileID: 114023846229194376}
@@ -215,9 +215,9 @@ MonoBehaviour:
   categories: []
   uiBounds:
     serializedVersion: 2
-    x: 409
+    x: 394
     y: -539
-    width: 4020
+    width: 4035
     height: 4699
 --- !u!114 &114350483966674976
 MonoBehaviour:
@@ -1344,7 +1344,8 @@ MonoBehaviour:
     - rid: 1001
       type: {class: ParticleShadingShaderGraph, ns: UnityEditor.VFX, asm: Unity.VisualEffectGraph.Editor}
       data:
-        shaderGraph: {fileID: 4333940904281232215, guid: 69500e473670d6a47b399e8ca71d76a2, type: 3}
+        shaderGraph: {fileID: 4333940904281232215, guid: 69500e473670d6a47b399e8ca71d76a2,
+          type: 3}
         materialSettings:
           m_PropertyNames: []
           m_PropertyValues: []
@@ -1884,7 +1885,7 @@ MonoBehaviour:
     linkedSlots:
     - outputSlot: {fileID: 8926484042661614645}
       inputSlot: {fileID: 8926484042661614629}
-    position: {x: 691, y: 634}
+    position: {x: 857, y: 598}
     expandedSlots: []
     expanded: 1
     supecollapsed: 0
@@ -2310,7 +2311,7 @@ MonoBehaviour:
   m_UIIgnoredErrors: []
   m_Parent: {fileID: 114350483966674976}
   m_Children: []
-  m_UIPosition: {x: 478, y: 1036}
+  m_UIPosition: {x: 442, y: 1045}
   m_UICollapsed: 0
   m_UISuperCollapsed: 0
   m_InputSlots: []
@@ -2394,7 +2395,7 @@ MonoBehaviour:
     linkedSlots:
     - outputSlot: {fileID: 8926484042661614683}
       inputSlot: {fileID: 8926484042661614697}
-    position: {x: 434, y: 1164}
+    position: {x: 419, y: 1131}
     expandedSlots: []
     expanded: 1
     supecollapsed: 0
@@ -3746,7 +3747,8 @@ MonoBehaviour:
     - rid: 1001
       type: {class: ParticleShadingShaderGraph, ns: UnityEditor.VFX, asm: Unity.VisualEffectGraph.Editor}
       data:
-        shaderGraph: {fileID: 4333940904281232215, guid: 5ec2dfc6d1f01e34f9ce387ef81b3120, type: 3}
+        shaderGraph: {fileID: 4333940904281232215, guid: 5ec2dfc6d1f01e34f9ce387ef81b3120,
+          type: 3}
         materialSettings:
           m_PropertyNames: []
           m_PropertyValues: []
@@ -5394,7 +5396,8 @@ MonoBehaviour:
     - rid: 1001
       type: {class: ParticleShadingShaderGraph, ns: UnityEditor.VFX, asm: Unity.VisualEffectGraph.Editor}
       data:
-        shaderGraph: {fileID: 4333940904281232215, guid: 821e820c5b6ee0843a80026936abbae1, type: 3}
+        shaderGraph: {fileID: 4333940904281232215, guid: 821e820c5b6ee0843a80026936abbae1,
+          type: 3}
         materialSettings:
           m_PropertyNames: []
           m_PropertyValues: []
@@ -9060,7 +9063,8 @@ MonoBehaviour:
     - rid: 1001
       type: {class: ParticleShadingShaderGraph, ns: UnityEditor.VFX, asm: Unity.VisualEffectGraph.Editor}
       data:
-        shaderGraph: {fileID: 4333940904281232215, guid: 69500e473670d6a47b399e8ca71d76a2, type: 3}
+        shaderGraph: {fileID: 4333940904281232215, guid: 69500e473670d6a47b399e8ca71d76a2,
+          type: 3}
         materialSettings:
           m_PropertyNames: []
           m_PropertyValues: []
