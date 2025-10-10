@@ -27,7 +27,7 @@ public class DummyBullet : Bullet
         }
         if (hitVFX)
         {
-            GameObject vfx = Instantiate(hitVFX, transform.position, transform.rotation);
+            GameObject vfx = Instantiate(hitVFX, collision.GetContact(0).point, transform.rotation);
             Destroy(vfx, 5f);
         }
 

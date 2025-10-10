@@ -50,14 +50,19 @@ public abstract class AbstractWeapon : MonoBehaviour
             if (meshPrefab == null)
             {
                 Debug.LogError("Weaponn without mesh");
-                return; 
+                return;
             }
             GameObject mesh = Instantiate(WeaponData.meshPrefab, transform);
             _firePoint = mesh.transform.GetChild(0).transform;
 
-            bulletPrefab = WeaponData.bullet;
+            bulletPrefab.GetComponent<Bullet>().SetBullet(WeaponData.bullet);
 
         }
+    }
+    
+    public BulletSO GetBullet()
+    {
+        return WeaponData.bullet;
     }
     public virtual void Attack() { }
 }

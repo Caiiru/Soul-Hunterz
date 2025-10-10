@@ -6,7 +6,8 @@ using UnityEngine.UI;
 
 public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
 {
-    [SerializeField] bool canDrag = false;
+    [SerializeField] bool canDrag = true;
+    [SerializeField] bool isInventoryOpen = false;
 
     Vector3 startDragPosition;
     [SerializeField]
@@ -25,6 +26,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         inventoryCanvas = transform.parent.parent.parent;
 
         inventoryCanvas = GetPlayerInventory();
+        // canDrag = true;
 
         // canvasParent = transform.parent.parent;
     }
@@ -33,7 +35,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     private void HandleInventoryToggle(bool isOpen)
     {
-        canDrag = isOpen;
+        isInventoryOpen = isOpen;
 
     }
     void OnDestroy()
@@ -44,7 +46,9 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (!canDrag) return;
+        if (!isDraggable()) return;
+
+
         startDragPosition = this.transform.position;
         oldParent = transform.parent;
         transform.SetParent(inventoryCanvas);
@@ -58,7 +62,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     }
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (!canDrag) return;
+        if (!isDraggable()) return;
 
 
         Collider2D hitCollider = Physics2D.OverlapPoint(transform.position);
@@ -79,7 +83,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!canDrag) return;
+        if (!isDraggable()) return;
         transform.position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1);
         // transform.SetParent(null);
 
@@ -94,10 +98,24 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     {
         this.GetComponent<Image>().sprite = visualData.Icon;
     }
+    public void SetComponentSprite(Sprite newIcon)
+    {
+        this.GetComponent<Image>().sprite = newIcon;
+    }
     private Transform GetPlayerInventory()
     {
         GameObject player = GameManager.Instance.GetPlayer();
         return player.GetComponentInChildren<PlayerInventory>().GetInventoryTransform();
     }
+
+    public bool isDraggable()
+    {
+        return canDrag && isInventoryOpen;
+    }
+
+    public void SetDraggable(bool draggable)
+    {
+        canDrag = draggable;
+    }   
 
 }

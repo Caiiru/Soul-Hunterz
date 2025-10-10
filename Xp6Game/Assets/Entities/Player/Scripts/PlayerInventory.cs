@@ -132,12 +132,15 @@ public class PlayerInventory : MonoBehaviour
 
     public IEnumerator AddDebugWeapon()
     {
+        if (!hasWeaponSlot())
+            yield break;
+
         yield return new WaitForSeconds(1);
         GameObject weapon = Instantiate(simpleWeaponPrefab, this.transform);
         weapon.GetComponent<AbstractWeapon>().InitializeWeapon();
         AddWeapon(weapon.GetComponent<AbstractWeapon>());
         _weaponHolder.HoldWeapon(weapon);
-        weapon.transform.position = _weaponHolder.firePoint.position;
+        // weapon.transform.position = _weaponHolder.firePoint.position;
     }
     private bool hasWeaponSlot()
     {
