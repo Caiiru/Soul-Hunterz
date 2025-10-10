@@ -97,6 +97,7 @@ public class PlayerInventory : MonoBehaviour
         {
             if (weapons[i] == null)
             {
+                weapons[i] = weapon.gameObject;
                 OnPlayerGetWeapon?.Invoke(weapon, i);
                 return;
             }
@@ -105,9 +106,23 @@ public class PlayerInventory : MonoBehaviour
 
     public void ChangeWeapon(int slot)
     {
-        Debug.Log($"Change Weapon on Inventory to Slot {slot}");
+        ClearWeapons();
+        if (weapons[slot] == null) return;
+        weapons[slot].SetActive(true);
+        _weaponHolder.HoldWeapon(weapons[slot]);
 
+    }
 
+    private void ClearWeapons()
+    {
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            if (weapons[i] == null) continue;
+            weapons[i].gameObject.SetActive(false);
+
+        }
+        _weaponHolder.currentWeapon = null;
+        _weaponHolder.currentWeaponGO = null;
     }
     public void AddComponent(GameObject component)
     {

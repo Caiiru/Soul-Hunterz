@@ -35,6 +35,7 @@ public abstract class Bullet : MonoBehaviour
     public virtual void Initialize()
     {
         wasInstancied = true;
+        _rigidbody.useGravity = false;
         // _rigidbody.linearVelocity = Direction.normalized * Speed;
         LoadData();
 
