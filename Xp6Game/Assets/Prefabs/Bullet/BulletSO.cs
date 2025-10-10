@@ -4,11 +4,15 @@ using UnityEngine;
 public class BulletSO : ScriptableObject
 {
     public string BulletName;
+
+    [Header("Base Params")]
     public float Speed = 20f;
     public float LifeTime = 2f;
+
+    [Header("Damage Params")]
     public int BaseDamage = 10;
     public int CritChance = 0;
-    public int CritMultiplier = 2;
+    public float CritMultiplier = 2;
 
     [PreviewSprite]
     public Sprite Icon;

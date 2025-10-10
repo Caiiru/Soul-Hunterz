@@ -1,5 +1,4 @@
-using System;
-using PlasticGui.Configuration.CloudEdition.Welcome;
+using System; 
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -50,7 +49,8 @@ public abstract class Bullet : MonoBehaviour
         Debug.Log($"Bullet colission with {target.name}");
         if (target.TryGetComponent<Enemy>(out var enemy))
         {
-            enemy.SendMessage("TakeDamage", Damage);
+            
+            enemy.SendMessage("TakeDamage", GetBulletDamage());
 
         }
         Destroy(gameObject);
@@ -80,5 +80,41 @@ public abstract class Bullet : MonoBehaviour
     {
         bulletData = bullet;
         LoadData();
+    }
+
+    internal int GetBulletDamage()
+    {
+        if (bulletData == null)
+        {
+            Debug.LogError("No bullet data assigned to bullet");
+            return Damage;
+        }
+        
+        // damage threshold 
+
+        Damage = bulletData.BaseDamage;
+
+        System.Random rand = new System.Random();
+
+        int roll = rand.Next(0, 100);
+        Debug.Log($"Bullet roll: {roll} / CritChance: {bulletData.CritChance} / CritMultiplier: {bulletData.CritMultiplier}");
+        if (roll < bulletData.CritChance)
+        {
+            Damage = Mathf.RoundToInt(Damage*bulletData.CritMultiplier);
+            Debug.Log("CRIT!");
+        }
+        else
+        {
+            float damageReduction = UnityEngine.Random.Range(0.0f, 0.25f); 
+            
+            float threshold = (bulletData.BaseDamage * damageReduction);  
+            Damage -= Mathf.RoundToInt(threshold);
+
+            Debug.Log($"Normal hit! Threshold damage: {threshold}" );
+            if (Damage < 1) Damage = 1;
+            
+        }
+        
+        return Damage;
     }
 }
