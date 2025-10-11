@@ -61,8 +61,8 @@ public class EnemySpawner : MonoBehaviour
         
         int randomIndex = _random.Next(enemySpawnPosition.Length);
         enemy.transform.position = enemySpawnPosition[randomIndex].transform.position;
-        enemy.SetActive(true); 
-
+        enemy.SetActive(true);
+        enemy.GetComponent<Enemy>().Initialize();
     } 
 
 
