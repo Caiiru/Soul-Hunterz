@@ -1,12 +1,16 @@
 using System;
 using Codice.Client.BaseCommands;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AI;
 
+[RequireComponent(typeof(Enemy))]
 public class StateMachine : MonoBehaviour
 {
     [Header("Data")]
     public EnemySO enemyData;
     private Enemy _enemyReference;
+    private NavMeshAgent _navMeshAgent;
     [Header("State Machine States")]
     private State initialState;
     public State currentState;
@@ -18,15 +22,17 @@ public class StateMachine : MonoBehaviour
     [Header("Target")]
     [SerializeField] private GameObject _target;
 
-    void OnEnable()
+    async void OnEnable()
     {
+        await InitializeStateMachine();
+    }
+    public UniTask InitializeStateMachine()
+    {
+        _navMeshAgent = GetComponent<NavMeshAgent>();
         _enemyReference = GetComponent<Enemy>();
+
         enemyData = _enemyReference.enemyData;
-
         enemyData.onDie += OnEnemyDie;
-
-
-        if (enemyData == null) return;
 
         initialState = enemyData.initialState;
         currentState = initialState;
@@ -35,10 +41,7 @@ public class StateMachine : MonoBehaviour
 
         remainState = Resources.Load<State>("FSM/RemainInState");
 
-    }
-    void Start()
-    {
-
+        return UniTask.CompletedTask;
     }
 
     // Update is called once per frame
@@ -51,13 +54,10 @@ public class StateMachine : MonoBehaviour
     {
         if (trueState == remainState)
             return;
- 
-        currentState = trueState;
-        ExitState();
-    }
-    private void ExitState()
-    {
 
+        currentState.ExitState(this);
+        currentState = trueState; 
+        currentState.BeginState(this);
     }
 
     private void OnEnemyDie()
@@ -71,9 +71,18 @@ public class StateMachine : MonoBehaviour
     {
         enemyData.onDie -= OnEnemyDie;
     }
-    
+
     public bool HasTarget()
     {
         return _target != null;
+    }
+
+    public GameObject GetTarget()
+    {
+        return _target;
+    }
+    public NavMeshAgent GetNavMeshAgent()
+    {
+        return _navMeshAgent;
     }
 }
