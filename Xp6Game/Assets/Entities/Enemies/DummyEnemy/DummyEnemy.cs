@@ -17,16 +17,15 @@ public class DummyEnemy : Enemy
 
     public GameObject bulletPrefab;
     public GameObject fireVFXPrefab;
-    protected override void Start()
+    protected override void OnEnable()
     {
-        base.Start();
+        base.OnEnable();
         VFXDebugManager.OnInputPressed += OnInputPressed;
         _animator = GetComponentInChildren<Animator>();
         _attackTimer = 0;
     }
-    protected override void Update()
-    {
-        base.Update();
+    protected void Update()
+    { 
         HandleTimer();
     }
 
