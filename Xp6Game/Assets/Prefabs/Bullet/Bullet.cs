@@ -9,7 +9,8 @@ public abstract class Bullet : MonoBehaviour
     public float Speed = 10f;
     public float LifeTime = 2f;
 
-    public int Damage = 10;
+    public int Damage = 1;
+    public int BonusDamage = 0;
 
     protected bool wasInstancied = false;
     protected virtual void OnEnable()
@@ -100,6 +101,6 @@ public abstract class Bullet : MonoBehaviour
             
         }
         
-        return Damage;
+        return Damage + BonusDamage;
     }
 }

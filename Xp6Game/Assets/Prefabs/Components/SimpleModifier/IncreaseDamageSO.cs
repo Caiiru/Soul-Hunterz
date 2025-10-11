@@ -8,8 +8,8 @@ public class IncreaseDamageSO : ComponentSO
     public override void Execute(GameObject target)
     {
         if (target.TryGetComponent<Bullet>(out var bullet))
-        {
-            bullet.Damage += DamageIncreaseAmount;
+        {  
+            bullet.BonusDamage += DamageIncreaseAmount;
         }
     }
 

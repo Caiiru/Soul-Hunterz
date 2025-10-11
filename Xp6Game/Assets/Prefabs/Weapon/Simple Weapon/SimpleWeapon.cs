@@ -14,14 +14,21 @@ public class SimpleWeapon : AbstractWeapon
     }
 
     public void Shoot()
-    { 
+    {
         GameObject _bulletGO = Instantiate(bulletPrefab, _firePoint.position, Quaternion.identity);
-
-
         var bullet = _bulletGO.GetComponent<Bullet>();
         bullet.Direction = transform.forward;
+
+        foreach (var component in weaponComponents)
+        {
+            if (component == null) continue;
+
+            Debug.Log("Execute component: " + component.ComponentName);
+            component.Execute(_bulletGO);
+        }
+
         bullet.Initialize();
-        
-        
+
+
     }
 }
