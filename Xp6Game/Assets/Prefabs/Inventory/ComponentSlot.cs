@@ -7,38 +7,56 @@ public class ComponentSlot : MonoBehaviour
 {
     private RectTransform _transform;
 
-    public IComponent currentComponent;
-    public ComponentUI currentComponentUI; 
+    public ComponentSO currentComponent;
+    public ComponentUI currentComponentUI;
+
+    private AbstractWeapon weapon;
+
+    int slotPosition;
+
+    
+    void Start()
+    {
+        _transform = GetComponent<RectTransform>();
+    } 
 
     public void OverrideComponent(ComponentUI component)
     {
         // Debug.Log("Override Component");
         component.transform.position = this.transform.position;
         component.transform.SetParent(this.transform);
-        component.transform.DOScale(Vector3.one, 0.1f); 
+        component.transform.DOScale(Vector3.one, 0.1f);
+
         currentComponentUI = component;
         component.SetSlot(this);
+
+
+
+        currentComponent = component.componentData;
+        if(weapon != null)
+            weapon.weaponComponents[slotPosition] = currentComponent;
     }
+ 
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-
-    void Start()
-    {
-        _transform = GetComponent<RectTransform>();
-    } 
 
     public void ClearSlot()
     {
+
         this.currentComponent = null;
         this.currentComponentUI = null;
+        if (weapon == null) return;
+
+        weapon.weaponComponents[slotPosition] = null;
     }
 
     public bool isEmpty()
     {
         return currentComponent == null & currentComponentUI == null;
     }
- 
 
-
-
+    internal void SetWeapon(AbstractWeapon weapon, int slotPosition)
+    {
+        this.weapon = weapon;
+        this.slotPosition = slotPosition;
+    }
 }

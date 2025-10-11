@@ -20,15 +20,21 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     Vector3 normalScale;
     Vector3 dragScale;
 
-    void Start()
+    public ComponentSO componentData;
+
+    void OnEnable()
+    {
+
+        Initialize();
+        SetDraggable(true);
+    }
+
+    public void Initialize()
     {
         PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
         inventoryCanvas = transform.parent.parent.parent;
 
         inventoryCanvas = GetPlayerInventory();
-        // canDrag = true;
-
-        // canvasParent = transform.parent.parent;
     }
 
 
@@ -58,6 +64,8 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
         transform.DOScale(dragScale, 0.1f);
 
+        currentSlot.ClearSlot();
+
         // this.transform.SetParent(canvasParent);
     }
     public void OnEndDrag(PointerEventData eventData)
@@ -77,7 +85,11 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         }
 
         transform.DOScale(normalScale, 0.1f);
-        this.transform.DOMove(startDragPosition, 0.2f).OnComplete(() => transform.SetParent(oldParent));
+        this.transform.DOMove(startDragPosition, 0.2f).OnComplete(() => {
+            transform.SetParent(oldParent); 
+            oldParent.GetComponent<ComponentSlot>().OverrideComponent(this);
+        });
+
 
     }
 
@@ -94,9 +106,15 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         currentSlot = slot;
     }
 
-    public void SetComponentVisual(ComponentSO visualData)
+    public void SetVisualByData()
     {
-        this.GetComponent<Image>().sprite = visualData.Icon;
+        this.GetComponent<Image>().sprite = componentData.Icon;
+    }
+
+    public void SetComponentVisual(ComponentSO componentData)
+    {
+        this.componentData = componentData;
+        SetVisualByData();
     }
     public void SetComponentSprite(Sprite newIcon)
     {
@@ -116,6 +134,6 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     public void SetDraggable(bool draggable)
     {
         canDrag = draggable;
-    }   
+    }
 
 }

@@ -1,11 +1,8 @@
 using System; 
 using UnityEngine;
-
-[RequireComponent(typeof(Rigidbody))]
+ 
 public abstract class Bullet : MonoBehaviour
-{
-    Rigidbody _rigidbody;
-    Collider _collider;
+{ 
     [Header("Data")]
     public BulletSO bulletData;
     public Vector3 Direction;
@@ -16,13 +13,7 @@ public abstract class Bullet : MonoBehaviour
 
     protected bool wasInstancied = false;
     protected virtual void OnEnable()
-    {
-        _rigidbody = GetComponent<Rigidbody>();
-        _collider = GetComponent<Collider>();
-        if (!_rigidbody)
-        {
-            Debug.LogError("No rigidbody attached to the bullet");
-        }
+    {  
     }
  
     public virtual void FixedUpdate()
@@ -33,9 +24,7 @@ public abstract class Bullet : MonoBehaviour
 
     public virtual void Initialize()
     {
-        wasInstancied = true;
-        _rigidbody.useGravity = false;
-        // _rigidbody.linearVelocity = Direction.normalized * Speed;
+        wasInstancied = true;  
         LoadData();
 
         Destroy(gameObject, LifeTime);
@@ -45,8 +34,7 @@ public abstract class Bullet : MonoBehaviour
         HandleCollision(collision.gameObject);
     }
     public virtual void HandleCollision(GameObject target)
-    {
-        Debug.Log($"Bullet colission with {target.name}");
+    { 
         if (target.TryGetComponent<Enemy>(out var enemy))
         {
             
@@ -96,12 +84,10 @@ public abstract class Bullet : MonoBehaviour
 
         System.Random rand = new System.Random();
 
-        int roll = rand.Next(0, 100);
-        Debug.Log($"Bullet roll: {roll} / CritChance: {bulletData.CritChance} / CritMultiplier: {bulletData.CritMultiplier}");
+        int roll = rand.Next(0, 100); 
         if (roll < bulletData.CritChance)
         {
-            Damage = Mathf.RoundToInt(Damage*bulletData.CritMultiplier);
-            Debug.Log("CRIT!");
+            Damage = Mathf.RoundToInt(Damage*bulletData.CritMultiplier); 
         }
         else
         {
@@ -109,8 +95,7 @@ public abstract class Bullet : MonoBehaviour
             
             float threshold = (bulletData.BaseDamage * damageReduction);  
             Damage -= Mathf.RoundToInt(threshold);
-
-            Debug.Log($"Normal hit! Threshold damage: {threshold}" );
+  
             if (Damage < 1) Damage = 1;
             
         }

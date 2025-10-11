@@ -6,7 +6,7 @@ public abstract class AbstractWeapon : MonoBehaviour
     public WeaponSO WeaponData;
 
     public GameObject bulletPrefab;
-    public List<ComponentSO> ComponentList = new List<ComponentSO>();
+    public ComponentSO[] weaponComponents;
     [Space]
     [Header("Stats")]
 
@@ -45,7 +45,7 @@ public abstract class AbstractWeapon : MonoBehaviour
             Rarity = WeaponData.Rarity;
             RarityColor = WeaponData.RarityColor;
 
-            ComponentList = WeaponData.components;
+            weaponComponents = WeaponData.components.ToArray();
             meshPrefab = WeaponData.meshPrefab;
             if (meshPrefab == null)
             {

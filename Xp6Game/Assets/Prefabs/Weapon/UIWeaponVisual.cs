@@ -39,22 +39,24 @@ public class UIWeaponVisual : MonoBehaviour
     public void UpdateVisual(AbstractWeapon weapon, GameObject componentUIPrefab)
     {
         this.weapon = weapon;
-        int componentsLength = weapon.ComponentList.Count;
+        int componentsLength = weapon.weaponComponents.Length;
         Slots = new GameObject[componentsLength];
 
         Transform _inventoryTransform = GetInventoryTransform();
 
-        for (int i = 0; i < weapon.ComponentList.Count; i++)
+        for (int i = 0; i < componentsLength; i++)
         {
             GameObject slot = Instantiate(SlotPrefab, ComponentsPanel);
             Slots[i] = slot;
-            if (weapon.ComponentList[i] != null)
+            slot.GetComponent<ComponentSlot>().SetWeapon(weapon,i);
+
+            if (weapon.weaponComponents[i] != null)
             {
                 GameObject componentGO = Instantiate(componentUIPrefab, _inventoryTransform);
                 ComponentUI component = componentGO.GetComponent<ComponentUI>();
-                component.SetComponentVisual(weapon.ComponentList[i]);
+                component.SetComponentVisual(weapon.weaponComponents[i]);
 
-
+                
                 slot.GetComponent<ComponentSlot>().OverrideComponent(component);
 
             }
