@@ -1,4 +1,5 @@
 using System;
+using Codice.Client.BaseCommands;
 using UnityEngine;
 
 public class StateMachine : MonoBehaviour
@@ -31,6 +32,8 @@ public class StateMachine : MonoBehaviour
         currentState = initialState;
 
         isActive = true;
+
+        remainState = Resources.Load<State>("FSM/RemainInState");
 
     }
     void Start()
