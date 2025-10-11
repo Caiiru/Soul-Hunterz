@@ -53,6 +53,7 @@ public class WeaponHolder : MonoBehaviour
         currentWeaponGO = weapon;
         currentWeapon = weapon.GetComponent<AbstractWeapon>();
         currentWeaponGO.transform.SetParent(firePoint.transform);
+        currentWeaponGO.transform.localPosition = Vector3.zero;
         currentWeaponGO.transform.localRotation = Quaternion.identity;
 
     }

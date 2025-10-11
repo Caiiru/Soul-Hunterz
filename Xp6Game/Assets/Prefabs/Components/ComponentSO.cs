@@ -7,6 +7,8 @@ public abstract class ComponentSO : ScriptableObject
     public string ComponentName;
     public string Description;
     public int Rarity;
+    
+    [PreviewSprite]
     public Sprite Icon;
 
     public abstract void Execute(GameObject target);

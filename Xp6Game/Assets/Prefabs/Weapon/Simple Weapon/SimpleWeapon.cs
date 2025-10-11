@@ -15,20 +15,20 @@ public class SimpleWeapon : AbstractWeapon
 
     public void Shoot()
     {
-        Debug.Log("Attacking with simple weapon");
         GameObject _bulletGO = Instantiate(bulletPrefab, _firePoint.position, Quaternion.identity);
-
-        // foreach (var component in ComponentList)
-        // {
-        //     if (component == null)
-        //         continue;
-        //     component.Execute(_bulletGO);
-        // }
-
         var bullet = _bulletGO.GetComponent<Bullet>();
         bullet.Direction = transform.forward;
+
+        foreach (var component in weaponComponents)
+        {
+            if (component == null) continue;
+
+            Debug.Log("Execute component: " + component.ComponentName);
+            component.Execute(_bulletGO);
+        }
+
         bullet.Initialize();
-        
-        
+
+
     }
 }
