@@ -26,10 +26,10 @@ public class Enemy : Entity
 
         base.OnEnable();
 
-        speed = enemyData.movementSpeed;
         attackRange = enemyData.attackRange;
+        speed = enemyData.movementSpeed;
 
-        Debug.Log($"Enemy Enabled: {gameObject.name} with Speed: {speed} and Attack Range: {attackRange}");
+        // Debug.Log($"Enemy Enabled: {gameObject.name} with Speed: {speed} and Attack Range: {attackRange}");
 
         if (hasNavMesh)
         {
