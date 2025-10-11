@@ -11,6 +11,7 @@ public class Entity : MonoBehaviour
     [SerializeField]
     public bool canBeDamaged = true;
 
+ 
     protected virtual void OnEnable()
     {
         // Initialize();

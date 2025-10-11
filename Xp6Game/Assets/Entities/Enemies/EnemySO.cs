@@ -8,5 +8,9 @@ public class EnemySO : EntitySO
 
     [Header("Visual Settings")]
     public GameObject hitVFXPrefab;
+
+    [Header("State Machine")]
+    public State initialState;
+    public State remainState;
     
 }
