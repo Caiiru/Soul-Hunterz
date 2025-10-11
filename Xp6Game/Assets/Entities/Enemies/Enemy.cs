@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -70,7 +71,7 @@ public class Enemy : Entity
     #endregion
 
     #region Movement
-    protected void MoveTowards(Vector3 targetPosition)
+    public void MoveTowards(Vector3 targetPosition)
     {
         if (!hasNavMesh || _navMesh == null) return;
 

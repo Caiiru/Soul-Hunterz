@@ -13,9 +13,9 @@ public class Entity : MonoBehaviour
 
     protected virtual void OnEnable()
     {
-        Initialize();
+        // Initialize();
     }
-    protected virtual void Initialize()
+    public virtual void Initialize()
     {
         if (entityData == null)
         {

@@ -4,17 +4,27 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Collider))]
 public class SimpleEnemy : Enemy
 {
-    private NavMeshAgent _navMesh;
+    private Transform _playerTransform;
+    // private NavMeshAgent _navMesh;
     protected override void OnEnable()
     {
         base.OnEnable();
-        _navMesh = GetComponent<NavMeshAgent>();
-        _navMesh.speed = speed;
-        _navMesh.stoppingDistance = attackRange;
+
     }
 
+    public override void Initialize()
+    {
+        base.Initialize();
+
+        _playerTransform = GameManager.Instance.GetPlayer().transform;
+    } 
+    void Update()
+    {
+        MoveTowards(_playerTransform.position);
+
+    }
     override protected void TakeDamage(int damage)
     {
-        base.TakeDamage(damage); 
-    }   
+        base.TakeDamage(damage);
+    }
 }
