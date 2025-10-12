@@ -91,4 +91,9 @@ public class StateMachine : MonoBehaviour
     {
         _target = gameObject;
     }
+
+    public EnemySO GetEnemyData()
+    {
+        return enemyData;
+    }
 }
