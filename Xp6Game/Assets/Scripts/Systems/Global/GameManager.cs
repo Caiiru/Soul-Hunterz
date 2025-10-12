@@ -199,6 +199,7 @@ public class GameManager : MonoBehaviour
     }
     void ActivateWinAltar()
     {
+        if (_endZone.activeSelf) return;
         _endZone.SetActive(true);
         _endZone.transform.position = GetRandomAltarSpawn().transform.position;
     }
@@ -238,7 +239,6 @@ public class GameManager : MonoBehaviour
     }
     public void WinGame()
     {
-        ChangeGameState(GameState.Win);
     }
     public void LoseGame()
     {

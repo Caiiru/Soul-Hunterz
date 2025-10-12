@@ -20,7 +20,7 @@ public class SimpleEnemy : Enemy
     } 
     void Update()
     {
-        MoveTowards(_playerTransform.position);
+        // MoveTowards(_playerTransform.position);
 
     }
     override protected void TakeDamage(int damage)

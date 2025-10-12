@@ -19,7 +19,6 @@ public class WeaponSO : ScriptableObject
     public float AttackDamage;
 
     [Header("Components Params")]
-    public int ModifierCount;
     public List<ComponentSO> components; 
 
 

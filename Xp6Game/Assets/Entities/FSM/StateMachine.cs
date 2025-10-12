@@ -16,6 +16,8 @@ public class StateMachine : MonoBehaviour
     public State currentState;
     public State remainState;
 
+    
+
     private bool isActive = false;
 
     [Space]
@@ -31,11 +33,10 @@ public class StateMachine : MonoBehaviour
         _navMeshAgent = GetComponent<NavMeshAgent>();
         _enemyReference = GetComponent<Enemy>();
 
-        enemyData = _enemyReference.enemyData;
-        enemyData.onDie += OnEnemyDie;
+        enemyData = _enemyReference.enemyData; 
 
         initialState = enemyData.initialState;
-        currentState = initialState;
+        currentState = Instantiate(initialState);
 
         isActive = true;
 
@@ -56,7 +57,8 @@ public class StateMachine : MonoBehaviour
             return;
 
         currentState.ExitState(this);
-        currentState = trueState; 
+        Destroy(currentState);
+        currentState = Instantiate(trueState); 
         currentState.BeginState(this);
     }
 
@@ -68,8 +70,7 @@ public class StateMachine : MonoBehaviour
     }
 
     void OnDisable()
-    {
-        enemyData.onDie -= OnEnemyDie;
+    { 
     }
 
     public bool HasTarget()
@@ -84,5 +85,10 @@ public class StateMachine : MonoBehaviour
     public NavMeshAgent GetNavMeshAgent()
     {
         return _navMeshAgent;
+    }
+
+    public void SetTarget(GameObject gameObject)
+    {
+        _target = gameObject;
     }
 }

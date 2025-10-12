@@ -56,7 +56,7 @@ public class EnemyManager : MonoBehaviour
     }
     public void StartSpawning()
     {
-        Debug.Log("Enemy Manager Start Spawning");
+        // Debug.Log("Enemy Manager Start Spawning");
         _enemySpawner.StartSpawning();
     }
     public void StopSpawning()
