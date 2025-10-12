@@ -23,7 +23,7 @@ public class SimpleWeapon : AbstractWeapon
         {
             if (component == null) continue;
 
-            Debug.Log("Execute component: " + component.ComponentName);
+            // Debug.Log("Execute component: " + component.ComponentName);
             component.Execute(_bulletGO);
         }
 

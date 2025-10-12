@@ -4,14 +4,14 @@ public class Entity : MonoBehaviour
 {
 
     [SerializeField] protected EntitySO entityData;
-    protected int currentHealth = 30;
+    [SerializeField] protected int currentHealth = 30;
 
 
 
     [SerializeField]
     public bool canBeDamaged = true;
 
- 
+
     protected virtual void OnEnable()
     {
         // Initialize();
@@ -26,8 +26,6 @@ public class Entity : MonoBehaviour
         currentHealth = entityData.maxHealth;
         canBeDamaged = entityData.canBeDamaged;
 
-        entityData.onTakeDamage += TakeDamage;
-        entityData.onDie += Die;
 
     }
 
@@ -43,16 +41,15 @@ public class Entity : MonoBehaviour
         currentHealth -= damage;
 
         if (currentHealth <= 0)
-            entityData.onDie?.Invoke();
+            Die();
+
 
     }
-    
+
     protected virtual void Die()
     {
         canBeDamaged = false;
         gameObject.SetActive(false);
-
-        entityData.onTakeDamage -= TakeDamage;
-        entityData.onDie -= Die;
-    } 
+ 
+    }
 }

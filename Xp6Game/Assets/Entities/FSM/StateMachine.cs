@@ -1,15 +1,22 @@
 using System;
+using Codice.Client.BaseCommands;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AI;
 
+[RequireComponent(typeof(Enemy))]
 public class StateMachine : MonoBehaviour
 {
     [Header("Data")]
     public EnemySO enemyData;
     private Enemy _enemyReference;
+    private NavMeshAgent _navMeshAgent;
     [Header("State Machine States")]
     private State initialState;
     public State currentState;
     public State remainState;
+
+    
 
     private bool isActive = false;
 
@@ -17,25 +24,25 @@ public class StateMachine : MonoBehaviour
     [Header("Target")]
     [SerializeField] private GameObject _target;
 
-    void OnEnable()
+    async void OnEnable()
     {
+        await InitializeStateMachine();
+    }
+    public UniTask InitializeStateMachine()
+    {
+        _navMeshAgent = GetComponent<NavMeshAgent>();
         _enemyReference = GetComponent<Enemy>();
-        enemyData = _enemyReference.enemyData;
 
-        enemyData.onDie += OnEnemyDie;
-
-
-        if (enemyData == null) return;
+        enemyData = _enemyReference.enemyData; 
 
         initialState = enemyData.initialState;
-        currentState = initialState;
+        currentState = Instantiate(initialState);
 
         isActive = true;
 
-    }
-    void Start()
-    {
+        remainState = Resources.Load<State>("FSM/RemainInState");
 
+        return UniTask.CompletedTask;
     }
 
     // Update is called once per frame
@@ -48,13 +55,11 @@ public class StateMachine : MonoBehaviour
     {
         if (trueState == remainState)
             return;
- 
-        currentState = trueState;
-        ExitState();
-    }
-    private void ExitState()
-    {
 
+        currentState.ExitState(this);
+        Destroy(currentState);
+        currentState = Instantiate(trueState); 
+        currentState.BeginState(this);
     }
 
     private void OnEnemyDie()
@@ -65,12 +70,25 @@ public class StateMachine : MonoBehaviour
     }
 
     void OnDisable()
-    {
-        enemyData.onDie -= OnEnemyDie;
+    { 
     }
-    
+
     public bool HasTarget()
     {
         return _target != null;
+    }
+
+    public GameObject GetTarget()
+    {
+        return _target;
+    }
+    public NavMeshAgent GetNavMeshAgent()
+    {
+        return _navMeshAgent;
+    }
+
+    public void SetTarget(GameObject gameObject)
+    {
+        _target = gameObject;
     }
 }
