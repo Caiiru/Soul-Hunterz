@@ -32,16 +32,18 @@ public class GameManager : MonoBehaviour
 
     #endregion
     [Space]
-    [Header("Bind Objects")]
+    [Header("System Objects")]
 
     public GameObject EventSystemPrefab;
     public GameObject GlobalVolumePrefab;
 
     [Space]
+    [Header("Managers Objects")]
     public GameObject EnemyManagerPrefab;
     public GameObject PopupManagerPrefab;
 
     [Space]
+    [Header("Prefabs")]
     public GameObject PlayerPrefab;
     public GameObject CameraPrefab;
     public GameObject StartZonePrefab;
@@ -239,6 +241,7 @@ public class GameManager : MonoBehaviour
     }
     public void WinGame()
     {
+        ChangeGameState(GameState.Win);
     }
     public void LoseGame()
     {
