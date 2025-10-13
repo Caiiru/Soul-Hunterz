@@ -5,16 +5,14 @@ public class Entity : MonoBehaviour
 
     [SerializeField] protected EntitySO entityData;
     [SerializeField] protected int currentHealth = 30;
+    [SerializeField] public bool canBeDamaged = true;
 
-
-
-    [SerializeField]
-    public bool canBeDamaged = true;
+    protected Transform _visualTransform;
 
 
     protected virtual void OnEnable()
     {
-        // Initialize();
+        Initialize();
     }
     public virtual void Initialize()
     {
@@ -25,8 +23,13 @@ public class Entity : MonoBehaviour
         }
         currentHealth = entityData.maxHealth;
         canBeDamaged = entityData.canBeDamaged;
+        if (entityData.visualPrefab != null)
+        {
+            _visualTransform = Instantiate(entityData.visualPrefab, transform).transform;
+        }
 
-
+        
+        transform.name = entityData.name; 
     }
 
     protected virtual void TakeDamage(int damage)

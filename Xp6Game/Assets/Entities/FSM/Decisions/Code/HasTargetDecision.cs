@@ -5,7 +5,7 @@ public class HasTargetDecision : Decision
 {
     public override bool Decide(StateMachine stateMachine)
     {
-        return stateMachine.HasTarget();
+        return stateMachine.GetEnemy().HasTarget();
     }
     
 }

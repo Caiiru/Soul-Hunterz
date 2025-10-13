@@ -8,7 +8,7 @@ using UnityEngine.AI;
 public class StateMachine : MonoBehaviour
 {
     [Header("Data")]
-    public EnemySO enemyData;
+    private EnemySO enemyData;
     private Enemy _enemyReference;
     private NavMeshAgent _navMeshAgent;
     [Header("State Machine States")]
@@ -18,16 +18,8 @@ public class StateMachine : MonoBehaviour
 
     
 
-    private bool isActive = false;
-
-    [Space]
-    [Header("Target")]
-    [SerializeField] private GameObject _target;
-
-    async void OnEnable()
-    {
-        await InitializeStateMachine();
-    }
+    private bool isActive = false; 
+ 
     public UniTask InitializeStateMachine()
     {
         _navMeshAgent = GetComponent<NavMeshAgent>();
@@ -70,17 +62,13 @@ public class StateMachine : MonoBehaviour
     }
 
     void OnDisable()
-    { 
-    }
-
-    public bool HasTarget()
     {
-        return _target != null;
-    }
+        
+    } 
 
     public GameObject GetTarget()
     {
-        return _target;
+        return _enemyReference.GetTarget() ? _enemyReference.GetTarget().gameObject : null;
     }
     public NavMeshAgent GetNavMeshAgent()
     {
@@ -88,12 +76,27 @@ public class StateMachine : MonoBehaviour
     }
 
     public void SetTarget(GameObject gameObject)
-    {
-        _target = gameObject;
+    { 
+        _enemyReference.SetTarget(gameObject.transform);
     }
 
     public EnemySO GetEnemyData()
     {
         return enemyData;
+    }
+
+    internal void SetMoving(bool newState)
+    {
+        _navMeshAgent.isStopped = !newState;
+    }
+
+    internal void SetDestination(Vector3 targetPosition)
+    {
+        _navMeshAgent.SetDestination(targetPosition);
+    }
+
+    internal Enemy GetEnemy()
+    {
+        return _enemyReference;
     }
 }

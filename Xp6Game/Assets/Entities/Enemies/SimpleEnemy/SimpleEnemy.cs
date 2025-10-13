@@ -3,8 +3,7 @@ using UnityEngine.AI;
 
 [RequireComponent(typeof(Collider))]
 public class SimpleEnemy : Enemy
-{
-    private Transform _playerTransform;
+{ 
     // private NavMeshAgent _navMesh;
     protected override void OnEnable()
     {
@@ -16,7 +15,6 @@ public class SimpleEnemy : Enemy
     {
         base.Initialize();
 
-        _playerTransform = GameManager.Instance.GetPlayer().transform;
     } 
     void Update()
     {

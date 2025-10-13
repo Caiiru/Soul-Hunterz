@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "State", menuName = "FSM/State/NewState")]
+[CreateAssetMenu(fileName = "New State", menuName = "FSM/NewState")]
 public class State : ScriptableObject
 {
     public Action[] actions;

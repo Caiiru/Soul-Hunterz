@@ -38,7 +38,7 @@ public class HasEnemyNearbyDecision : Decision
     {
         // Debug.Log("Checking for Player Nearby");
         // CreateDebugSphere(stateMachine);
-        var numColliders = Physics.OverlapSphere(stateMachine.transform.position, detectionRadius, stateMachine.enemyData.playerMask);
+        var numColliders = Physics.OverlapSphere(stateMachine.transform.position, detectionRadius, stateMachine.GetEnemyData().playerMask);
         if (numColliders.Length > 0)
         {
             stateMachine.SetTarget(numColliders[0].gameObject);
