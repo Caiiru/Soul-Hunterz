@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 public class MainMenuManager : MonoBehaviour
 {
     [SerializeField] private GameObject mainMenuUI;
+    [SerializeField] private GameObject gameOverMenuUI;
     [SerializeField] private GameObject settingsUI;
     [SerializeField] private Camera menuCamera;
     [SerializeField] private EventSystem eventSystem;
@@ -51,6 +52,11 @@ public class MainMenuManager : MonoBehaviour
         mainMenuUI.SetActive(true);
         menuCamera.transform.gameObject.SetActive(true);
         eventSystem.gameObject.SetActive(true);
+    }
+    public void EnableGameOverMenu()
+    {
+        mainMenuUI.SetActive(false);
+        gameOverMenuUI.SetActive(true);
     }
 
     public void QuitGame()
