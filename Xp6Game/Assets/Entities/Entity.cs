@@ -23,8 +23,10 @@ public class Entity : MonoBehaviour
         }
         currentHealth = entityData.maxHealth;
         canBeDamaged = entityData.canBeDamaged;
+        if(_visualTransform) { Destroy(_visualTransform.gameObject); }
         if (entityData.visualPrefab != null)
         {
+            
             _visualTransform = Instantiate(entityData.visualPrefab, transform).transform;
         }
 

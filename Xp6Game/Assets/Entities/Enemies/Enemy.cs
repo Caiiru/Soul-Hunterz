@@ -43,7 +43,6 @@ public class Enemy : Entity
     
     public override void Initialize()
     {
-        transform.name = entityData.name; 
         base.Initialize();
         attackRange = enemyData.attackRange;
         speed = enemyData.movementSpeed;

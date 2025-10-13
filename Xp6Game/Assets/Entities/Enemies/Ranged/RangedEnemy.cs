@@ -41,8 +41,7 @@ public class RangedEnemy : Enemy
     }
 
     public override void Attack()
-    {
-        Debug.Log("Ranged Attack");
+    { 
         if (rangedEnemyData.bulletPrefab != null && _firePoint != null)
         {
             Instantiate(rangedEnemyData.bulletPrefab, _firePoint.position, _firePoint.rotation);
