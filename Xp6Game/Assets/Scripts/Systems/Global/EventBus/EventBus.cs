@@ -59,7 +59,7 @@ public static class PredefinedAssemblyUtil
     /// </summary>
     enum AssemblyType
     {
-        AssemblyCSHarp,
+        AssemblyCSharp,
         AssemblyCSharpEditor,
         AssemblyCsharpEditorFirstPass,
         AssemblyCsharpFirstPass,
@@ -68,15 +68,15 @@ public static class PredefinedAssemblyUtil
     /// <summary>
     /// Gets the assembly type from the assembly name.
     /// </summary>
-    /// <param name="assemblyName">The name of the assembly.</param>
+    /// <param name="assemblyName">The name of the assembly.</param>s
     /// <returns>The corresponding AssemblyType, or null if not found.</returns>
     static AssemblyType? GetAssemblyType(string assemblyName)
     {
         return assemblyName switch
         {
-            "Assembly-CSharp" => AssemblyType.AssemblyCSHarp,
+            "Assembly-CSharp" => AssemblyType.AssemblyCSharp,
             "Assembly-CSharp-Editor" => AssemblyType.AssemblyCSharpEditor,
-            "Assembly-CSharp-Editor-FirstPass" => AssemblyType.AssemblyCsharpEditorFirstPass,
+            "Assembly-CSharp-Editor-firstpass" => AssemblyType.AssemblyCsharpEditorFirstPass,
             "Assembly-Csharp-FirstPass" => AssemblyType.AssemblyCsharpFirstPass,
             _ => null,
         };
@@ -103,7 +103,7 @@ public static class PredefinedAssemblyUtil
                 assemblyTypes.Add((AssemblyType)assemblyType, assemblies[i].GetTypes());
             }
         }
-        AddTypesFromAssembly(assemblyTypes[AssemblyType.AssemblyCSHarp], types, interfaceType);
+        AddTypesFromAssembly(assemblyTypes[AssemblyType.AssemblyCSharp], types, interfaceType);
         AddTypesFromAssembly(assemblyTypes[AssemblyType.AssemblyCsharpEditorFirstPass], types, interfaceType);
         return types;
     }
