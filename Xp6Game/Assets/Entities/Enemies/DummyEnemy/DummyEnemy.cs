@@ -70,7 +70,7 @@ public class DummyEnemy : Enemy
         await UniTask.CompletedTask;
         // Attack();
     }
-    protected override void Attack()
+    public override void Attack()
     { 
         base.Attack();
         _attackTimer = 0;

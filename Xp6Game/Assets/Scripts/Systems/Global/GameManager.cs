@@ -230,7 +230,7 @@ public class GameManager : MonoBehaviour
 
     public void EnemyDefeated()
     {
-        Debug.Log("One more enemy defeated");
+        // Debug.Log("One more enemy defeated");
         // Check for win condition
         if (!IsGameState(GameState.Playing)) return;
         enemiesDefeated++;

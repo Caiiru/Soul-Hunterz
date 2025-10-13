@@ -6,12 +6,18 @@ using UnityEngine.AI;
 public class Enemy : Entity
 {
     [HideInInspector] public EnemySO enemyData;
+    [Space(1)]
+    [Header("Enemy Stats")]
     protected float speed = 3.5f;
     protected float attackRange = 1.5f;
 
     [Tooltip("Does this enemy use a NavMeshAgent for movement?")]
     [SerializeField] bool hasNavMesh;
     protected NavMeshAgent _navMesh;
+    StateMachine _stateMachine;
+
+
+    [SerializeField] private Transform _targetTransform; 
 
 
     #region Visual 
@@ -19,15 +25,25 @@ public class Enemy : Entity
 
     #endregion
 
-    
 
+    public virtual void SetData(EnemySO newData)
+    {
+        enemyData = newData; 
+        entityData = enemyData; 
+    }
 
     override protected void OnEnable()
     {
-        enemyData = (EnemySO)entityData;
 
-        base.OnEnable();
+        // entityData = enemyData;
+        // base.OnEnable();
 
+        
+    }
+    
+    public override void Initialize()
+    {
+        base.Initialize();
         attackRange = enemyData.attackRange;
         speed = enemyData.movementSpeed;
 
@@ -39,7 +55,12 @@ public class Enemy : Entity
             _navMesh.speed = speed;
             _navMesh.stoppingDistance = attackRange;
         }
+        if(TryGetComponent(out StateMachine comp)){
+            _stateMachine = comp;
 
+            _stateMachine.InitializeStateMachine();
+        } 
+        
     }
 
 
@@ -94,11 +115,38 @@ public class Enemy : Entity
     }
 
     #endregion
-    
+
     #region Attack 
-    protected virtual void Attack()
+
+    public virtual void Attack()
     {
-        Debug.Log("Enemy Attacking");
+
+    }
+    public virtual void SetTarget(Transform targetTransform)
+    {
+        this._targetTransform = targetTransform;
+
+    }
+    public virtual bool HasTarget()
+    { 
+        return _targetTransform != null;
+    }
+    public virtual Transform GetTarget()
+    {
+        return _targetTransform;
+    }
+
+    public virtual bool CanAttack()
+    {
+        if (!HasTarget()) return false;
+
+        float distanceToTarget = Vector3.Distance(transform.position, GetTarget().transform.position);
+        return distanceToTarget <= attackRange;
+    }
+
+    public float GetAttackRange()
+    {
+        return attackRange;
     }
 
     #endregion

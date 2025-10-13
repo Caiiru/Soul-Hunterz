@@ -55,7 +55,7 @@ public class Melee_DummyEnemy : Enemy
         }
 
     }
-    protected override void Attack()
+    public override void Attack()
     {
         
         _animator.SetTrigger("Attack");
