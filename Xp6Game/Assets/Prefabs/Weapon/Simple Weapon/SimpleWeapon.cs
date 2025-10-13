@@ -27,8 +27,6 @@ public class SimpleWeapon : AbstractWeapon
             component.Execute(_bulletGO);
         }
 
-        bullet.Initialize();
-
-
+        bullet.Initialize(); 
     }
 }

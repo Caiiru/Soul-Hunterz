@@ -24,6 +24,10 @@ public class GameInitiator : MonoBehaviour
     {
         await SceneManager.LoadSceneAsync(gameScene.name, LoadSceneMode.Additive);
     }
+    public async UniTask InitializeEndMenu()
+    {
+        await SceneManager.LoadSceneAsync(endScene.name, LoadSceneMode.Additive);
+    }
 
     #region Singleton
     public static GameInitiator Instance;
