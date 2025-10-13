@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection;
 
 
 /// <summary>
@@ -32,10 +35,99 @@ public static class EventBus<T> where T : IEvent
     /// <param name="event">The event data to pass to the listeners.</param>
     public static void Raise(T @event)
     {
-        foreach(var binding in bindings)
+        foreach (var binding in bindings)
         {
             binding.OnEvent.Invoke(@event);
             binding.OnEventNoArgs.Invoke();
         }
     }
+
+    public static void Clear()
+    {
+        bindings.Clear();
+    }
+}
+
+
+/// <summary>
+/// A utility class for finding types within predefined Unity assemblies.
+/// </summary>
+public static class PredefinedAssemblyUtil
+{
+    /// <summary>
+    /// Enum representing the predefined Unity assemblies.
+    /// </summary>
+    enum AssemblyType
+    {
+        AssemblyCSHarp,
+        AssemblyCSharpEditor,
+        AssemblyCsharpEditorFirstPass,
+        AssemblyCsharpFirstPass,
+
+    }
+    /// <summary>
+    /// Gets the assembly type from the assembly name.
+    /// </summary>
+    /// <param name="assemblyName">The name of the assembly.</param>
+    /// <returns>The corresponding AssemblyType, or null if not found.</returns>
+    static AssemblyType? GetAssemblyType(string assemblyName)
+    {
+        return assemblyName switch
+        {
+            "Assembly-CSharp" => AssemblyType.AssemblyCSHarp,
+            "Assembly-CSharp-Editor" => AssemblyType.AssemblyCSharpEditor,
+            "Assembly-CSharp-Editor-FirstPass" => AssemblyType.AssemblyCsharpEditorFirstPass,
+            "Assembly-Csharp-FirstPass" => AssemblyType.AssemblyCsharpFirstPass,
+            _ => null,
+        };
+
+
+    }
+
+    /// <summary>
+    /// Gets all types that implement a specific interface from predefined assemblies.
+    /// </summary>
+    /// <param name="interfaceType">The interface type to search for.</param>
+    /// <returns>A list of types that implement the interface.</returns>
+    public static List<Type> GetTypes(Type interfaceType)
+    {
+        Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+        Dictionary<AssemblyType, Type[]> assemblyTypes = new Dictionary<AssemblyType, Type[]>();
+        List<Type> types = new List<Type>();
+        for (int i = 0; i < assemblies.Length; i++)
+        {
+            AssemblyType? assemblyType = GetAssemblyType(assemblies[i].GetName().Name);
+            if (assemblyType != null)
+            {
+                assemblyTypes.Add((AssemblyType)assemblyType, assemblies[i].GetTypes());
+            }
+        }
+        AddTypesFromAssembly(assemblyTypes[AssemblyType.AssemblyCSHarp], types, interfaceType);
+        AddTypesFromAssembly(assemblyTypes[AssemblyType.AssemblyCsharpEditorFirstPass], types, interfaceType);
+        return types;
+    }
+
+    /// <summary>
+    /// Adds types from a specific assembly to a collection if they implement a given interface.
+    /// </summary>
+    /// <param name="assembly">The array of types from an assembly.</param>
+    /// <param name="types">The collection to add the found types to.</param>
+    ///<param name="interfaceType">The interface type to check for implementation.</param>
+    
+    static void AddTypesFromAssembly(Type[] assembly, ICollection<Type> types, Type interfaceType)
+    {
+        if (assembly == null) return;
+
+        for (int i = 0; i < assembly.Length; i++)
+        {
+            Type type = assembly[i];
+            if (type != interfaceType && interfaceType.IsAssignableFrom(type))
+            {
+                types.Add(type);
+            }
+
+        }
+    }
+
 }
