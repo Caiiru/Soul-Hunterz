@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Entity Data", menuName = "Entity/Entity Data")]
+// [CreateAssetMenu(fileName = "Entity Data", menuName = "Entity/Entity Data")]
 public abstract class EntitySO : ScriptableObject
 {
     [Header("Base Entity Settings")]

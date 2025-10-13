@@ -12,7 +12,7 @@ public abstract class Bullet : MonoBehaviour
     public int Damage = 1;
     public int BonusDamage = 0;
 
-    protected bool wasInstancied = false;
+    [SerializeField] protected bool wasInstancied = false;
     protected virtual void OnEnable()
     {  
     }

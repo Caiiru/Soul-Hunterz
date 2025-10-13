@@ -45,7 +45,7 @@ public class RangedEnemy : Enemy
         if (rangedEnemyData.bulletPrefab != null && _firePoint != null)
         {
             Instantiate(rangedEnemyData.bulletPrefab, _firePoint.position, _firePoint.rotation);
-
+            
         }
     }
 
