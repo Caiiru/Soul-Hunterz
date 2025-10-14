@@ -82,7 +82,7 @@ public class GameManager : MonoBehaviour
 
 
     #region Begin Game
-    private async void Start()
+    private void Start()
     {
         BindEvents();
         // BindObjects();
