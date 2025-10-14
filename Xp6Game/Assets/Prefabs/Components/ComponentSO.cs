@@ -11,5 +11,5 @@ public abstract class ComponentSO : ScriptableObject
     [PreviewSprite]
     public Sprite Icon;
 
-    public abstract void Execute(GameObject target);
+    public abstract void Execute(GameObject target, Transform firePoint, int slotindex);
 }

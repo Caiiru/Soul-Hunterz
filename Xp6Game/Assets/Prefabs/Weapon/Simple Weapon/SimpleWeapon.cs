@@ -19,14 +19,14 @@ public class SimpleWeapon : AbstractWeapon
         var bullet = _bulletGO.GetComponent<Bullet>();
         bullet.Direction = transform.forward;
 
+
         foreach (var component in weaponComponents)
         {
             if (component == null) continue;
 
-            // Debug.Log("Execute component: " + component.ComponentName);
-            component.Execute(_bulletGO);
+            component.Execute(_bulletGO, _firePoint, currentIndexSlot);
         }
 
-        bullet.Initialize(); 
+        bullet.Initialize();
     }
 }
