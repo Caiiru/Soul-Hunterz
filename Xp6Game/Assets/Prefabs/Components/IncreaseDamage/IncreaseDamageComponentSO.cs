@@ -6,11 +6,9 @@ public class IncreaseDamageComponentSO : ComponentSO
     [Header("Damage Params")]
     public int DamageIncreaseAmount = 5;
 
-    public override void Execute(GameObject target, Transform firePoint, int slotindex)
+    public override BulletPayload Execute(BulletPayload payload, Transform firePoint, int slotIndex)
     {
-        if (target.TryGetComponent<Bullet>(out var bullet))
-        {
-            bullet.BonusDamage += DamageIncreaseAmount;
-        }
+        payload.BonusDamage += DamageIncreaseAmount;
+        return payload;
     }
 }

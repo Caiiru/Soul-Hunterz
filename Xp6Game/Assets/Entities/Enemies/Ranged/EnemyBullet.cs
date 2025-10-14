@@ -5,11 +5,12 @@ public class EnemyBullet : Bullet
     void Start()
     {
         Direction = transform.forward;
-        Initialize();
+        Initialize(transform.forward, new BulletPayload());
     }
-    public override void Initialize()
+
+    public override void Initialize(Vector3 direction, BulletPayload payload)
     {
-        base.Initialize();
+        base.Initialize(direction, payload);
     }
     void OnCollisionEnter(Collision collision)
     {
