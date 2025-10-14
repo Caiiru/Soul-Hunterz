@@ -5,7 +5,7 @@ using UnityEngine;
 public class AudioManager : MonoBehaviour
 {
 
-    [SerializeField] private AnimationEventSound[] sounds;
+    // [SerializeField] private AnimationEventSound[] sounds;
 
     #region Singleton
     private static AudioManager instance;
@@ -26,11 +26,14 @@ public class AudioManager : MonoBehaviour
 
         await UniTask.CompletedTask;
     }
-    // Update is called once per frame
-    void Update()
-    {
 
+    
+    public void PlayOneShotAtPosition(EventReference eventRef, Vector3 position)
+    {
+        RuntimeManager.PlayOneShot(eventRef, position);
     }
+
+
 }
 [System.Serializable]
 public struct AnimationEventSound

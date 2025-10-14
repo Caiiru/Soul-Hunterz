@@ -1,3 +1,4 @@
+using FMODUnity;
 using UnityEngine;
 
 public class Entity : MonoBehaviour
@@ -9,6 +10,8 @@ public class Entity : MonoBehaviour
 
     protected Transform _visualTransform;
 
+
+    AudioManager _audioManager;
 
     protected virtual void OnEnable()
     {
@@ -23,15 +26,16 @@ public class Entity : MonoBehaviour
         }
         currentHealth = entityData.maxHealth;
         canBeDamaged = entityData.canBeDamaged;
-        if(_visualTransform) { Destroy(_visualTransform.gameObject); }
+        if (_visualTransform) { Destroy(_visualTransform.gameObject); }
         if (entityData.visualPrefab != null)
         {
-            
+
             _visualTransform = Instantiate(entityData.visualPrefab, transform).transform;
         }
 
-        
-        transform.name = entityData.name; 
+        _audioManager = AudioManager.Instance;
+
+        transform.name = entityData.name;
     }
 
     protected virtual void TakeDamage(int damage)
@@ -44,6 +48,7 @@ public class Entity : MonoBehaviour
             return;
 
         currentHealth -= damage;
+        PlayOneShotAtPosition(entityData.takeDamageSound);
 
         if (currentHealth <= 0)
             Die();
@@ -53,8 +58,21 @@ public class Entity : MonoBehaviour
 
     protected virtual void Die()
     {
+        PlayOneShotAtPosition(entityData.dieSound);
         canBeDamaged = false;
         gameObject.SetActive(false);
- 
+
     }
+
+    #region Sounds 
+    protected void PlayOneShotAtPosition(EventReference audioEvent)
+    {
+        if (!_audioManager) return;
+        if (audioEvent.IsNull) return;
+        Debug.Log("Play ");
+        _audioManager.PlayOneShotAtPosition(audioEvent, transform.position);
+
+    }
+
+    #endregion
 }

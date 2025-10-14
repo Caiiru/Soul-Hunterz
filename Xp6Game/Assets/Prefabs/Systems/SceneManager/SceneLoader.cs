@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -74,7 +75,7 @@ public class SceneLoader : MonoBehaviour
             }
         }
     }
-     public void DesactivateSceneByName(string sceneName)
+    public void DesactivateSceneByName(string sceneName)
     {
         foreach (var scene in scenes)
         {
@@ -94,6 +95,61 @@ public class SceneLoader : MonoBehaviour
             rootObject.SetActive(isVisible);
         }
     }
+
+    public void UnloadSceneByName(string v)
+    {
+        SceneManager.UnloadSceneAsync(v);
+    }
+    public void SetMainScene(string sceneName)
+    {
+        Scene? _s = GetSceneByName(sceneName);
+        if (_s != null)
+        {
+            SceneManager.SetActiveScene((Scene)_s);
+        }
+    }
+
+    Scene? GetSceneByName(string sceneName)
+    {
+
+        foreach (var scene in scenes)
+        {
+            if (scene.sceneName == sceneName)
+            {
+                return scene.reference;
+            }
+        }
+
+        return null;
+    }
+
+    public void TransferObjects(string fromScene, string toScene)
+    {
+        Scene toSceneRef = default;
+        Scene fromSceneRef = default;
+        foreach (var scene in scenes)
+        {
+            if (toScene == scene.sceneName)
+            {
+                toSceneRef = scene.reference;
+            }
+            if (fromScene == scene.sceneName)
+            {
+                fromSceneRef = scene.reference;
+            }
+        }
+
+        if (!toSceneRef.IsValid())
+        {
+            return;
+
+        }
+        Debug.Log("Mergning Scenes");
+        SceneManager.MergeScenes(fromSceneRef, toSceneRef);
+
+
+    }
+
 }
 
 [System.Serializable]

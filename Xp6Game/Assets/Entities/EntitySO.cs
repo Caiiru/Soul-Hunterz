@@ -1,3 +1,4 @@
+using FMODUnity;
 using UnityEngine;
 
 // [CreateAssetMenu(fileName = "Entity Data", menuName = "Entity/Entity Data")]
@@ -7,6 +8,11 @@ public abstract class EntitySO : ScriptableObject
     public int maxHealth = 100;
     public bool canBeDamaged = true;
     public GameObject visualPrefab;
+
+    [Header("Sounds"), Space(1)]
+    public EventReference walkSound;
+    public EventReference takeDamageSound;
+    public EventReference dieSound;
 
 
 }

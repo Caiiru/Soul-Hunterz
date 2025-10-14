@@ -24,6 +24,8 @@ public class GameInitiator : MonoBehaviour
     //Events
 
     EventBinding<MainMenuPlayButtonClickedEvent> menuPlayButtonBinding;
+    EventBinding<GameSceneLoaded> gameLoadedBinding;
+    EventBinding<GameStartLoadingEvent> loadingEventBinding;
 
     public async void Start()
     {
@@ -58,15 +60,24 @@ public class GameInitiator : MonoBehaviour
     {
         menuPlayButtonBinding = new EventBinding<MainMenuPlayButtonClickedEvent>(OnMainMenuPlayButtonClicked);
         EventBus<MainMenuPlayButtonClickedEvent>.Register(menuPlayButtonBinding);
+
+        gameLoadedBinding = new EventBinding<GameSceneLoaded>(() =>
+        {
+        });
+
+        loadingEventBinding = new EventBinding<GameStartLoadingEvent>(() =>
+        {
+        });
     }
 
     async void OnMainMenuPlayButtonClicked()
     {
+        _sceneLoader.UnloadSceneByName("Initiator");
         _sceneLoader.DesactivateSceneByName("MainMenu");
         await InitializeGame();
         EventBus<GameSceneLoaded>.Raise(new GameSceneLoaded());
         _sceneLoader.ActivateSceneByName("Game");
-        _sceneLoader.DesactivateSceneByName("LoadingScreen"); 
+        _sceneLoader.DesactivateSceneByName("LoadingScreen");
     }
 
     public async UniTask InitializeMainMenu()
@@ -87,8 +98,10 @@ public class GameInitiator : MonoBehaviour
     public async UniTask InitializeGame()
     {
 
+        _sceneLoader.UnloadSceneByName("MainMenu");
         await _sceneLoader.CreateSceneByName("Game");
         _sceneLoader.ActivateSceneByName("Game");
+        _sceneLoader.SetMainScene("Game");
 
 
         await UniTask.CompletedTask;
