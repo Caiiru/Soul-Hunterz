@@ -23,10 +23,21 @@ public abstract class Bullet : MonoBehaviour
         transform.position+= Direction.normalized * Speed * Time.fixedDeltaTime;
     }
 
-    public virtual void Initialize()
+    /// <summary>
+    /// Inicializa a bala com base nos dados do payload.
+    /// </summary>
+    /// <param name="direction">A direção inicial da bala.</param>
+    /// <param name="payload">O payload contendo modificadores.</param>
+    public virtual void Initialize(Vector3 direction, BulletPayload payload)
     {
         wasInstancied = true;  
         LoadData();
+
+        // Aplica modificadores do payload
+        this.Direction = direction;
+        this.BonusDamage = (int)payload.BonusDamage;
+        this.Speed *= payload.SpeedMultiplier;
+        this.LifeTime *= payload.LifetimeMultiplier;
 
         Destroy(gameObject, LifeTime);
     }

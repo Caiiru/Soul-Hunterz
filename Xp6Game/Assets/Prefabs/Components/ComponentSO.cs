@@ -11,5 +11,12 @@ public abstract class ComponentSO : ScriptableObject
     [PreviewSprite]
     public Sprite Icon;
 
-    public abstract void Execute(GameObject target);
+    /// <summary>
+    /// Executa a lógica do componente, modificando o payload da bala.
+    /// </summary>
+    /// <param name="payload">O payload a ser modificado.</param>
+    /// <param name="firePoint">O ponto de origem do disparo.</param>
+    /// <param name="slotIndex">O índice do slot do componente na arma.</param>
+    /// <returns>O payload modificado.</returns>
+    public abstract BulletPayload Execute(BulletPayload payload, Transform firePoint, int slotIndex);
 }

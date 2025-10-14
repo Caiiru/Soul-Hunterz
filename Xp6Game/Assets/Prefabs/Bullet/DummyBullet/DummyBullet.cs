@@ -8,7 +8,7 @@ public class DummyBullet : Bullet
     void Start()
     {
         Direction = transform.forward;
-        Initialize();
+        this.Initialize(Direction, new BulletPayload());
     }
 
     // Update is called once per frame
