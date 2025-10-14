@@ -11,6 +11,13 @@ public class SceneLoader : MonoBehaviour
 
     EventBinding<MainMenuPlayButtonClickedEvent> playButtonBinding;
 
+    EventBinding<GameWinEvent> gameWinBinding;
+
+    EventBinding<GameSceneLoaded> gameSceneLoadedBinding;
+    EventBinding<GameOverEvent> gameOverBinding;
+
+
+
     public async UniTask Initialize()
     {
         SceneManager.sceneLoaded += (Scene _scene, LoadSceneMode mode) =>
@@ -30,8 +37,47 @@ public class SceneLoader : MonoBehaviour
         playButtonBinding = new EventBinding<MainMenuPlayButtonClickedEvent>(OnMainMenuPlayButtonClicked);
         EventBus<MainMenuPlayButtonClickedEvent>.Register(playButtonBinding);
 
+        gameWinBinding = new EventBinding<GameWinEvent>(OnGameWin);
+        EventBus<GameWinEvent>.Register(gameWinBinding);
+
+        gameSceneLoadedBinding = new EventBinding<GameSceneLoaded>(() =>
+        {
+            DesactivateSceneByName("LoadingScreen");
+        });
+        EventBus<GameSceneLoaded>.Register(gameSceneLoadedBinding);
+
+
+
+        gameOverBinding = new EventBinding<GameOverEvent>(OnGameOver);
+        EventBus<GameOverEvent>.Register(gameOverBinding);
+
+
+
+
         await UniTask.CompletedTask;
     }
+
+    private async void OnGameOver(GameOverEvent arg0)
+    {
+        await CreateSceneByName("GameOver");
+        ActivateSceneByName("GameOver");
+        SetMainScene("GameOver");
+        // DesactivateSceneByName("Game");
+        UnloadSceneByName("Game");
+        // UnloadSceneByName("LoadingScreen");
+    }
+
+    private async void OnGameWin(GameWinEvent arg0)
+    {
+        await CreateSceneByName("GameWin");
+        ActivateSceneByName("GameWin");
+        SetMainScene("GameWin");
+        // DesactivateSceneByName("Game");
+        UnloadSceneByName("Game");
+        // UnloadSceneByName("LoadingScreen");
+
+    }
+
     private void OnMainMenuPlayButtonClicked()
     {
         ActivateSceneByName(SceneNames.LoadingScreen.ToString());
@@ -98,7 +144,8 @@ public class SceneLoader : MonoBehaviour
 
     public void UnloadSceneByName(string v)
     {
-        SceneManager.UnloadSceneAsync(v);
+        if (isSceneLoaded(v))
+            SceneManager.UnloadSceneAsync(v);
     }
     public void SetMainScene(string sceneName)
     {
@@ -123,6 +170,19 @@ public class SceneLoader : MonoBehaviour
         return null;
     }
 
+    bool isSceneLoaded(string sceneName)
+    {
+        foreach (var scene in scenes)
+        {
+            if (scene.sceneName == sceneName)
+            {
+                return scene.reference.IsValid();
+            }
+        }
+
+        return false;
+    }
+
     public void TransferObjects(string fromScene, string toScene)
     {
         Scene toSceneRef = default;
@@ -144,7 +204,7 @@ public class SceneLoader : MonoBehaviour
             return;
 
         }
-        Debug.Log("Mergning Scenes");
+        Debug.Log("Merging Scenes");
         SceneManager.MergeScenes(fromSceneRef, toSceneRef);
 
 
@@ -164,5 +224,6 @@ public enum SceneNames
     MainMenu,
     LoadingScreen,
     Game,
+    GameWin,
     GameOver,
 }

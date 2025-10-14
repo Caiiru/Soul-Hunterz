@@ -23,9 +23,12 @@ public class GameInitiator : MonoBehaviour
 
     //Events
 
-    EventBinding<MainMenuPlayButtonClickedEvent> menuPlayButtonBinding;
-    EventBinding<GameSceneLoaded> gameLoadedBinding;
+    EventBinding<MainMenuPlayButtonClickedEvent> menuPlayButtonBinding; 
     EventBinding<GameStartLoadingEvent> loadingEventBinding;
+
+    EventBinding<LoadMenuEvent> loadMenuBinding;
+
+
 
     public async void Start()
     {
@@ -33,6 +36,7 @@ public class GameInitiator : MonoBehaviour
 
         BindObjects();
         BindEvents();
+        await _sceneLoader.Initialize();
         await InitializeMainMenu();
         await InitializeAudio();
         await InitializeLoadingScreen();
@@ -60,29 +64,36 @@ public class GameInitiator : MonoBehaviour
     {
         menuPlayButtonBinding = new EventBinding<MainMenuPlayButtonClickedEvent>(OnMainMenuPlayButtonClicked);
         EventBus<MainMenuPlayButtonClickedEvent>.Register(menuPlayButtonBinding);
+ 
 
-        gameLoadedBinding = new EventBinding<GameSceneLoaded>(() =>
-        {
-        });
 
         loadingEventBinding = new EventBinding<GameStartLoadingEvent>(() =>
         {
         });
+        EventBus<GameStartLoadingEvent>.Register(loadingEventBinding);
+
+
+
+        loadMenuBinding = new EventBinding<LoadMenuEvent>((LoadMenuEvent eventData) =>
+        {
+            OnMainMenuRequest(eventData);
+        });
+        EventBus<LoadMenuEvent>.Register(loadMenuBinding);
+
     }
 
     async void OnMainMenuPlayButtonClicked()
     {
         _sceneLoader.UnloadSceneByName("Initiator");
         _sceneLoader.DesactivateSceneByName("MainMenu");
-        await InitializeGame();
-        EventBus<GameSceneLoaded>.Raise(new GameSceneLoaded());
-        _sceneLoader.ActivateSceneByName("Game");
+        await InitializeGame(); 
         _sceneLoader.DesactivateSceneByName("LoadingScreen");
+        EventBus<GameSceneLoaded>.Raise(new GameSceneLoaded());
     }
 
     public async UniTask InitializeMainMenu()
     {
-        await _sceneLoader.Initialize();
+        Debug.Log("Initialize Main Menu");
         await _sceneLoader.CreateSceneByName("MainMenu");
         _sceneLoader.ActivateSceneByName("MainMenu");
 
@@ -107,7 +118,29 @@ public class GameInitiator : MonoBehaviour
         await UniTask.CompletedTask;
     }
 
+    public async void OnMainMenuRequest(LoadMenuEvent eventData)
+    {
+        string sceneName = eventData.fromScene;
+        if (sceneName == null) return;
 
+        _sceneLoader.UnloadSceneByName(sceneName);
+        // switch (sceneName)
+        // {
+        //     case "GameWin":
+        //         _sceneLoader.UnloadSceneByName("GameOver");
+        //         break;
+        //     case "GameOver":
+        //         _sceneLoader.UnloadSceneByName("GameWin");
+        //         break;
+        //     default:
+        //         Debug.LogWarning("Not identified scene");
+        //         break;
+        // }
+        // _sceneLoader.UnloadSceneByName("Game");
+
+        await InitializeMainMenu();
+
+    }
     public async UniTask InitializeAudio()
     {
         await _audioManager.Initialize();

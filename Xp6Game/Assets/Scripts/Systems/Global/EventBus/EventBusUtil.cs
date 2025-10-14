@@ -82,7 +82,7 @@ public static class EventBusUtil
         {
             var busType = typedef.MakeGenericType(eventType);
             eventBusType.Add(busType);
-            Debug.Log($"Initialized EventBus <{eventType.Name}>");
+            // Debug.Log($"Initialized EventBus <{eventType.Name}>");
         }
         return eventBusType;
     }

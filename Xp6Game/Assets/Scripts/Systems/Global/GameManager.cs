@@ -34,6 +34,8 @@ public class GameManager : MonoBehaviour
     EventBinding<GameSceneLoaded> gameLoadedBinding;
     EventBinding<GameStartLoadingEvent> gameStartLoadingBinding;
     EventBinding<GameStartEvent> gameStartEventBinding;
+    //INGAME
+    EventBinding<EnemyDiedEvent> enemyDiedEventBinding;
 
     #endregion
 
@@ -85,6 +87,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         BindEvents();
+        BindEnemiesEvents();
         // BindObjects();
         // await SpawnObjects();
         // PrepareGame();
@@ -108,7 +111,14 @@ public class GameManager : MonoBehaviour
         });
 
 
+
     }
+    void BindEnemiesEvents()
+    {
+        enemyDiedEventBinding = new EventBinding<EnemyDiedEvent>(OnEnemyDied);
+        EventBus<EnemyDiedEvent>.Register(enemyDiedEventBinding); 
+    }
+
 
     #region Events Methods
     private async void OnGameSceneLoaded(GameSceneLoaded arg0)
@@ -120,6 +130,15 @@ public class GameManager : MonoBehaviour
         ChangeGameState(GameState.MainMenu);
     }
 
+    private void OnEnemyDied(EnemyDiedEvent arg0)
+    { 
+        enemiesDefeated++;
+        if (!IsGameState(GameState.Playing)) return;
+        if (enemiesDefeated >= enemiesToDefeatToWin)
+        {
+            ActivateWinAltar();
+        }
+    }
     #endregion
 
     private async UniTask Initialize()
@@ -154,7 +173,7 @@ public class GameManager : MonoBehaviour
         altarSpawnPositions = GameObject.FindGameObjectsWithTag("AltarSpawnPos").ToList();
 
         SpawnStartAltar();
-        SpawnWinAltar();
+        await SpawnWinAltar();
         SpawnPlayer();
         await _enemyManager.Initialize();
         //Spawn enemies pool 
@@ -241,13 +260,18 @@ public class GameManager : MonoBehaviour
 
     #region Altar Handling
 
-    void SpawnWinAltar()
+    async UniTask SpawnWinAltar()
     {
         _endZone = Instantiate(EndZonePrefab, Vector3.zero, Quaternion.identity);
+
+        await UniTask.WaitForSeconds(0.1f);
+        Debug.Log("Win Altar Spawned and Desactivated");
         _endZone.SetActive(false);
     }
     void ActivateWinAltar()
     {
+        if (_endZone.activeSelf) return;
+        Debug.Log("Win altar instancied");
         _endZone.SetActive(true);
         _endZone.transform.position = GetRandomAltarSpawn().transform.position;
     }
@@ -274,18 +298,10 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-    public void EnemyDefeated()
-    {
-        // Check for win condition
-        if (!IsGameState(GameState.Playing)) return;
-        if (enemiesDefeated >= enemiesToDefeatToWin)
-        {
-            ActivateWinAltar();
-        }
-    }
     public void WinGame()
     {
         ChangeGameState(GameState.Win);
+        EventBus<GameWinEvent>.Raise(new GameWinEvent());
     }
     public void LoseGame()
     {

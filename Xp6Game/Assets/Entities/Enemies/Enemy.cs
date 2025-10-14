@@ -74,8 +74,9 @@ public class Enemy : Entity
 
     protected override void Die()
     {
+        EventBus<EnemyDiedEvent>.Raise(new EnemyDiedEvent());
+        Debug.Log("Enemy died");
         base.Die();
-        GameManager.Instance.EnemyDefeated();
     }
 
     protected virtual void SpawnHitVFX()

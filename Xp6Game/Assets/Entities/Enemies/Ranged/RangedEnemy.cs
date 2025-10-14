@@ -41,12 +41,16 @@ public class RangedEnemy : Enemy
     }
 
     public override void Attack()
-    { 
+    {
         if (rangedEnemyData.bulletPrefab != null && _firePoint != null)
         {
             Instantiate(rangedEnemyData.bulletPrefab, _firePoint.position, _firePoint.rotation);
-            
+
         }
+    }
+    protected override void Die()
+    {
+        base.Die();
     }
 
 }
