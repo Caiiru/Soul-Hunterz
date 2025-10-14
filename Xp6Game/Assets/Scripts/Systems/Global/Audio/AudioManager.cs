@@ -13,12 +13,12 @@ public class AudioManager : MonoBehaviour
     public static AudioManager Instance => instance;
     void Awake()
     {
-        if (instance != this)
+        if (instance != this && instance != null)
         {
-            Destroy(this);
+            Destroy(this.gameObject);
         }
         instance = this;
-        DontDestroyOnLoad(this);
+        DontDestroyOnLoad(this.gameObject);
     }
     #endregion
     public async UniTask Initialize()
@@ -29,7 +29,7 @@ public class AudioManager : MonoBehaviour
 
     
     public void PlayOneShotAtPosition(EventReference eventRef, Vector3 position)
-    {
+    { 
         RuntimeManager.PlayOneShot(eventRef, position);
     }
 

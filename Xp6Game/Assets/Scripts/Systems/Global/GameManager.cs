@@ -84,7 +84,7 @@ public class GameManager : MonoBehaviour
     #region Begin Game
     private async void Start()
     {
-        await BindEvents();
+        BindEvents();
         // BindObjects();
         // await SpawnObjects();
         // PrepareGame();
@@ -93,7 +93,7 @@ public class GameManager : MonoBehaviour
     }
 
 
-    async UniTask BindEvents()
+    void BindEvents()
     {
         mainMenuLoadedBinding = new EventBinding<MainMenuLoadedEvent>(OnMainMenuLoadedHandler);
         EventBus<MainMenuLoadedEvent>.Register(mainMenuLoadedBinding);
@@ -301,7 +301,7 @@ public class GameManager : MonoBehaviour
     {
         return _enemyManager;
     }
- 
+
 }
 
 public enum GameState

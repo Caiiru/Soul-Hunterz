@@ -10,9 +10,7 @@ public class Entity : MonoBehaviour
 
     protected Transform _visualTransform;
 
-
-    AudioManager _audioManager;
-
+ 
     protected virtual void OnEnable()
     {
         Initialize();
@@ -33,7 +31,7 @@ public class Entity : MonoBehaviour
             _visualTransform = Instantiate(entityData.visualPrefab, transform).transform;
         }
 
-        _audioManager = AudioManager.Instance;
+        
 
         transform.name = entityData.name;
     }
@@ -66,11 +64,13 @@ public class Entity : MonoBehaviour
 
     #region Sounds 
     protected void PlayOneShotAtPosition(EventReference audioEvent)
-    {
-        if (!_audioManager) return;
-        if (audioEvent.IsNull) return;
-        Debug.Log("Play ");
-        _audioManager.PlayOneShotAtPosition(audioEvent, transform.position);
+    { 
+        if (audioEvent.IsNull)
+        {
+            Debug.LogWarning("No Audio Event");
+            return;
+        } 
+        AudioManager.Instance.PlayOneShotAtPosition(audioEvent, transform.position);
 
     }
 
