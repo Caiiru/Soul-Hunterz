@@ -4,14 +4,18 @@ using UnityEngine;
 
 
 public class EnemyManager : MonoBehaviour
+
 {
+    [Header("Enemy Empty Prefab")]
+    [SerializeField] private GameObject EmptyEnemyRanged;
+    [SerializeField] private GameObject EmptyEnemyMelee;
+ 
     [Header("Enemy Pool")]
     [SerializeField] private int maxEnemies = 50;
-    [SerializeField] List<GameObject> enemyPool;
+    [SerializeField] List<GameObject> rangedPool;
 
-    [SerializeField] private GameObject enemyPrefab;
 
-    [SerializeField] private EnemySpawner _enemySpawner;
+    private EnemySpawner _enemySpawner;
 
     Transform _enemyHolder;
 
@@ -21,7 +25,7 @@ public class EnemyManager : MonoBehaviour
         _enemyHolder.SetParent(transform);
         _enemyHolder.transform.name = "EnemyHolder";
 
-        await SpawnEnemyPool();
+        await SpawnRangedEnemyPool();
 
         if (TryGetComponent<EnemySpawner>(out EnemySpawner comp))
         {
@@ -31,23 +35,21 @@ public class EnemyManager : MonoBehaviour
         {
             _enemySpawner = gameObject.AddComponent<EnemySpawner>();
         }
-
-
     }
 
-    async UniTask SpawnEnemyPool()
+    async UniTask SpawnRangedEnemyPool()
     {
         for (int i = 0; i < maxEnemies; i++)
         {
-            GameObject enemy = Instantiate(enemyPrefab, _enemyHolder);
-            enemyPool.Add(enemy);
+            GameObject enemy = Instantiate(EmptyEnemyRanged, _enemyHolder);
+            rangedPool.Add(enemy);
             enemy.SetActive(false);
         }
         await UniTask.CompletedTask;
     }
-    public GameObject GetEnemy()
+    public GameObject GetRangedEnemy()
     {
-        foreach (GameObject enemy in enemyPool)
+        foreach (GameObject enemy in rangedPool)
         {
             if (!enemy.activeSelf)
             {
@@ -57,8 +59,7 @@ public class EnemyManager : MonoBehaviour
         return null;
     }
     public void StartSpawning()
-    {
-        Debug.Log("Enemy Manager Start Spawning");
+    { 
         _enemySpawner.StartSpawning();
     }
     public void StopSpawning()

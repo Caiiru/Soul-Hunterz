@@ -17,8 +17,11 @@ public class EndMenuManager : MonoBehaviour
 
     public void BackToMainMenu()
     {
-// ;        GameManager.Instance.ChangeGameState(GameState.MainMenu);
-        SceneManager.LoadScene("Game", LoadSceneMode.Single);
+        // ;        GameManager.Instance.ChangeGameState(GameState.MainMenu);
+        // SceneManager.LoadScene("Initiator", LoadSceneMode.Single);
+        string sceneName = SceneManager.GetActiveScene().name;
+        Debug.Log($"FROM {sceneName}");
+        EventBus<LoadMenuEvent>.Raise(new LoadMenuEvent() { fromScene =  sceneName});
     }
 
     public void QuitGame()

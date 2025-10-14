@@ -3,9 +3,11 @@ using UnityEngine;
 
 public abstract class AbstractWeapon : MonoBehaviour
 {
-    public WeaponSO WeaponData; 
+    public WeaponSO WeaponData;
 
-    public List<ComponentSO> ComponentList = new List<ComponentSO>();
+    public GameObject bulletPrefab;
+    public int currentIndexSlot = 0;
+    public ComponentSO[] weaponComponents;
     [Space]
     [Header("Stats")]
 
@@ -13,7 +15,7 @@ public abstract class AbstractWeapon : MonoBehaviour
     public float AttackRate;
     public float AttackDamage;
 
-
+    public Transform _firePoint;
     // Visual
 
     public Sprite Icon;
@@ -24,11 +26,11 @@ public abstract class AbstractWeapon : MonoBehaviour
     public GameObject meshPrefab;
 
     public virtual void Start()
-    { 
+    {
     }
     void OnEnable()
     {
-        InitializeWeapon();
+        // InitializeWeapon();
     }
     public virtual void InitializeWeapon()
     {
@@ -44,14 +46,24 @@ public abstract class AbstractWeapon : MonoBehaviour
             Rarity = WeaponData.Rarity;
             RarityColor = WeaponData.RarityColor;
 
-            ComponentList = WeaponData.components;
+            weaponComponents = WeaponData.components.ToArray();
             meshPrefab = WeaponData.meshPrefab;
-            if (meshPrefab != null)
+            if (meshPrefab == null)
             {
-                GameObject mesh = Instantiate(WeaponData.meshPrefab, transform);
-                Debug.Log("Spawn Weapon mesh");
+                Debug.LogError("Weaponn without mesh");
+                return;
             }
+            GameObject mesh = Instantiate(WeaponData.meshPrefab, transform);
+            _firePoint = transform.Find("FirePoint");
+
+            bulletPrefab.GetComponent<Bullet>().SetBullet(WeaponData.bullet);
+
         }
     }
-    public virtual void Attack(Transform attackPoint, Vector3 direction) { }
+
+    public BulletSO GetBullet()
+    {
+        return WeaponData.bullet;
+    }
+    public virtual void Attack() { }
 }

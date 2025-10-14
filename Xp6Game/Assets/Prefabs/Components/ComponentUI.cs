@@ -6,7 +6,8 @@ using UnityEngine.UI;
 
 public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
 {
-    [SerializeField] bool canDrag = false;
+    [SerializeField] bool canDrag = true;
+    [SerializeField] bool isInventoryOpen = false;
 
     Vector3 startDragPosition;
     [SerializeField]
@@ -19,21 +20,28 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     Vector3 normalScale;
     Vector3 dragScale;
 
-    void Start()
+    public ComponentSO componentData;
+
+    void OnEnable()
+    {
+
+        Initialize();
+        SetDraggable(true);
+    }
+
+    public void Initialize()
     {
         PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
         inventoryCanvas = transform.parent.parent.parent;
 
         inventoryCanvas = GetPlayerInventory();
-
-        // canvasParent = transform.parent.parent;
     }
 
 
 
     private void HandleInventoryToggle(bool isOpen)
     {
-        canDrag = isOpen;
+        isInventoryOpen = isOpen;
 
     }
     void OnDestroy()
@@ -44,7 +52,9 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (!canDrag) return;
+        if (!isDraggable()) return;
+
+
         startDragPosition = this.transform.position;
         oldParent = transform.parent;
         transform.SetParent(inventoryCanvas);
@@ -54,11 +64,13 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
         transform.DOScale(dragScale, 0.1f);
 
+        currentSlot.ClearSlot();
+
         // this.transform.SetParent(canvasParent);
     }
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (!canDrag) return;
+        if (!isDraggable()) return;
 
 
         Collider2D hitCollider = Physics2D.OverlapPoint(transform.position);
@@ -73,13 +85,17 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         }
 
         transform.DOScale(normalScale, 0.1f);
-        this.transform.DOMove(startDragPosition, 0.2f).OnComplete(() => transform.SetParent(oldParent));
+        this.transform.DOMove(startDragPosition, 0.2f).OnComplete(() => {
+            transform.SetParent(oldParent); 
+            oldParent.GetComponent<ComponentSlot>().OverrideComponent(this);
+        });
+
 
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!canDrag) return;
+        if (!isDraggable()) return;
         transform.position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1);
         // transform.SetParent(null);
 
@@ -90,14 +106,34 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         currentSlot = slot;
     }
 
-    public void SetComponentVisual(ComponentSO visualData)
+    public void SetVisualByData()
     {
-        this.GetComponent<Image>().sprite = visualData.Icon;
+        this.GetComponent<Image>().sprite = componentData.Icon;
+    }
+
+    public void SetComponentVisual(ComponentSO componentData)
+    {
+        this.componentData = componentData;
+        SetVisualByData();
+    }
+    public void SetComponentSprite(Sprite newIcon)
+    {
+        this.GetComponent<Image>().sprite = newIcon;
     }
     private Transform GetPlayerInventory()
     {
         GameObject player = GameManager.Instance.GetPlayer();
         return player.GetComponentInChildren<PlayerInventory>().GetInventoryTransform();
+    }
+
+    public bool isDraggable()
+    {
+        return canDrag && isInventoryOpen;
+    }
+
+    public void SetDraggable(bool draggable)
+    {
+        canDrag = draggable;
     }
 
 }

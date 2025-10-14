@@ -13,12 +13,12 @@ public class WeaponSO : ScriptableObject
     public GameObject meshPrefab;
 
     [Header("Attack Params")]
+    public BulletSO bullet;
     public float AttackRange;
     public float AttackRate;
     public float AttackDamage;
 
     [Header("Components Params")]
-    public int ModifierCount;
     public List<ComponentSO> components; 
 
 
