@@ -22,7 +22,7 @@ public class EnemySpawner : MonoBehaviour
 
     void Start()
     {
-        _enemyManager = GameManager.Instance.GetEnemyManager;
+        _enemyManager = GameManager.Instance.GetEnemyManager();
         enemySpawnPosition = GameObject.FindGameObjectsWithTag("EnemySpawnPos");
 
         if (enemySpawnPosition.Length == 0)
