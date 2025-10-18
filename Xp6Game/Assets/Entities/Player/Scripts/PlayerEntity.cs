@@ -17,7 +17,9 @@ public class PlayerEntity : Entity
     protected override void Die()
     {
         base.Die();
-        GameManager.Instance.LoseGame();
+        // GameManager.Instance.LoseGame();
+        EventBus<GameOverEvent>.Raise(new GameOverEvent());
+
     }
 }
 
