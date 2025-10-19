@@ -150,7 +150,7 @@ MonoBehaviour:
     x: 2
     y: -693
     width: 2426
-    height: 1962
+    height: 1966
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -248,7 +248,7 @@ MonoBehaviour:
   - {fileID: 114780028408030698}
   - {fileID: 8926484042661614859}
   dataType: 0
-  capacity: 64
+  capacity: 1
   stripCapacity: 16
   particlePerStripCount: 16
   needsComputeBounds: 0
@@ -1118,7 +1118,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
           PublicKeyToken=b77a5c561934e089
-      m_SerializableObject: 1
+      m_SerializableObject: 0
     m_Space: -1
   m_Property:
     name: Delay
@@ -1304,7 +1304,7 @@ MonoBehaviour:
       m_Type:
         m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
           PublicKeyToken=b77a5c561934e089
-      m_SerializableObject: 1
+      m_SerializableObject: 0
     m_Space: -1
   m_Property:
     name: Delay
@@ -1849,7 +1849,7 @@ MonoBehaviour:
   - {fileID: 8926484042661614631}
   - {fileID: 8926484042661614657}
   dataType: 0
-  capacity: 64
+  capacity: 1
   stripCapacity: 16
   particlePerStripCount: 16
   needsComputeBounds: 0
@@ -4704,7 +4704,7 @@ MonoBehaviour:
   - {fileID: 8926484042661614782}
   - {fileID: 8926484042661614787}
   dataType: 0
-  capacity: 64
+  capacity: 1
   stripCapacity: 16
   particlePerStripCount: 16
   needsComputeBounds: 0
@@ -6649,7 +6649,7 @@ MonoBehaviour:
   - {fileID: 8926484042661614900}
   - {fileID: 8926484042661614932}
   dataType: 0
-  capacity: 64
+  capacity: 1
   stripCapacity: 16
   particlePerStripCount: 16
   needsComputeBounds: 0
