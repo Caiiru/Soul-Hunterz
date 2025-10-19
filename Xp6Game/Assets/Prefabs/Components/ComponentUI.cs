@@ -32,8 +32,8 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     public void Initialize()
     {
         PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
+        if (GameManager.Instance == null) return; 
         inventoryCanvas = transform.parent.parent.parent;
-
         inventoryCanvas = GetPlayerInventory();
     }
 
