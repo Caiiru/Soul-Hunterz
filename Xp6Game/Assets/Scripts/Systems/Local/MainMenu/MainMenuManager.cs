@@ -1,32 +1,25 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class MainMenuManager : MonoBehaviour
 {
     [SerializeField] private GameObject mainMenuUI;
+    [SerializeField] private GameObject gameOverMenuUI;
     [SerializeField] private GameObject settingsUI;
     [SerializeField] private Camera menuCamera;
     [SerializeField] private EventSystem eventSystem;
-    void Start()
+
+    #region Events 
+
+    #endregion 
+  
+    public void OnStartButtonPressed()
     {
-
+        EventBus<MainMenuPlayButtonClickedEvent>.Raise(new MainMenuPlayButtonClickedEvent());
+        
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    public async void StartGame()
-    {
-        await GameInitiator.Instance.InitializeGame();
-        Debug.Log("Game Started");
-        GameManager.Instance.ChangeGameState(GameState.StartingGame);
-        DisableMenu();
-
-    }
-
+  
     public void OpenSettings()
     {
         mainMenuUI.SetActive(false);
@@ -51,6 +44,11 @@ public class MainMenuManager : MonoBehaviour
         mainMenuUI.SetActive(true);
         menuCamera.transform.gameObject.SetActive(true);
         eventSystem.gameObject.SetActive(true);
+    }
+    public void EnableGameOverMenu()
+    {
+        mainMenuUI.SetActive(false);
+        gameOverMenuUI.SetActive(true);
     }
 
     public void QuitGame()

@@ -16,9 +16,9 @@ public class Melee_DummyEnemy : Enemy
     private Animator _animator;
     public List<SlashVFX> slashes;
     public int currentSlash = 0;
-    protected override void Start()
+    protected override void OnEnable()
     {
-        base.Start();
+        base.OnEnable();
         _animator = GetComponent<Animator>();
         VFXDebugManager.OnInputPressed += OnInputPressed;
 
@@ -38,9 +38,8 @@ public class Melee_DummyEnemy : Enemy
 
     // Update is called once per frame
 
-    protected override void Update()
-    {
-        base.Update();
+    protected void Update()
+    { 
         HandleTimer();
     }
 
@@ -56,8 +55,9 @@ public class Melee_DummyEnemy : Enemy
         }
 
     }
-    void Attack()
+    public override void Attack()
     {
+        
         _animator.SetTrigger("Attack");
 
     }

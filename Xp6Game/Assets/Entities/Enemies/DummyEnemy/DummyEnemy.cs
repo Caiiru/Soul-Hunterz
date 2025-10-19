@@ -17,17 +17,16 @@ public class DummyEnemy : Enemy
 
     public GameObject bulletPrefab;
     public GameObject fireVFXPrefab;
-    protected override void Start()
+    protected override void OnEnable()
     {
-        base.Start();
+        base.OnEnable();
         VFXDebugManager.OnInputPressed += OnInputPressed;
         _animator = GetComponentInChildren<Animator>();
         _attackTimer = 0;
     }
-    protected override void Update()
-    {
-        base.Update();
-        HandleTimer();
+    async void Update()
+    { 
+        await HandleTimer();
     }
 
     private async UniTask HandleTimer()
@@ -50,10 +49,10 @@ public class DummyEnemy : Enemy
             StopShooting();
     }
 
-    private void StartShooting()
+    async void StartShooting()
     {
         _canAttack = true;
-        Aim();
+        await Aim();
     }
 
 
@@ -71,9 +70,9 @@ public class DummyEnemy : Enemy
         await UniTask.CompletedTask;
         // Attack();
     }
-    private void Attack()
-    {
-        Debug.Log("Attacking");
+    public override void Attack()
+    { 
+        base.Attack();
         _attackTimer = 0;
         GameObject bullet = Instantiate(bulletPrefab, _firePoint.transform.position, Quaternion.identity);
         // bullet.transform.position = _firePoint.transform.position;

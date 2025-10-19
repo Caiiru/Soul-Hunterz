@@ -8,7 +8,7 @@ public class DummyBullet : Bullet
     void Start()
     {
         Direction = transform.forward;
-        Initialize();
+        this.Initialize(Direction, new BulletPayload());
     }
 
     // Update is called once per frame
@@ -18,20 +18,7 @@ public class DummyBullet : Bullet
     }
     void OnCollisionEnter(Collision collision)
     {
-        if (!wasInstancied) return;
-        Debug.Log($"Bullet colission with {collision.transform.name}");
-        if (collision.gameObject.TryGetComponent<Enemy>(out var enemy))
-        {
-            enemy.SendMessage("TakeDamage", Damage);
-
-        }
-        if (hitVFX)
-        {
-            GameObject vfx = Instantiate(hitVFX, transform.position, transform.rotation);
-            Destroy(vfx, 5f);
-        }
-
-        Destroy(gameObject);
+        HandleCollision(collision.gameObject);
     }
     void OnDrawGizmos()
     {

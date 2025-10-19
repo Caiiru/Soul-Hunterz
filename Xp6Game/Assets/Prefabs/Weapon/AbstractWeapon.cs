@@ -6,7 +6,8 @@ public abstract class AbstractWeapon : MonoBehaviour
     public WeaponSO WeaponData;
 
     public GameObject bulletPrefab;
-    public List<ComponentSO> ComponentList = new List<ComponentSO>();
+    public int currentIndexSlot = 0;
+    public ComponentSO[] weaponComponents;
     [Space]
     [Header("Stats")]
 
@@ -45,19 +46,24 @@ public abstract class AbstractWeapon : MonoBehaviour
             Rarity = WeaponData.Rarity;
             RarityColor = WeaponData.RarityColor;
 
-            ComponentList = WeaponData.components;
+            weaponComponents = WeaponData.components.ToArray();
             meshPrefab = WeaponData.meshPrefab;
             if (meshPrefab == null)
             {
                 Debug.LogError("Weaponn without mesh");
-                return; 
+                return;
             }
             GameObject mesh = Instantiate(WeaponData.meshPrefab, transform);
-            _firePoint = mesh.transform.GetChild(0).transform;
+            _firePoint = transform.Find("FirePoint");
 
-            bulletPrefab = WeaponData.bullet;
+            bulletPrefab.GetComponent<Bullet>().SetBullet(WeaponData.bullet);
 
         }
+    }
+
+    public BulletSO GetBullet()
+    {
+        return WeaponData.bullet;
     }
     public virtual void Attack() { }
 }

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Unity.Cinemachine;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -20,7 +19,7 @@ public class GameManager : MonoBehaviour
         else
         {
             Instance = this;
-            // DontDestroyOnLoad(this.gameObject);
+            DontDestroyOnLoad(this.gameObject);
         }
     }
     #endregion
@@ -30,7 +29,17 @@ public class GameManager : MonoBehaviour
     public delegate void GameStateChangeHandler(GameState newState);
     public static event GameStateChangeHandler OnGameStateChange;
 
+
+    EventBinding<MainMenuLoadedEvent> mainMenuLoadedBinding;
+    EventBinding<GameSceneLoaded> gameLoadedBinding;
+    EventBinding<GameStartLoadingEvent> gameStartLoadingBinding;
+    EventBinding<GameStartEvent> gameStartEventBinding;
+    //INGAME
+    EventBinding<EnemyDiedEvent> enemyDiedEventBinding;
+
     #endregion
+
+
     [Space]
     [Header("Bind Objects")]
 
@@ -60,15 +69,12 @@ public class GameManager : MonoBehaviour
     private GameObject _environment;
     private GameObject _startZone;
     private GameObject _endZone;
-    [SerializeField] private EnemyManager _enemyManager;
-
-    public EnemyManager GetEnemyManager => _enemyManager;
+    private EnemyManager _enemyManager;
 
     [Space]
     [Header("Start Settings")]
 
     public List<GameObject> altarSpawnPositions;
-
 
     [Space]
     [Header("Win Settings")]
@@ -78,13 +84,76 @@ public class GameManager : MonoBehaviour
 
 
     #region Begin Game
-    private async void Start()
+    private void Start()
+    {
+        BindEvents();
+        BindEnemiesEvents();
+        // BindObjects();
+        // await SpawnObjects();
+        // PrepareGame();
+
+        // await BeginGame();
+    }
+
+
+    void BindEvents()
+    {
+        mainMenuLoadedBinding = new EventBinding<MainMenuLoadedEvent>(OnMainMenuLoadedHandler);
+        EventBus<MainMenuLoadedEvent>.Register(mainMenuLoadedBinding);
+
+        gameLoadedBinding = new EventBinding<GameSceneLoaded>(OnGameSceneLoaded);
+        EventBus<GameSceneLoaded>.Register(gameLoadedBinding);
+
+        gameStartLoadingBinding = new EventBinding<GameStartLoadingEvent>(() =>
+        {
+            ChangeGameState(GameState.Loading);
+
+        });
+
+
+
+    }
+    void BindEnemiesEvents()
+    {
+        enemyDiedEventBinding = new EventBinding<EnemyDiedEvent>(OnEnemyDied);
+        EventBus<EnemyDiedEvent>.Register(enemyDiedEventBinding); 
+    }
+
+
+    #region Events Methods
+    private async void OnGameSceneLoaded(GameSceneLoaded arg0)
+    {
+        await Initialize();
+    }
+    private void OnMainMenuLoadedHandler()
+    {
+        ChangeGameState(GameState.MainMenu);
+    }
+
+    private void OnEnemyDied(EnemyDiedEvent arg0)
+    { 
+        enemiesDefeated++;
+        if (!IsGameState(GameState.Playing)) return;
+        if (enemiesDefeated >= enemiesToDefeatToWin)
+        {
+            ActivateWinAltar();
+        }
+    }
+    #endregion
+
+    private async UniTask Initialize()
     {
         BindObjects();
         await SpawnObjects();
         PrepareGame();
 
+        EventBus<GameReadyToStartEvent>.Raise(new GameReadyToStartEvent());
+        ChangeGameState(GameState.StartingGame);
+
         await BeginGame();
+
+        EventBus<GameStartEvent>.Raise(new GameStartEvent());
+        await UniTask.CompletedTask;
     }
 
     private void BindObjects()
@@ -96,19 +165,17 @@ public class GameManager : MonoBehaviour
         Instantiate(EventSystemPrefab);
 
         _popupManagerGO = Instantiate(PopupManagerPrefab);
-        var enemyManagerGO = Instantiate(EnemyManagerPrefab);
-
-        _enemyManager = enemyManagerGO.GetComponent<EnemyManager>();
-
+        _enemyManager = Instantiate(EnemyManagerPrefab).GetComponent<EnemyManager>();
     }
     private async UniTask SpawnObjects()
     {
         _environment = Instantiate(EnvironmentPrefab);
-        await _enemyManager.Initialize();
         altarSpawnPositions = GameObject.FindGameObjectsWithTag("AltarSpawnPos").ToList();
+
         SpawnStartAltar();
-        SpawnWinAltar();
+        await SpawnWinAltar();
         SpawnPlayer();
+        await _enemyManager.Initialize();
         //Spawn enemies pool 
         await UniTask.CompletedTask;
     }
@@ -124,8 +191,9 @@ public class GameManager : MonoBehaviour
         _enemyManager.StartSpawning();
         await UniTask.CompletedTask;
     }
-
     #endregion
+
+
     private void FixedUpdate()
     {
         // HandleSpawning();
@@ -181,8 +249,8 @@ public class GameManager : MonoBehaviour
                 // Handle Game Over logic
                 break;
             case GameState.Win:
-                // Handle Win  
-                SceneManager.LoadScene("EndMenuScene", LoadSceneMode.Single);
+                // Handle Win 
+
                 break;
 
             default:
@@ -192,13 +260,18 @@ public class GameManager : MonoBehaviour
 
     #region Altar Handling
 
-    void SpawnWinAltar()
+    async UniTask SpawnWinAltar()
     {
         _endZone = Instantiate(EndZonePrefab, Vector3.zero, Quaternion.identity);
+
+        await UniTask.WaitForSeconds(0.1f);
+        Debug.Log("Win Altar Spawned and Desactivated");
         _endZone.SetActive(false);
     }
     void ActivateWinAltar()
     {
+        if (_endZone.activeSelf) return;
+        Debug.Log("Win altar instancied");
         _endZone.SetActive(true);
         _endZone.transform.position = GetRandomAltarSpawn().transform.position;
     }
@@ -223,22 +296,12 @@ public class GameManager : MonoBehaviour
 
         return altarSpawnPosition;
     }
-    #endregion 
+    #endregion
 
-    public void EnemyDefeated()
-    {
-        Debug.Log("One more enemy defeated");
-        // Check for win condition
-        if (!IsGameState(GameState.Playing)) return;
-        enemiesDefeated++;
-        if (enemiesDefeated >= enemiesToDefeatToWin)
-        {
-            ActivateWinAltar();
-        }
-    }
     public void WinGame()
     {
         ChangeGameState(GameState.Win);
+        EventBus<GameWinEvent>.Raise(new GameWinEvent());
     }
     public void LoseGame()
     {
@@ -248,6 +311,11 @@ public class GameManager : MonoBehaviour
     public GameObject GetPlayer()
     {
         return _playerGO;
+    }
+
+    public EnemyManager GetEnemyManager()
+    {
+        return _enemyManager;
     }
 
 }

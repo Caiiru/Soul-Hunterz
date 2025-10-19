@@ -1,38 +1,117 @@
+using System; 
 using UnityEngine;
-
-[RequireComponent(typeof(Rigidbody))]
+ 
 public abstract class Bullet : MonoBehaviour
-{
-    Rigidbody _rigidbody;
-    Collider _collider;
-
+{ 
+    [Header("Data")]
+    public BulletSO bulletData;
     public Vector3 Direction;
     public float Speed = 10f;
-    public float LifeTime = 1f;
+    public float LifeTime = 2f;
 
-    public int Damage = 10;
+    public int Damage = 1;
+    public int BonusDamage = 0;
 
-    protected bool wasInstancied = false;
+    [SerializeField] protected bool wasInstancied = false;
     protected virtual void OnEnable()
+    {  
+    }
+ 
+    public virtual void FixedUpdate()
     {
-        _rigidbody = GetComponent<Rigidbody>();
-        _collider = GetComponent<Collider>();
-        if (!_rigidbody)
+        if(!wasInstancied) return;
+        transform.position+= Direction.normalized * Speed * Time.fixedDeltaTime;
+    }
+
+    /// <summary>
+    /// Inicializa a bala com base nos dados do payload.
+    /// </summary>
+    /// <param name="direction">A direção inicial da bala.</param>
+    /// <param name="payload">O payload contendo modificadores.</param>
+    public virtual void Initialize(Vector3 direction, BulletPayload payload)
+    {
+        wasInstancied = true;  
+        LoadData();
+
+        // Aplica modificadores do payload
+        this.Direction = direction;
+        this.BonusDamage = (int)payload.BonusDamage;
+        this.Speed *= payload.SpeedMultiplier;
+        this.LifeTime *= payload.LifetimeMultiplier;
+
+        Destroy(gameObject, LifeTime);
+    }
+    void OnCollisionEnter(Collision collision)
+    {
+        HandleCollision(collision.gameObject);
+    }
+    public virtual void HandleCollision(GameObject target)
+    { 
+        if (target.TryGetComponent<Enemy>(out var enemy))
         {
-            Debug.LogError("No rigidbody attached to the bullet");
+            
+            enemy.SendMessage("TakeDamage", GetBulletDamage());
+
+        }
+        Destroy(gameObject);
+
+        if(bulletData.hitVFX)
+        {
+            GameObject vfx = Instantiate(bulletData.hitVFX, transform.position, transform.rotation);
+            Destroy(vfx, 5f);
         }
     }
-
-    // Update is called once per frame
-    void Update()
+    
+    private void LoadData()
     {
-
+        if (bulletData)
+        {
+            Speed = bulletData.Speed;
+            LifeTime = bulletData.LifeTime;
+            Damage = bulletData.BaseDamage;
+        }
+    }
+    public BulletSO GetBulletData()
+    {
+        return bulletData;
     }
 
-    public virtual void Initialize()
+    internal void SetBullet(BulletSO bullet)
     {
-        wasInstancied = true;
-        _rigidbody.linearVelocity = Direction.normalized * Speed;
-        Destroy(gameObject, LifeTime);
+        bulletData = bullet;
+        LoadData();
+    }
+
+    internal int GetBulletDamage()
+    {
+        if (bulletData == null)
+        {
+            Debug.LogError("No bullet data assigned to bullet");
+            return Damage;
+        }
+        
+        // damage threshold 
+
+        Damage = bulletData.BaseDamage;
+
+        System.Random rand = new System.Random();
+
+        int roll = rand.Next(0, 100); 
+        if (roll < bulletData.CritChance)
+        {
+            Damage = Mathf.RoundToInt(Damage*bulletData.CritMultiplier); 
+        }
+        else
+        {
+            float damageReduction = UnityEngine.Random.Range(0.0f, 0.25f); 
+            
+            float threshold = (bulletData.BaseDamage * damageReduction);  
+            Damage -= Mathf.RoundToInt(threshold);
+  
+            if (Damage < 1) Damage = 1;
+            
+        }
+        
+        return Damage + BonusDamage;
     }
 }

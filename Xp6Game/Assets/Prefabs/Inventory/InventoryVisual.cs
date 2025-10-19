@@ -21,11 +21,16 @@ public class InventoryVisual : MonoBehaviour
     //PRIVATE
     private Canvas _canvas;
 
+    //events
+
+    public delegate void UpdateWeaponVisualDelegate(int slot, ComponentSO component);
+    public static event UpdateWeaponVisualDelegate OnUpdateWeaponVisual;
+
     void Start()
     {
         _canvas = GetComponent<Canvas>();
         PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
-        PlayerInventory.OnPlayerGetWeapon += UpdateWeaponVisual;
+        PlayerInventory.OnPlayerGetWeapon += AddWeaponVisual;
         HandleInventoryToggle(false);
 
 
@@ -45,17 +50,22 @@ public class InventoryVisual : MonoBehaviour
     {
 
         PlayerInventory.OnPlayerInventoryToggle -= HandleInventoryToggle;
-        PlayerInventory.OnPlayerGetWeapon -= UpdateWeaponVisual;
+        PlayerInventory.OnPlayerGetWeapon -= AddWeaponVisual;
     }
     private void HandleInventoryToggle(bool isOpen)
     {
         _canvas.enabled = isOpen;
     }
-    public void UpdateWeaponVisual(AbstractWeapon weapon, int slot)
+    public void AddWeaponVisual(AbstractWeapon weapon, int slot)
     {
         GameObject visual = Instantiate(weaponVisualPrefab, weaponsPanel);
 
-        visual.GetComponent<UIWeaponVisual>().UpdateVisual(weapon, componentUIPrefab); 
+        visual.GetComponent<UIWeaponVisual>().UpdateVisual(weapon, componentUIPrefab);
+    }
+    
+    public void UpdateWeaponVisual(int slot, ComponentSO component)
+    {
+        OnUpdateWeaponVisual?.Invoke(slot,component);
     }
 
     void Update()

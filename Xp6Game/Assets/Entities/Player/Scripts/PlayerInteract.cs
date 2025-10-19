@@ -5,7 +5,10 @@ using UnityEngine.InputSystem;
 public class PlayerInteract : MonoBehaviour
 {
     public int interactRadius = 4;
-    StarterAssetsInputs _playerInput; 
+    public bool isDebugging = false;
+    StarterAssetsInputs _playerInput;
+
+    Collider[] interactColliders = new Collider[3];
 
     void Start()
     {
@@ -29,12 +32,12 @@ public class PlayerInteract : MonoBehaviour
 
     void CastInteract()
     {
-        var hit = Physics.OverlapSphere(transform.position, 4);
 
-        if (hit == null)
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, interactRadius, interactColliders, 1<<10); 
+        if (hitCount == 0)
             return;
 
-        foreach (var obj in hit)
+        foreach (var obj in interactColliders)
         {
             if (obj.TryGetComponent<Interactable>(out Interactable comp))
             {
@@ -42,7 +45,7 @@ public class PlayerInteract : MonoBehaviour
                     continue;
 
                 comp.Interact();
-                return;
+                break; 
             }
         }
     }
@@ -50,6 +53,7 @@ public class PlayerInteract : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         //Sphere Gizmos to Interact Radius
+        if (!isDebugging) return;
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, interactRadius);
     }
