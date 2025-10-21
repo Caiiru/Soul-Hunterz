@@ -286,29 +286,33 @@ namespace StarterAssets
             Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
 
             // note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
+
+            Vector3 forwardDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
+            Vector3 leftDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.left;
             // if there is a move input rotate player when the player is moving
             if (_input.move != Vector2.zero)
             {
-                // _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
-                //                   _mainCamera.transform.eulerAngles.y;
+                _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
+                                  _mainCamera.transform.eulerAngles.y;
                 // // _targetRotation = Mathf.Atan2(aimDirection.x, aimDirection.z) * Mathf.Rad2Deg +
                 // //     _mainCamera.transform.eulerAngles.y;
                 // // float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
                 // //     RotationSmoothTime);
 
-                // float rot = Mathf.Atan2(aimDirection.x, aimDirection.z) * Mathf.Rad2Deg;
-                // float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, rot, ref _rotationVelocity,
-                //                   RotationSmoothTime);
-                // // // rotate to face input direction relative to camera position
-                // transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                float rot = Mathf.Atan2(aimDirection.x, aimDirection.z) * Mathf.Rad2Deg;
+                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, rot, ref _rotationVelocity,
+                                  RotationSmoothTime);
+                // // rotate to face input direction relative to camera position
+                transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
             }
 
 
-            Vector3 forwardDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
-            Vector3 rightDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.right; 
-            
-            Vector3 moveDirection = (forwardDirection.normalized * inputDirection.z) + (rightDirection.normalized * inputDirection.x);
+            // Vector3 moveDirection = (forwardDirection.normalized * inputDirection.z) + (rightDirection.normalized * inputDirection.x);
 
+            Vector3 moveDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
+            Vector3 animMoveDirection = (forwardDirection.normalized * inputDirection.z) + (leftDirection.normalized * inputDirection.x);
+
+            Debug.DrawRay(transform.position, animMoveDirection * 5, Color.rebeccaPurple);
 
             // move the player
             _controller.Move(moveDirection * (_speed * Time.deltaTime) +
@@ -320,11 +324,11 @@ namespace StarterAssets
                 // _animator.SetFloat(_animIDSpeed, _animationBlend);
 
                 // _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
-                _animator.SetFloat(_animIDSpeedX, inputDirection.normalized.x);
-                _animator.SetFloat(_animIDSpeedZ, inputDirection.normalized.z);
+                _animator.SetFloat(_animIDSpeedX, animMoveDirection.normalized.x);
+                _animator.SetFloat(_animIDSpeedZ, animMoveDirection.normalized.z);
             }
 
-            
+
         }
         private void Roll()
         {
@@ -401,7 +405,7 @@ namespace StarterAssets
                     _verticalVelocity = -2f;
                 }
 
-                 
+
             }
             else
             {
@@ -421,7 +425,7 @@ namespace StarterAssets
                         // _animator.SetBool(_animIDFreeFall, true);
                     }
                 }
- 
+
             }
 
             // apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)
