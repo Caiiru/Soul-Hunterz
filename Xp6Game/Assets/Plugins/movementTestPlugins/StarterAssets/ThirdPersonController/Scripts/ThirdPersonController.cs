@@ -172,6 +172,7 @@ namespace StarterAssets
             // _hasAnimator = TryGetComponent(out _animator);
 
             // JumpAndGravity();
+            HandleGravity();
             Roll();
             LookAtMouse();
             GroundedCheck();
@@ -322,6 +323,8 @@ namespace StarterAssets
                 _animator.SetFloat(_animIDSpeedX, inputDirection.normalized.x);
                 _animator.SetFloat(_animIDSpeedZ, inputDirection.normalized.z);
             }
+
+            
         }
         private void Roll()
         {
@@ -377,8 +380,9 @@ namespace StarterAssets
                 // // rotate to face input direction relative to camera position
                 transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
             }
+
         }
-        private void JumpAndGravity()
+        private void HandleGravity()
         {
             if (Grounded)
             {
@@ -397,24 +401,7 @@ namespace StarterAssets
                     _verticalVelocity = -2f;
                 }
 
-                // Jump
-                if (_input.jump && _jumpTimeoutDelta <= 0.0f)
-                {
-                    // the square root of H * -2 * G = how much velocity needed to reach desired height
-                    _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
-
-                    // update animator if using character
-                    if (_hasAnimator)
-                    {
-                        _animator.SetBool(_animIDRoll, true);
-                    }
-                }
-
-                // jump timeout
-                if (_jumpTimeoutDelta >= 0.0f)
-                {
-                    _jumpTimeoutDelta -= Time.deltaTime;
-                }
+                 
             }
             else
             {
@@ -434,9 +421,7 @@ namespace StarterAssets
                         // _animator.SetBool(_animIDFreeFall, true);
                     }
                 }
-
-                // if we are not grounded, do not jump
-                _input.jump = false;
+ 
             }
 
             // apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)
