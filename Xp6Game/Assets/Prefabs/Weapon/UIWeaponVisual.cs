@@ -69,10 +69,10 @@ public class UIWeaponVisual : MonoBehaviour
         bulletGO.transform.localPosition = Vector3.zero;
         bulletGO.transform.DOScale(Vector3.one, 0.1f);
         bullet.SetDraggable(false);
-    }
-
+    } 
     Transform GetInventoryTransform()
     {
+        if (GameManager.Instance == null) return null;
         GameObject player = GameManager.Instance.GetPlayer();
         return player.GetComponentInChildren<PlayerInventory>().GetInventoryTransform();
     }
