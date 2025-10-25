@@ -22,7 +22,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     public ComponentSO componentData;
 
-    void OnEnable()
+    void Start()
     {
 
         Initialize();
@@ -31,16 +31,20 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     public void Initialize()
     {
+        // Debug.Log("Initialize");
         PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
-        if (GameManager.Instance == null) return; 
-        inventoryCanvas = transform.parent.parent.parent;
+        // if (GameManager.Instance == null) return;
+        // inventoryCanvas = transform.parent.parent.parent;
         inventoryCanvas = GetPlayerInventory();
+
+        // Debug.Log(inventoryCanvas);
     }
 
 
 
     private void HandleInventoryToggle(bool isOpen)
     {
+        // Debug.Log($"Open {isOpen}");
         isInventoryOpen = isOpen;
 
     }
@@ -52,6 +56,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        Debug.Log("Begin Drag");
         if (!isDraggable()) return;
 
 
@@ -85,8 +90,9 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         }
 
         transform.DOScale(normalScale, 0.1f);
-        this.transform.DOMove(startDragPosition, 0.2f).OnComplete(() => {
-            transform.SetParent(oldParent); 
+        this.transform.DOMove(startDragPosition, 0.2f).OnComplete(() =>
+        {
+            transform.SetParent(oldParent);
             oldParent.GetComponent<ComponentSlot>().OverrideComponent(this);
         });
 
@@ -95,6 +101,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     public void OnDrag(PointerEventData eventData)
     {
+        Debug.Log("on drag");
         if (!isDraggable()) return;
         transform.position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1);
         // transform.SetParent(null);
@@ -122,8 +129,19 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     }
     private Transform GetPlayerInventory()
     {
-        GameObject player = GameManager.Instance.GetPlayer();
-        return player.GetComponentInChildren<PlayerInventory>().GetInventoryTransform();
+        // Debug.Log("Get player inventory");
+        if (GameManager.Instance == null)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            // Debug.Log("Player Found By tag");
+            return player.GetComponentInChildren<PlayerInventory>().GetInventoryTransform();
+        }
+        else
+        {
+            GameObject player = GameManager.Instance.GetPlayer();
+            // Debug.Log("Player Found By game manager");
+            return player.GetComponentInChildren<PlayerInventory>().GetInventoryTransform();
+        }
     }
 
     public bool isDraggable()

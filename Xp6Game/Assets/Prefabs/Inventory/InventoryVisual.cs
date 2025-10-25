@@ -15,9 +15,6 @@ public class InventoryVisual : MonoBehaviour
 
     private GameObject[] componentsArray;
 
-
-
-
     //PRIVATE
     private Canvas _canvas;
 
