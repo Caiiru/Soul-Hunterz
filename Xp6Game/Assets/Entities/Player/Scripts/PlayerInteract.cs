@@ -16,6 +16,9 @@ public class PlayerInteract : MonoBehaviour
 #if ENABLE_INPUT_SYSTEM 
         _playerInput = GetComponent<StarterAssetsInputs>();
 
+        GetComponent<BoxCollider>().size = new Vector3(interactRadius, interactRadius, interactRadius);
+
+
 #else
 		Debug.LogError( "Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
@@ -56,13 +59,15 @@ public class PlayerInteract : MonoBehaviour
         // Debug.Log(other.name);
         if (other.CompareTag("Interactable"))
         {
-            EventBus<OnInteractEnterEvent>.Raise(new OnInteractEnterEvent{InteractableName = other.name});
+            // Debug.Log("Enter");
+            EventBus<OnInteractEnterEvent>.Raise(new OnInteractEnterEvent { InteractableName = other.name });
         }
     }
     void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Interactable"))
         {
+            // Debug.Log("Leave");
             EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
         }
     }

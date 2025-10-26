@@ -1,6 +1,8 @@
 using DG.Tweening;
+using StarterAssets;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerHUD : MonoBehaviour
 {
@@ -8,9 +10,11 @@ public class PlayerHUD : MonoBehaviour
     Transform _inventoryTransform;
     [SerializeField]
     Transform _interactTransform;
-
-
     bool _isHovering = false;
+
+#if ENABLE_INPUT_SYSTEM
+    InputAction _interactInput;
+#endif
     // Events
     EventBinding<OnInteractEnterEvent> onInteractEnterBinding;
     EventBinding<OnInteractLeaveEvent> onInteractLeaveBinding;
@@ -22,6 +26,7 @@ public class PlayerHUD : MonoBehaviour
         EventBus<OnInteractLeaveEvent>.Register(onInteractLeaveBinding);
 
         _interactTransform.gameObject.SetActive(false);
+        _interactInput = StarterAssetsInputs.Instance.GetInteractAction().action;
     }
     void OnDisable()
     {
@@ -36,8 +41,10 @@ public class PlayerHUD : MonoBehaviour
         Debug.Log($"Hovering {eventData.InteractableName}");
         _isHovering = true;
         _interactTransform.gameObject.SetActive(true);
-        _interactTransform.GetComponentInChildren<TextMeshProUGUI>().text = $"Press F to interact with {eventData.InteractableName}";
-        _interactTransform.DOPunchScale(Vector3.one, 0.2f, 2, 0.5f).SetEase(Ease.InOutBounce).OnComplete(() =>
+#if ENABLE_INPUT_SYSTEM
+        _interactTransform.GetComponentInChildren<TextMeshProUGUI>().text = $"Press {_interactInput.GetBindingDisplayString(0)} to interact with {eventData.InteractableName}";
+#endif
+        _interactTransform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InBounce).OnComplete(() =>
         {
             // _interactTransform.DOScale(Vector3.one - new Vector3(0.1f, 0.1f, 0.1f), 0.5f).SetEase(Ease.InSine).Flip();
             _interactTransform.transform.localScale = Vector3.one;
@@ -47,7 +54,7 @@ public class PlayerHUD : MonoBehaviour
     void OnInteractLeave()
     {
         if (!_isHovering) return;
-        _interactTransform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InOutBounce).OnComplete(() =>
+        _interactTransform.DOScale(Vector3.zero, 0.1f).SetEase(Ease.Flash).OnComplete(() =>
         {
             _isHovering = false;
             _interactTransform.gameObject.SetActive(false);

@@ -21,35 +21,12 @@ public class WinAltar : MonoBehaviour, Interactable
     {
         interactText.transform.position = new Vector3(interactText.transform.position.x, interactText.transform.position.y - interactDistance, interactText.transform.position.z);
         interactText.enabled = false;
+        transform.name = "Win";
         _canInteract = true;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-
-
-    void OnTriggerEnter(Collider other)
-    {
-        if (!other.gameObject.CompareTag("Player"))
-        {
-            return;
-        }
-        ActivatePopup();
-
-        // GameManager.Instance.ChangeGameState(GameState.MainMenu);
-
     }
 
     void OnTriggerExit(Collider collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            DesactivatePopup();
-        }
     }
 
     void ActivatePopup()
