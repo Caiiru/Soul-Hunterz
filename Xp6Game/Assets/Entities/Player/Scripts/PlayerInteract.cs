@@ -10,11 +10,12 @@ public class PlayerInteract : MonoBehaviour
 
     Collider[] interactColliders = new Collider[3];
 
+
     void Start()
     {
 #if ENABLE_INPUT_SYSTEM 
         _playerInput = GetComponent<StarterAssetsInputs>();
-        
+
 #else
 		Debug.LogError( "Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
@@ -33,7 +34,7 @@ public class PlayerInteract : MonoBehaviour
     void CastInteract()
     {
 
-        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, interactRadius, interactColliders, 1<<10); 
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, interactRadius, interactColliders, 1 << 10);
         if (hitCount == 0)
             return;
 
@@ -45,8 +46,24 @@ public class PlayerInteract : MonoBehaviour
                     continue;
 
                 comp.Interact();
-                break; 
+                break;
             }
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        // Debug.Log(other.name);
+        if (other.CompareTag("Interactable"))
+        {
+            EventBus<OnInteractEnterEvent>.Raise(new OnInteractEnterEvent{InteractableName = other.name});
+        }
+    }
+    void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Interactable"))
+        {
+            EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
         }
     }
 
