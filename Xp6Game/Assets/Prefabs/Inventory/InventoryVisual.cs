@@ -23,12 +23,20 @@ public class InventoryVisual : MonoBehaviour
     public delegate void UpdateWeaponVisualDelegate(int slot, ComponentSO component);
     public static event UpdateWeaponVisualDelegate OnUpdateWeaponVisual;
 
+    EventBinding<OnInventoryInputEvent> onInventoryToggleBinding;
+
+
     void Start()
     {
         _canvas = GetComponent<Canvas>();
-        PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
+        // PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
+
+        onInventoryToggleBinding = new EventBinding<OnInventoryInputEvent>(HandleInventoryToggle);
+        EventBus<OnInventoryInputEvent>.Register(onInventoryToggleBinding);
+
+
         PlayerInventory.OnPlayerGetWeapon += AddWeaponVisual;
-        HandleInventoryToggle(false);
+        // HandleInventoryToggle(false);
 
 
         componentsArray = new GameObject[componentCount];
@@ -46,23 +54,30 @@ public class InventoryVisual : MonoBehaviour
     void OnDisable()
     {
 
-        PlayerInventory.OnPlayerInventoryToggle -= HandleInventoryToggle;
+        // PlayerInventory.OnPlayerInventoryToggle -= HandleInventoryToggle;
         PlayerInventory.OnPlayerGetWeapon -= AddWeaponVisual;
     }
-    private void HandleInventoryToggle(bool isOpen)
+
+    void OnDestroy()
     {
-        _canvas.enabled = isOpen;
+        EventBus<OnInventoryInputEvent>.Unregister(onInventoryToggleBinding);
+
+    }
+    private void HandleInventoryToggle(OnInventoryInputEvent eventData)
+    {
+        // _canvas.enabled = eventData.isOpen;
     }
     public void AddWeaponVisual(AbstractWeapon weapon, int slot)
     {
+        Debug.Log("Add Weapon Visual");
         GameObject visual = Instantiate(weaponVisualPrefab, weaponsPanel);
 
         visual.GetComponent<UIWeaponVisual>().UpdateVisual(weapon, componentUIPrefab);
     }
-    
+
     public void UpdateWeaponVisual(int slot, ComponentSO component)
     {
-        OnUpdateWeaponVisual?.Invoke(slot,component);
+        OnUpdateWeaponVisual?.Invoke(slot, component);
     }
 
     void Update()

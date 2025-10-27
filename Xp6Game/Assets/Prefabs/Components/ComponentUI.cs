@@ -22,6 +22,9 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     public ComponentSO componentData;
 
+    //Event
+    EventBinding<OnInventoryInputEvent> onInventoryToggleBinding;
+
     void Start()
     {
 
@@ -32,7 +35,10 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     public void Initialize()
     {
         // Debug.Log("Initialize");
-        PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
+        // PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
+        onInventoryToggleBinding = new EventBinding<OnInventoryInputEvent>(HandleInventoryToggle);
+        EventBus<OnInventoryInputEvent>.Register(onInventoryToggleBinding);
+        
         // if (GameManager.Instance == null) return;
         // inventoryCanvas = transform.parent.parent.parent;
         inventoryCanvas = GetPlayerInventory();
@@ -42,15 +48,16 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
 
 
-    private void HandleInventoryToggle(bool isOpen)
+    private void HandleInventoryToggle(OnInventoryInputEvent eventData)
     {
         // Debug.Log($"Open {isOpen}");
-        isInventoryOpen = isOpen;
+        isInventoryOpen = eventData.isOpen;
 
     }
     void OnDestroy()
     {
-        PlayerInventory.OnPlayerInventoryToggle -= HandleInventoryToggle;
+        // PlayerInventory.OnPlayerInventoryToggle -= HandleInventoryToggle;
+        EventBus<OnInventoryInputEvent>.Unregister(onInventoryToggleBinding);
     }
 
 
@@ -101,7 +108,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     public void OnDrag(PointerEventData eventData)
     {
-        Debug.Log("on drag");
+        // Debug.Log("on drag");
         if (!isDraggable()) return;
         transform.position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1);
         // transform.SetParent(null);

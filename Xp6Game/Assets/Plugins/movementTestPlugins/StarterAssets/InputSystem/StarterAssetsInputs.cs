@@ -14,8 +14,8 @@ namespace StarterAssets
 		public Vector2 look;
 		public bool jump;
 		public bool sprint;
-
 		public bool interact;
+		public bool inventory;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -35,6 +35,8 @@ namespace StarterAssets
 
 		public delegate void PlayerInventoryHandler(bool isOpen);
 		public static event PlayerInventoryHandler OnPlayerInventoryToggle;
+
+
 
 		#endregion
 
@@ -91,9 +93,13 @@ namespace StarterAssets
 #endif
 
 		public void InventoryInput(bool newInventoryState)
-        {
-			OnPlayerInventoryToggle?.Invoke(newInventoryState);
-        }
+		{
+			if (newInventoryState == true)
+			{
+				inventory = !inventory;
+				OnPlayerInventoryToggle?.Invoke(inventory);
+			}
+		}
 		public void InteractInput(bool newInteractState)
 		{
 			interact = newInteractState;

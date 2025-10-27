@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using StarterAssets;
 using TMPro;
@@ -27,10 +28,15 @@ public class PlayerHUD : MonoBehaviour
 
 #if ENABLE_INPUT_SYSTEM
     InputAction _interactInput;
+    InputAction _inventoryInput;
 #endif
     // Events
     EventBinding<OnInteractEnterEvent> onInteractEnterBinding;
     EventBinding<OnInteractLeaveEvent> onInteractLeaveBinding;
+
+    EventBinding<OnInventoryInputEvent> onInventoryInputBinding;
+
+
     void OnEnable()
     {
         onInteractEnterBinding = new EventBinding<OnInteractEnterEvent>(OnInteractEnter);
@@ -38,13 +44,30 @@ public class PlayerHUD : MonoBehaviour
         onInteractLeaveBinding = new EventBinding<OnInteractLeaveEvent>(OnInteractLeave);
         EventBus<OnInteractLeaveEvent>.Register(onInteractLeaveBinding);
 
+        onInventoryInputBinding = new EventBinding<OnInventoryInputEvent>(InventoryToggle);
+        EventBus<OnInventoryInputEvent>.Register(onInventoryInputBinding);
+
         _interactTransform.gameObject.SetActive(false);
-        _interactInput = StarterAssetsInputs.Instance.GetInteractAction().action;
     }
     void OnDisable()
     {
         EventBus<OnInteractLeaveEvent>.Unregister(onInteractLeaveBinding);
         EventBus<OnInteractEnterEvent>.Unregister(onInteractEnterBinding);
+    }
+
+    void Start()
+    {
+        _interactInput = StarterAssetsInputs.Instance.GetInteractAction().action;
+        // StarterAssetsInputs.OnPlayerInventoryToggle += InventoryToggle;
+     
+     
+        EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = false });
+    }
+
+    private void InventoryToggle(OnInventoryInputEvent eventData)
+    {
+        // _inventoryTransform.gameObject.SetActive(eventData.isOpen);
+        _inventoryTransform.GetComponent<Canvas>().enabled = eventData.isOpen;
     }
 
 

@@ -12,9 +12,6 @@ public class PlayerInventory : MonoBehaviour
     InputAction _inventoryInput;
 
     [Header("Inventory KeyCodes")]
-    public KeyCode inventoryKey = KeyCode.E;
-
-    public KeyCode debugComponent = KeyCode.O;
     public KeyCode debugWeapon = KeyCode.P;
 
 
@@ -34,8 +31,6 @@ public class PlayerInventory : MonoBehaviour
 
     #region Events
 
-    public delegate void PlayerInventoryHandler(bool isOpen);
-    public static event PlayerInventoryHandler OnPlayerInventoryToggle;
 
     public delegate void PlayerGetWeapon(AbstractWeapon weapon, int slot);
     public static event PlayerGetWeapon OnPlayerGetWeapon;
@@ -66,6 +61,8 @@ public class PlayerInventory : MonoBehaviour
         HandleEvents();
         StartCoroutine(AddDebugWeapon());
 
+        // EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent{isOpen = false});
+
 
 
     }
@@ -78,18 +75,14 @@ public class PlayerInventory : MonoBehaviour
 
     void CheckInput()
     {
-        if (Input.GetKeyDown(inventoryKey))
-        {
-            // ToggleInventory();
-        }
         InputDebugWeapon();
     }
 
     void ToggleInventory(bool newState)
     {
-        isInventoryOpen = !newState;
+        isInventoryOpen = newState;
         // OnPlayerInventoryToggle?.Invoke(isInventoryOpen);
-        // EventBus<OnInteractEnterEvent>().Raise(new OnInventoryInput);
+        EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = newState });
     }
 
     public void AddWeapon(AbstractWeapon weapon)
@@ -102,6 +95,7 @@ public class PlayerInventory : MonoBehaviour
             if (weapons[i] == null)
             {
                 weapons[i] = weapon.gameObject;
+                Debug.Log("Add Weapon On Inventory");
                 OnPlayerGetWeapon?.Invoke(weapon, i);
                 return;
             }
@@ -154,7 +148,7 @@ public class PlayerInventory : MonoBehaviour
         if (!hasWeaponSlot())
             yield break;
 
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(5f);
         GameObject weapon = Instantiate(simpleWeaponPrefab, this.transform);
         weapon.GetComponent<AbstractWeapon>().InitializeWeapon();
         AddWeapon(weapon.GetComponent<AbstractWeapon>());
@@ -179,4 +173,9 @@ public class PlayerInventory : MonoBehaviour
         StarterAssetsInputs.OnChangeWeapon -= ChangeWeapon;
     }
 
+}
+
+public class OnInventoryInputEvent : IEvent
+{
+    public bool isOpen;
 }
