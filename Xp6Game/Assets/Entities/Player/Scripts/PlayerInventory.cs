@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using CMF;
 using StarterAssets;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerInventory : MonoBehaviour
 {
     [SerializeField] bool isInventoryOpen = false;
-
-    [SerializeField] Transform inventoryTransform;
-
     // private CharacterInput _characterInput;
+    InputAction _inventoryInput;
+
     [Header("Inventory KeyCodes")]
     public KeyCode inventoryKey = KeyCode.E;
 
@@ -56,6 +56,9 @@ public class PlayerInventory : MonoBehaviour
     }
     private void Initialize()
     {
+        //Input
+        StarterAssetsInputs.OnPlayerInventoryToggle += ToggleInventory;
+
         _weaponHolder = GetComponent<WeaponHolder>();
         if (!_weaponHolder) Debug.LogWarning("Weapon Holder not find");
         weapons = new GameObject[weaponCount];
@@ -77,15 +80,16 @@ public class PlayerInventory : MonoBehaviour
     {
         if (Input.GetKeyDown(inventoryKey))
         {
-            ToggleInventory();
+            // ToggleInventory();
         }
         InputDebugWeapon();
     }
 
-    void ToggleInventory()
+    void ToggleInventory(bool newState)
     {
-        isInventoryOpen = !isInventoryOpen;
-        OnPlayerInventoryToggle?.Invoke(isInventoryOpen);
+        isInventoryOpen = !newState;
+        // OnPlayerInventoryToggle?.Invoke(isInventoryOpen);
+        // EventBus<OnInteractEnterEvent>().Raise(new OnInventoryInput);
     }
 
     public void AddWeapon(AbstractWeapon weapon)
@@ -168,10 +172,6 @@ public class PlayerInventory : MonoBehaviour
         return true;
     }
 
-    public Transform GetInventoryTransform()
-    {
-        return inventoryTransform;
-    }
 
 
     void OnDisable()

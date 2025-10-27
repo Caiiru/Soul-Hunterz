@@ -48,7 +48,7 @@ public class UIWeaponVisual : MonoBehaviour
         {
             GameObject slot = Instantiate(SlotPrefab, ComponentsPanel);
             Slots[i] = slot;
-            slot.GetComponent<ComponentSlot>().SetWeapon(weapon,i);
+            slot.GetComponent<ComponentSlot>().SetWeapon(weapon, i);
 
             if (weapon.weaponComponents[i] != null)
             {
@@ -56,7 +56,7 @@ public class UIWeaponVisual : MonoBehaviour
                 ComponentUI component = componentGO.GetComponent<ComponentUI>();
                 component.SetComponentVisual(weapon.weaponComponents[i]);
 
-                
+
                 slot.GetComponent<ComponentSlot>().OverrideComponent(component);
 
             }
@@ -69,11 +69,12 @@ public class UIWeaponVisual : MonoBehaviour
         bulletGO.transform.localPosition = Vector3.zero;
         bulletGO.transform.DOScale(Vector3.one, 0.1f);
         bullet.SetDraggable(false);
-    } 
+    }
     Transform GetInventoryTransform()
     {
-        if (GameManager.Instance == null) return null;
-        GameObject player = GameManager.Instance.GetPlayer();
-        return player.GetComponentInChildren<PlayerInventory>().GetInventoryTransform();
+        if (PlayerHUD.Instance != null)
+            return PlayerHUD.Instance.transform;
+
+        return null;
     }
 }

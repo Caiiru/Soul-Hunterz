@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -15,7 +16,6 @@ namespace StarterAssets
 		public bool sprint;
 
 		public bool interact;
-		public bool inventory;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -32,6 +32,9 @@ namespace StarterAssets
 		#region Events
 		public delegate void ChangeWeaponHandler(int slot);
 		public static event ChangeWeaponHandler OnChangeWeapon;
+
+		public delegate void PlayerInventoryHandler(bool isOpen);
+		public static event PlayerInventoryHandler OnPlayerInventoryToggle;
 
 		#endregion
 
@@ -88,9 +91,9 @@ namespace StarterAssets
 #endif
 
 		public void InventoryInput(bool newInventoryState)
-		{
-			inventory = newInventoryState;
-		}
+        {
+			OnPlayerInventoryToggle?.Invoke(newInventoryState);
+        }
 		public void InteractInput(bool newInteractState)
 		{
 			interact = newInteractState;

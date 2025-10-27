@@ -6,6 +6,19 @@ using UnityEngine.InputSystem;
 
 public class PlayerHUD : MonoBehaviour
 {
+    //Singleton
+    private static PlayerHUD _instance;
+    public static PlayerHUD Instance => _instance;
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+            return;
+        }
+        _instance = this;
+    }
+
     [SerializeField]
     Transform _inventoryTransform;
     [SerializeField]
