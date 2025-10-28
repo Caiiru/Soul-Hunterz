@@ -5,6 +5,8 @@ public class InventoryVisual : MonoBehaviour
     public Transform weaponsPanel;
     public Transform componentsPanel;
 
+    public Transform dropZone;
+
     public GameObject weaponVisualPrefab;
     [Space]
     [Header("Components")]
