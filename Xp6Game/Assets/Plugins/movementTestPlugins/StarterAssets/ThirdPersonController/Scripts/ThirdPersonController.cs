@@ -107,6 +107,7 @@ namespace StarterAssets
         private int _animIDIsMoving;
         private int _animIDSpeedX;
         private int _animIDSpeedZ;
+        private int _animIDVelocity;
 
 #if ENABLE_INPUT_SYSTEM
         private PlayerInput _playerInput;
@@ -193,6 +194,7 @@ namespace StarterAssets
             _animIDSpeedX = Animator.StringToHash("SpeedX");
             _animIDSpeedZ = Animator.StringToHash("SpeedZ");
             _animIDIsMoving = Animator.StringToHash("isMoving");
+            _animIDVelocity = Animator.StringToHash("Velocity");
         }
 
         private void GroundedCheck()
@@ -290,6 +292,7 @@ namespace StarterAssets
             _animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * SpeedChangeRate);
             if (_animationBlend < 0.01f) _animationBlend = 0f;
 
+
             // normalise input direction
             Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
 
@@ -321,7 +324,26 @@ namespace StarterAssets
             Vector3 animMoveDirection = (forwardDirection.normalized * inputDirection.z) + (leftDirection.normalized * inputDirection.x);
 
             //Debug.DrawRay(transform.position, animMoveDirection * 5, Color.rebeccaPurple);
+            Quaternion animRotation = transform.rotation;
+            if (inputDirection.x > 0f)
+            {
+                animRotation = Quaternion.Euler(0, 90, 0);
+            }
+            else if (inputDirection.x < 0f)
+            {
+                animRotation = Quaternion.Euler(0, -90, 0);
 
+            }
+            if (inputDirection.z > 0f)
+            {
+                animRotation = Quaternion.Euler(0, 0, 0);
+            }
+            else if (inputDirection.z < 0f)
+            {
+                animRotation = Quaternion.Euler(0, 180, 0);
+                
+            }
+            transform.rotation = Quaternion.Slerp(transform.rotation, animRotation , Time.deltaTime * 10f);
             // move the player
             _controller.Move(moveDirection * (_speed * Time.deltaTime) +
                              new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
@@ -334,6 +356,7 @@ namespace StarterAssets
                 // _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
                 _animator.SetFloat(_animIDSpeedX, animMoveDirection.normalized.x);
                 _animator.SetFloat(_animIDSpeedZ, animMoveDirection.normalized.z);
+                _animator.SetFloat(_animIDVelocity, _animationBlend);
             }
 
 
@@ -365,6 +388,7 @@ namespace StarterAssets
 
         private void LookAtMouse()
         {
+            return;
             Vector2 mousePos = Input.mousePosition;
 
             Ray mouseRay = Camera.main.ScreenPointToRay(mousePos);
