@@ -324,26 +324,26 @@ namespace StarterAssets
             Vector3 animMoveDirection = (forwardDirection.normalized * inputDirection.z) + (leftDirection.normalized * inputDirection.x);
 
             //Debug.DrawRay(transform.position, animMoveDirection * 5, Color.rebeccaPurple);
-            Quaternion animRotation = transform.rotation;
-            if (inputDirection.x > 0f)
-            {
-                animRotation = Quaternion.Euler(0, 90, 0);
-            }
-            else if (inputDirection.x < 0f)
-            {
-                animRotation = Quaternion.Euler(0, -90, 0);
+            // Quaternion animRotation = transform.rotation;
+            // if (inputDirection.x > 0f)
+            // {
+            //     animRotation = Quaternion.Euler(0, 90, 0);
+            // }
+            // else if (inputDirection.x < 0f)
+            // {
+            //     animRotation = Quaternion.Euler(0, -90, 0);
 
-            }
-            if (inputDirection.z > 0f)
-            {
-                animRotation = Quaternion.Euler(0, 0, 0);
-            }
-            else if (inputDirection.z < 0f)
-            {
-                animRotation = Quaternion.Euler(0, 180, 0);
+            // }
+            // if (inputDirection.z > 0f)
+            // {
+            //     animRotation = Quaternion.Euler(0, 0, 0);
+            // }
+            // else if (inputDirection.z < 0f)
+            // {
+            //     animRotation = Quaternion.Euler(0, 180, 0);
                 
-            }
-            transform.rotation = Quaternion.Slerp(transform.rotation, animRotation , Time.deltaTime * 10f);
+            // }
+            // transform.rotation = Quaternion.Slerp(transform.rotation, animRotation , Time.deltaTime * 10f);
             // move the player
             _controller.Move(moveDirection * (_speed * Time.deltaTime) +
                              new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
@@ -388,7 +388,7 @@ namespace StarterAssets
 
         private void LookAtMouse()
         {
-            return;
+            // return; 
             Vector2 mousePos = Input.mousePosition;
 
             Ray mouseRay = Camera.main.ScreenPointToRay(mousePos);

@@ -8,9 +8,9 @@ public class PlayerInteract : MonoBehaviour
     public bool isDebugging = false;
     StarterAssetsInputs _playerInput;
 
-    Collider[] interactColliders = new Collider[3];
+    [SerializeField] Collider[] interactColliders = new Collider[3];
 
-
+    private bool interactIsPressed = false;
     void Start()
     {
 #if ENABLE_INPUT_SYSTEM 
@@ -31,16 +31,24 @@ public class PlayerInteract : MonoBehaviour
         {
             CastInteract();
         }
+        else
+        {
+            if (interactIsPressed)
+                interactIsPressed = false;
+        }
 
     }
 
     void CastInteract()
     {
+        if (interactIsPressed) return;
 
+        interactIsPressed = true;
+
+        interactColliders = new Collider[3];
         int hitCount = Physics.OverlapSphereNonAlloc(transform.position, interactRadius, interactColliders, 1 << 10);
         if (hitCount == 0)
             return;
-
         foreach (var obj in interactColliders)
         {
             if (obj.TryGetComponent<Interactable>(out Interactable comp))
@@ -60,7 +68,11 @@ public class PlayerInteract : MonoBehaviour
         if (other.CompareTag("Interactable"))
         {
             // Debug.Log("Enter");
-            EventBus<OnInteractEnterEvent>.Raise(new OnInteractEnterEvent { InteractableName = other.name });
+            EventBus<OnInteractEnterEvent>.Raise(new OnInteractEnterEvent
+            {
+                InteractableName = other.name,
+                interactableType = other.GetComponent<Interactable>().GetInteractableType()
+            });
         }
     }
     void OnTriggerExit(Collider other)

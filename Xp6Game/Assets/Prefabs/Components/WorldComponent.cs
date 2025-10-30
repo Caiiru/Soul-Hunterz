@@ -75,4 +75,10 @@ public class WorldComponent : MonoBehaviour, Interactable
                  interactText.enabled = false;
              });
     }
+
+    public InteractableType GetInteractableType()
+    {
+        throw new System.NotImplementedException();
+    }
+
 }

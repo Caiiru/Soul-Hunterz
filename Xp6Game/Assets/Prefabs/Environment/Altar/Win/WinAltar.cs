@@ -61,4 +61,9 @@ public class WinAltar : MonoBehaviour, Interactable
         DesactivatePopup();
         GameManager.Instance.WinGame();
     }
+
+    public InteractableType GetInteractableType()
+    {
+        return InteractableType.Interactable;
+    }
 }

@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerHUD : MonoBehaviour
 {
-    //Singleton
+    #region Singleton
     private static PlayerHUD _instance;
     public static PlayerHUD Instance => _instance;
     void Awake()
@@ -19,6 +19,8 @@ public class PlayerHUD : MonoBehaviour
         }
         _instance = this;
     }
+
+    #endregion
 
     [SerializeField]
     Transform _inventoryTransform;
@@ -37,7 +39,30 @@ public class PlayerHUD : MonoBehaviour
     EventBinding<OnInventoryInputEvent> onInventoryInputBinding;
 
 
-    void OnEnable()
+    [Header("Texts")]
+    [SerializeField] TextMeshProUGUI _interactText;
+
+
+
+    void Start()
+    {
+        _interactInput = StarterAssetsInputs.Instance.GetInteractAction().action;
+        BindObjects();
+        BindEvents();
+        EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = false });
+    }
+    void BindObjects()
+    {
+        _interactTransform.gameObject.SetActive(false);
+
+        //Text
+        if (_interactText == null)
+        {
+            _interactText = _interactTransform.GetComponentInChildren<TextMeshProUGUI>();
+        }
+    }
+
+    void BindEvents()
     {
         onInteractEnterBinding = new EventBinding<OnInteractEnterEvent>(OnInteractEnter);
         EventBus<OnInteractEnterEvent>.Register(onInteractEnterBinding);
@@ -46,22 +71,12 @@ public class PlayerHUD : MonoBehaviour
 
         onInventoryInputBinding = new EventBinding<OnInventoryInputEvent>(InventoryToggle);
         EventBus<OnInventoryInputEvent>.Register(onInventoryInputBinding);
-
-        _interactTransform.gameObject.SetActive(false);
     }
-    void OnDisable()
+    void UnbindEvents()
     {
+
         EventBus<OnInteractLeaveEvent>.Unregister(onInteractLeaveBinding);
         EventBus<OnInteractEnterEvent>.Unregister(onInteractEnterBinding);
-    }
-
-    void Start()
-    {
-        _interactInput = StarterAssetsInputs.Instance.GetInteractAction().action;
-        // StarterAssetsInputs.OnPlayerInventoryToggle += InventoryToggle;
-     
-     
-        EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = false });
     }
 
     private void InventoryToggle(OnInventoryInputEvent eventData)
@@ -74,26 +89,31 @@ public class PlayerHUD : MonoBehaviour
     void OnInteractEnter(OnInteractEnterEvent eventData)
     {
         if (_isHovering) return;
-        Debug.Log($"Hovering {eventData.InteractableName}");
+
+        string interactType = eventData.interactableType == InteractableType.Collectable ? "to collect " : "to interact with ";
         _isHovering = true;
         _interactTransform.gameObject.SetActive(true);
-#if ENABLE_INPUT_SYSTEM
-        _interactTransform.GetComponentInChildren<TextMeshProUGUI>().text = $"Press {_interactInput.GetBindingDisplayString(0)} to interact with {eventData.InteractableName}";
-#endif
-        _interactTransform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InBounce).OnComplete(() =>
+
+        _interactText.text = $"Press {_interactInput.GetBindingDisplayString(0)} {interactType}{eventData.InteractableName}";
+
+        _interactText.transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InBounce).OnComplete(() =>
         {
             // _interactTransform.DOScale(Vector3.one - new Vector3(0.1f, 0.1f, 0.1f), 0.5f).SetEase(Ease.InSine).Flip();
-            _interactTransform.transform.localScale = Vector3.one;
+            // _interactTransform.transform.localScale = Vector3.one;
         });
     }
 
     void OnInteractLeave()
     {
         if (!_isHovering) return;
-        _interactTransform.DOScale(Vector3.zero, 0.1f).SetEase(Ease.Flash).OnComplete(() =>
+        _interactText.transform.DOScale(Vector3.zero, 0.1f).SetEase(Ease.Flash).OnComplete(() =>
         {
             _isHovering = false;
             _interactTransform.gameObject.SetActive(false);
         });
+    }
+    void OnDisable()
+    {
+        UnbindEvents();
     }
 }
