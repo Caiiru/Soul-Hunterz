@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using UnityEditor.Timeline;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,16 +22,45 @@ public class CollectableItem : MonoBehaviour, Interactable
     [Header("Data")]
     [SerializeField] ComponentSO componentData;
 
+    [Header("VFX")]
+    // public GameObject enterVFX;
+    // public GameObject interactVFX;
+    [SerializeField] private GameObject _onEnterVFX;
+    [SerializeField] private GameObject _onInteractPrefabVFX;
+
+    //Player
+    [SerializeField] bool isPlayerInRange = false;
+
     Camera _mainCamera;
 
-    void Start()
+    async void Start()
     {
+        BindObjects();
+        await DesactivateIcon();
+    }
+
+    void BindObjects()
+    {
+
         if (componentData != null)
             OverrideItem();
         this.name = componentData.ComponentName;
         _iconHolder = this.transform.GetChild(0).transform;
         _startSize = _iconHolder.localScale;
         _mainCamera = Camera.main;
+
+        // if (enterVFX)
+        // {
+        //     _onEnterVFX = Instantiate(enterVFX, this.transform);
+        //     _onEnterVFX.SetActive(false);
+        // }
+        // if (interactVFX)
+        // {
+        //     _onInteractVFX = Instantiate(interactVFX, this.transform);
+        //     _onInteractVFX.SetActive(false);
+        // }
+        _onEnterVFX.SetActive(false);
+        // _onInteractPrefabVFX.SetActive(false);
     }
 
     void Update()
@@ -55,6 +85,7 @@ public class CollectableItem : MonoBehaviour, Interactable
         // return;
         if (other.CompareTag("Player"))
         {
+            isPlayerInRange = true;
             await PopupIcon();
 
         }
@@ -64,6 +95,7 @@ public class CollectableItem : MonoBehaviour, Interactable
     {
         if (other.CompareTag("Player"))
         {
+            isPlayerInRange = false;
             await DesactivateIcon();
         }
     }
@@ -79,6 +111,12 @@ public class CollectableItem : MonoBehaviour, Interactable
         _iconHolder.DOScale(_startSize, animDuration);
         _iconHolder.DOMoveY(_iconHolder.transform.position.y + offsetY, 0.25f);
 
+        if (_onEnterVFX)
+        {
+            _onEnterVFX.SetActive(true);
+            _onEnterVFX.GetComponent<ParticleSystem>().Play();
+        }
+
         return UniTask.CompletedTask;
     }
 
@@ -88,6 +126,13 @@ public class CollectableItem : MonoBehaviour, Interactable
         _iconHolder.DOMove(transform.position, animDuration);
         _iconHolder.DOScale(0, animDuration);
 
+        if (_onEnterVFX)
+        {
+            _onEnterVFX.GetComponent<ParticleSystem>().Stop();
+            await UniTask.Delay(5000);
+            if (!isPlayerInRange)
+                _onEnterVFX.SetActive(false);
+        }
         await UniTask.Delay(10);
         _itemIcon.color = new Color(255, 255, 255, 0);
         return UniTask.CompletedTask;
@@ -100,9 +145,12 @@ public class CollectableItem : MonoBehaviour, Interactable
 
     public void Interact()
     {
+        //Play VFX before desactivate
+        if (_onInteractPrefabVFX)
+        {
+            Instantiate(_onInteractPrefabVFX,transform.position, Quaternion.identity);
+        }
 
-        Debug.Log($"Interact with {componentData.ComponentName}");
-        // Destroy(this.gameObject);
 
         EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
         DesactiveItem();
