@@ -18,8 +18,6 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     ComponentSlot currentSlot;
 
-
-
     Vector3 normalScale;
     Vector3 dragScale;
 
@@ -31,26 +29,30 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     void Start()
     {
 
+        BindEvents();
         Initialize();
+
         SetDraggable(true);
     }
 
+    void BindEvents()
+    {
+
+        onInventoryToggleBinding = new EventBinding<OnInventoryInputEvent>(HandleInventoryToggle);
+        EventBus<OnInventoryInputEvent>.Register(onInventoryToggleBinding);
+
+    }
     public void Initialize()
     {
         // Debug.Log("Initialize");
         // PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
-        onInventoryToggleBinding = new EventBinding<OnInventoryInputEvent>(HandleInventoryToggle);
-        EventBus<OnInventoryInputEvent>.Register(onInventoryToggleBinding);
-
         // if (GameManager.Instance == null) return;
         // inventoryCanvas = transform.parent.parent.parent;
         _inventoryCanvas = GetPlayerInventory();
-        
-        
-        
+
         if (PlayerHUD.Instance != null)
             _hudTransform = PlayerHUD.Instance.transform;
-        
+
     }
 
 
@@ -70,7 +72,6 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        Debug.Log("Begin Drag");
         if (!isDraggable()) return;
 
 
@@ -93,7 +94,11 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
 
         Collider2D hitCollider = Physics2D.OverlapPoint(transform.position);
-        if (hitCollider != null && hitCollider.TryGetComponent(out ComponentSlot componentSlot))
+        var overlap = Physics2D.OverlapCircleAll(transform.position, 1f);
+        
+      
+
+        if (hitCollider.TryGetComponent(out ComponentSlot componentSlot))
         {
             if (componentSlot.isEmpty())
             {
@@ -103,12 +108,28 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
             }
         }
 
+        if (hitCollider.CompareTag("UI_DropZone"))
+        {
+            EventBus<OnDropComponent>.Raise(new OnDropComponent
+            {
+                data = this.componentData,
+
+            });
+
+            Destroy(this.gameObject);
+            return; 
+        }
+        if (hitCollider != null)
+        {
+            Debug.Log(hitCollider);
+        }
+
         transform.DOScale(normalScale, 0.1f);
         this.transform.DOMove(_startDragPosition, 0.2f).OnComplete(() =>
         {
             transform.SetParent(_oldParent);
             _oldParent.GetComponent<ComponentSlot>().OverrideComponent(this);
-            
+
         });
 
 

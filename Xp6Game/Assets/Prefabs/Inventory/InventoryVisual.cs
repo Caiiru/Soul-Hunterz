@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class InventoryVisual : MonoBehaviour
@@ -27,59 +28,47 @@ public class InventoryVisual : MonoBehaviour
 
     EventBinding<OnInventoryInputEvent> onInventoryToggleBinding;
 
+    EventBinding<OnCollectComponent> m_OnPlayerCollectComponent;
+
+
+
 
     void Start()
     {
-        _canvas = GetComponent<Canvas>();
+
         // PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
+
+        // HandleInventoryToggle(false);
+        BindObjects();
+        BindEvents();
+        Initialize();
+    }
+
+    void BindObjects()
+    {
+        _canvas = GetComponent<Canvas>();
+        componentsArray = new GameObject[componentCount];
+    }
+    void BindEvents()
+    {
 
         onInventoryToggleBinding = new EventBinding<OnInventoryInputEvent>(HandleInventoryToggle);
         EventBus<OnInventoryInputEvent>.Register(onInventoryToggleBinding);
 
+        m_OnPlayerCollectComponent = new EventBinding<OnCollectComponent>(HandlePlayerCollectComponent);
+        EventBus<OnCollectComponent>.Register(m_OnPlayerCollectComponent);
+
+
 
         PlayerInventory.OnPlayerGetWeapon += AddWeaponVisual;
-        // HandleInventoryToggle(false);
+    }
 
 
-        componentsArray = new GameObject[componentCount];
+
+    void Initialize()
+    {
+
         SpawnComponentsVisual();
-    }
-
-    void SpawnComponentsVisual()
-    {
-        for (int i = 0; i < componentCount; i++)
-        {
-            GameObject component = Instantiate(componentSlotPrefab, componentsPanel);
-            componentsArray[i] = component;
-        }
-    }
-    void OnDisable()
-    {
-
-        // PlayerInventory.OnPlayerInventoryToggle -= HandleInventoryToggle;
-        PlayerInventory.OnPlayerGetWeapon -= AddWeaponVisual;
-    }
-
-    void OnDestroy()
-    {
-        EventBus<OnInventoryInputEvent>.Unregister(onInventoryToggleBinding);
-
-    }
-    private void HandleInventoryToggle(OnInventoryInputEvent eventData)
-    {
-        // _canvas.enabled = eventData.isOpen;
-    }
-    public void AddWeaponVisual(AbstractWeapon weapon, int slot)
-    {
-        Debug.Log("Add Weapon Visual");
-        GameObject visual = Instantiate(weaponVisualPrefab, weaponsPanel);
-
-        visual.GetComponent<UIWeaponVisual>().UpdateVisual(weapon, componentUIPrefab);
-    }
-
-    public void UpdateWeaponVisual(int slot, ComponentSO component)
-    {
-        OnUpdateWeaponVisual?.Invoke(slot, component);
     }
 
     void Update()
@@ -99,5 +88,60 @@ public class InventoryVisual : MonoBehaviour
             }
 
         }
+    }
+
+    void SpawnComponentsVisual()
+    {
+        for (int i = 0; i < componentCount; i++)
+        {
+            GameObject component = Instantiate(componentSlotPrefab, componentsPanel);
+            componentsArray[i] = component;
+        }
+    }
+
+    private void HandlePlayerCollectComponent(OnCollectComponent arg0)
+    {
+        AddComponentVisual(arg0.data);
+    }
+
+    private void HandleInventoryToggle(OnInventoryInputEvent eventData)
+    {
+        // _canvas.enabled = eventData.isOpen;
+    }
+    public void AddWeaponVisual(AbstractWeapon weapon, int slot)
+    {
+        Debug.Log("Add Weapon Visual");
+        GameObject visual = Instantiate(weaponVisualPrefab, weaponsPanel);
+
+        visual.GetComponent<UIWeaponVisual>().UpdateVisual(weapon, componentUIPrefab);
+    }
+
+    void AddComponentVisual(ComponentSO data)
+    {
+        int index = 0;
+        foreach (var component in componentsArray)
+        {
+            if (component.GetComponent<ComponentSlot>().currentComponentUI == null)
+            {
+                GameObject comp = Instantiate(componentUIPrefab);
+                comp.GetComponent<ComponentUI>().SetComponentVisual(data);
+                componentsArray[index].GetComponent<ComponentSlot>().OverrideComponent(comp.GetComponent<ComponentUI>());
+                return;
+            }
+            index++;
+        }
+    }
+
+    public void UpdateWeaponVisual(int slot, ComponentSO component)
+    {
+        OnUpdateWeaponVisual?.Invoke(slot, component);
+    }
+
+
+    void OnDestroy()
+    {
+        PlayerInventory.OnPlayerGetWeapon -= AddWeaponVisual;
+        EventBus<OnInventoryInputEvent>.Unregister(onInventoryToggleBinding);
+        EventBus<OnCollectComponent>.Unregister(m_OnPlayerCollectComponent);
     }
 }

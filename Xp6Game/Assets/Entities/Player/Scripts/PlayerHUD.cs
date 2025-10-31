@@ -1,4 +1,6 @@
 using System;
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using StarterAssets;
 using TMPro;
@@ -23,10 +25,13 @@ public class PlayerHUD : MonoBehaviour
     #endregion
 
     [SerializeField]
-    Transform _inventoryTransform;
-    [SerializeField]
     Transform _interactTransform;
     bool _isHovering = false;
+
+    [Header("Inventory")]
+    [SerializeField]
+    Transform _inventoryTransform;
+    [SerializeField] Transform _dropZone;
 
 #if ENABLE_INPUT_SYSTEM
     InputAction _interactInput;
@@ -39,17 +44,16 @@ public class PlayerHUD : MonoBehaviour
     EventBinding<OnInventoryInputEvent> onInventoryInputBinding;
 
 
-    [Header("Texts")]
-    [SerializeField] TextMeshProUGUI _interactText;
+    // [Header("Texts")]
+    TextMeshProUGUI _interactText;
 
 
 
-    void Start()
+    async void Start()
     {
-        _interactInput = StarterAssetsInputs.Instance.GetInteractAction().action;
         BindObjects();
         BindEvents();
-        EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = false });
+        await Initialize();
     }
     void BindObjects()
     {
@@ -60,10 +64,21 @@ public class PlayerHUD : MonoBehaviour
         {
             _interactText = _interactTransform.GetComponentInChildren<TextMeshProUGUI>();
         }
+
+        if (!_dropZone)
+        {
+            _dropZone = _inventoryTransform.Find("DropZone");
+
+        }
+
     }
 
     void BindEvents()
     {
+        //Interact Button / Action
+
+        _interactInput = StarterAssetsInputs.Instance.GetInteractAction().action;
+
         onInteractEnterBinding = new EventBinding<OnInteractEnterEvent>(OnInteractEnter);
         EventBus<OnInteractEnterEvent>.Register(onInteractEnterBinding);
         onInteractLeaveBinding = new EventBinding<OnInteractLeaveEvent>(OnInteractLeave);
@@ -77,6 +92,15 @@ public class PlayerHUD : MonoBehaviour
 
         EventBus<OnInteractLeaveEvent>.Unregister(onInteractLeaveBinding);
         EventBus<OnInteractEnterEvent>.Unregister(onInteractEnterBinding);
+    }
+
+    async Task<UniTask> Initialize()
+    {
+        BoxCollider2D _dropZoneCollider = _dropZone.GetComponent<BoxCollider2D>();
+        _dropZoneCollider.size = _dropZone.GetComponent<RectTransform>().rect.size;
+
+        EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = false });
+        return UniTask.CompletedTask;
     }
 
     private void InventoryToggle(OnInventoryInputEvent eventData)

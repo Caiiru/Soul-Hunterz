@@ -18,6 +18,8 @@ public class ComponentSlot : MonoBehaviour
     void Start()
     {
         _transform = GetComponent<RectTransform>();
+        Vector2 _compSize = new Vector2(transform.GetComponent<RectTransform>().rect.width, transform.GetComponent<RectTransform>().rect.height);
+        transform.GetComponent<BoxCollider2D>().size = _compSize;
     } 
 
     public void OverrideComponent(ComponentUI component)

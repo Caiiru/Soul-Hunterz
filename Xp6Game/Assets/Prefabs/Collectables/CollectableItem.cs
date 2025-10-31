@@ -8,10 +8,14 @@ using UnityEngine.UI;
 public class CollectableItem : MonoBehaviour, Interactable
 {
 
+    [Header("Data")]
+    [SerializeField] ComponentSO componentData;
+
     [Header("Icon")]
     [SerializeField]
     Image _itemIcon;
     [SerializeField] Transform _iconHolder;
+    [SerializeField] Transform _mesh;
 
 
     [Header("Offset")]
@@ -19,8 +23,6 @@ public class CollectableItem : MonoBehaviour, Interactable
     [SerializeField] float offsetY = 10f;
     Vector3 _startSize;
 
-    [Header("Data")]
-    [SerializeField] ComponentSO componentData;
 
     [Header("VFX")]
     // public GameObject enterVFX;
@@ -31,10 +33,12 @@ public class CollectableItem : MonoBehaviour, Interactable
     //Player
     [SerializeField] bool isPlayerInRange = false;
 
+    public Rigidbody m_Rigidbody;
     Camera _mainCamera;
 
-    async void Start()
+    public async void Start()
     {
+
         BindObjects();
         await DesactivateIcon();
     }
@@ -48,6 +52,8 @@ public class CollectableItem : MonoBehaviour, Interactable
         _iconHolder = this.transform.GetChild(0).transform;
         _startSize = _iconHolder.localScale;
         _mainCamera = Camera.main;
+
+        m_Rigidbody = GetComponentInChildren<Rigidbody>();
 
         // if (enterVFX)
         // {
@@ -65,7 +71,8 @@ public class CollectableItem : MonoBehaviour, Interactable
 
     void Update()
     {
-        LookAtCamera();
+        if (transform.gameObject.activeSelf)
+            LookAtCamera();
     }
 
     void LookAtCamera()
@@ -148,9 +155,12 @@ public class CollectableItem : MonoBehaviour, Interactable
         //Play VFX before desactivate
         if (_onInteractPrefabVFX)
         {
-            Instantiate(_onInteractPrefabVFX,transform.position, Quaternion.identity);
+            Instantiate(_onInteractPrefabVFX, transform.position, Quaternion.identity);
         }
-
+        EventBus<OnCollectComponent>.Raise(new OnCollectComponent
+        {
+            data = componentData,
+        });
 
         EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
         DesactiveItem();
@@ -161,12 +171,32 @@ public class CollectableItem : MonoBehaviour, Interactable
     {
         transform.DOScale(0, animDuration).SetEase(Ease.InOutSine).OnComplete(() =>
         {
+            _mesh.transform.position = new Vector3(0, 0, 0);
+            m_Rigidbody.useGravity = false;
             this.transform.gameObject.SetActive(false);
         });
     }
 
+    public void SpawnOnPosition(Vector3 position, Vector3 force)
+    {
+        if (m_Rigidbody == null)
+        {
+            Debug.Log("Rigidbody is null");
+            return;
+        }
+        transform.position = position;
+        m_Rigidbody.AddForce(force, ForceMode.Impulse);
+        m_Rigidbody.useGravity = true;
+    }
+
+
     public InteractableType GetInteractableType()
     {
         return InteractableType.Collectable;
+    }
+
+    public void SetComponentData(ComponentSO data)
+    {
+        this.componentData = data;
     }
 }
