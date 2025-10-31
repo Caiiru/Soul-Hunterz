@@ -24,6 +24,8 @@ public interface IEventBinding<T>
 /// <typeparam name="T">The type of event this binding manages, constrained to IEvent.</typeparam>
 public class EventBinding<T> : IEventBinding<T> where T : IEvent
 {
+    private object v;
+
     public UnityAction<T> OnEvent { get; set; } = _ => { };
     public UnityAction OnEventNoArgs { get; set; } = () => { };
 
@@ -50,6 +52,11 @@ public class EventBinding<T> : IEventBinding<T> where T : IEvent
     /// </summary>
     /// <param name="onEventNoArgs">The action to execute when the event is fired.</param>
     public EventBinding(UnityAction onEventNoArgs) => this.OnEventNoArgs = onEventNoArgs;
+
+    public EventBinding(object v)
+    {
+        this.v = v;
+    }
 
     /// <summary>
     /// Adds a listener that does not accept event data.

@@ -1,10 +1,11 @@
 using DG.Tweening;
 using StarterAssets;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class WinAltar : MonoBehaviour, Interactable
+public class WorldComponent : MonoBehaviour, Interactable
 {
     [SerializeField]
     TextMeshProUGUI interactText;
@@ -16,17 +17,42 @@ public class WinAltar : MonoBehaviour, Interactable
     private float interactTimeTween = 0.5f;
 
     private bool _canInteract = true;
+    public bool CanInteract()
+    {
+        return _canInteract;
+    }
+
+    public void Interact()
+    {
+        if (!CanInteract())
+        {
+            return;
+        }
+
+        Debug.Log("Interact called");
+    }
 
     void Start()
     {
         interactText.transform.position = new Vector3(interactText.transform.position.x, interactText.transform.position.y - interactDistance, interactText.transform.position.z);
         interactText.enabled = false;
-        transform.name = "Win";
         _canInteract = true;
+    }
+    void OnTriggerEnter(Collider other)
+    {
+        if (!other.gameObject.CompareTag("Player"))
+        {
+            return;
+        }
+        ActivatePopup();
     }
 
     void OnTriggerExit(Collider collision)
     {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            DesactivatePopup();
+        }
     }
 
     void ActivatePopup()
@@ -49,21 +75,10 @@ public class WinAltar : MonoBehaviour, Interactable
                  interactText.enabled = false;
              });
     }
-    public bool CanInteract()
-    {
-        return _canInteract;
-    }
-
-    public void Interact()
-    {
-        // Debug.Log("Player Interacted with Win Altar");
-        _canInteract = false;
-        DesactivatePopup();
-        GameManager.Instance.WinGame();
-    }
 
     public InteractableType GetInteractableType()
     {
-        return InteractableType.Interactable;
+        throw new System.NotImplementedException();
     }
+
 }

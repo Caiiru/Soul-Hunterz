@@ -8,13 +8,17 @@ public class PlayerInteract : MonoBehaviour
     public bool isDebugging = false;
     StarterAssetsInputs _playerInput;
 
-    Collider[] interactColliders = new Collider[3];
+    [SerializeField] Collider[] interactColliders = new Collider[3];
 
+    private bool interactIsPressed = false;
     void Start()
     {
 #if ENABLE_INPUT_SYSTEM 
         _playerInput = GetComponent<StarterAssetsInputs>();
-        
+
+        GetComponent<BoxCollider>().size = new Vector3(interactRadius, interactRadius, interactRadius);
+
+
 #else
 		Debug.LogError( "Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
@@ -27,16 +31,24 @@ public class PlayerInteract : MonoBehaviour
         {
             CastInteract();
         }
+        else
+        {
+            if (interactIsPressed)
+                interactIsPressed = false;
+        }
 
     }
 
     void CastInteract()
     {
+        if (interactIsPressed) return;
 
-        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, interactRadius, interactColliders, 1<<10); 
+        interactIsPressed = true;
+
+        interactColliders = new Collider[3];
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, interactRadius, interactColliders, 1 << 10);
         if (hitCount == 0)
             return;
-
         foreach (var obj in interactColliders)
         {
             if (obj.TryGetComponent<Interactable>(out Interactable comp))
@@ -45,8 +57,30 @@ public class PlayerInteract : MonoBehaviour
                     continue;
 
                 comp.Interact();
-                break; 
+                break;
             }
+        }
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        // Debug.Log(other.name);
+        if (other.CompareTag("Interactable"))
+        {
+            // Debug.Log("Enter");
+            EventBus<OnInteractEnterEvent>.Raise(new OnInteractEnterEvent
+            {
+                InteractableName = other.name,
+                interactableType = other.GetComponent<Interactable>().GetInteractableType()
+            });
+        }
+    }
+    void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Interactable"))
+        {
+            // Debug.Log("Leave");
+            EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
         }
     }
 

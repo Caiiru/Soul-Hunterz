@@ -1,0 +1,12 @@
+public class OnInventoryInput : IEvent
+{
+
+}
+public class OnComponentStartDrag : IEvent
+{
+
+}
+public class OnComponentEndDrag : IEvent
+{
+
+}

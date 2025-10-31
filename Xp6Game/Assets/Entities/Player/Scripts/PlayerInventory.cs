@@ -1,20 +1,19 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using CMF;
 using StarterAssets;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.VFX;
 
 public class PlayerInventory : MonoBehaviour
 {
     [SerializeField] bool isInventoryOpen = false;
-
-    [SerializeField] Transform inventoryTransform;
-
     // private CharacterInput _characterInput;
-    [Header("Inventory KeyCodes")]
-    public KeyCode inventoryKey = KeyCode.E;
+    InputAction _inventoryInput;
 
-    public KeyCode debugComponent = KeyCode.O;
+    [Header("Inventory KeyCodes")]
     public KeyCode debugWeapon = KeyCode.P;
 
 
@@ -24,7 +23,7 @@ public class PlayerInventory : MonoBehaviour
     public GameObject[] weapons;
 
     [SerializeField] private int componentCount = 10;
-    public GameObject[] components;
+    public List<ComponentSO> components;
 
     [Space]
     [Header("Debug Prefabs")]
@@ -34,8 +33,8 @@ public class PlayerInventory : MonoBehaviour
 
     #region Events
 
-    public delegate void PlayerInventoryHandler(bool isOpen);
-    public static event PlayerInventoryHandler OnPlayerInventoryToggle;
+    EventBinding<OnCollectComponent> m_OnPlayerCollectComponent;
+
 
     public delegate void PlayerGetWeapon(AbstractWeapon weapon, int slot);
     public static event PlayerGetWeapon OnPlayerGetWeapon;
@@ -45,8 +44,10 @@ public class PlayerInventory : MonoBehaviour
     {
         // isInventoryOpen = true;
         // ToggleInventory();
-
+        BindEvents();
         Initialize();
+
+
     }
 
     // Update is called once per frame
@@ -56,36 +57,50 @@ public class PlayerInventory : MonoBehaviour
     }
     private void Initialize()
     {
+        //Input
+        StarterAssetsInputs.OnPlayerInventoryToggle += ToggleInventory;
+
         _weaponHolder = GetComponent<WeaponHolder>();
         if (!_weaponHolder) Debug.LogWarning("Weapon Holder not find");
         weapons = new GameObject[weaponCount];
-        components = new GameObject[componentCount];
-        HandleEvents();
+        components = new List<ComponentSO>();
         StartCoroutine(AddDebugWeapon());
 
+        // EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent{isOpen = false});
+        
 
 
     }
-    private void HandleEvents()
+    private void BindEvents()
     {
         StarterAssetsInputs.OnChangeWeapon += ChangeWeapon;
+
+        // m_OnPlayerCollectComponent = new EventBinding<OnCollectComponent>(HandlePlayerCollectComponent);
+        // EventBus<OnCollectComponent>.Register(m_OnPlayerCollectComponent);
+
     }
 
 
+
+    private void HandlePlayerCollectComponent(OnCollectComponent arg0)
+    {
+        if (components.Capacity >= componentCount)
+        {
+            return;
+        }
+        components.Add(arg0.data);
+    }
 
     void CheckInput()
     {
-        if (Input.GetKeyDown(inventoryKey))
-        {
-            ToggleInventory();
-        }
         InputDebugWeapon();
     }
 
-    void ToggleInventory()
+    void ToggleInventory(bool newState)
     {
-        isInventoryOpen = !isInventoryOpen;
-        OnPlayerInventoryToggle?.Invoke(isInventoryOpen);
+        isInventoryOpen = newState;
+        // OnPlayerInventoryToggle?.Invoke(isInventoryOpen);
+        EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = newState });
     }
 
     public void AddWeapon(AbstractWeapon weapon)
@@ -98,6 +113,7 @@ public class PlayerInventory : MonoBehaviour
             if (weapons[i] == null)
             {
                 weapons[i] = weapon.gameObject;
+                Debug.Log("Add Weapon On Inventory");
                 OnPlayerGetWeapon?.Invoke(weapon, i);
                 return;
             }
@@ -141,7 +157,7 @@ public class PlayerInventory : MonoBehaviour
     {
         if (Input.GetKeyDown(debugWeapon))
         {
-            AddDebugWeapon();
+            // AddDebugWeapon();
         }
     }
 
@@ -150,7 +166,7 @@ public class PlayerInventory : MonoBehaviour
         if (!hasWeaponSlot())
             yield break;
 
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.1f);
         GameObject weapon = Instantiate(simpleWeaponPrefab, this.transform);
         weapon.GetComponent<AbstractWeapon>().InitializeWeapon();
         AddWeapon(weapon.GetComponent<AbstractWeapon>());
@@ -168,15 +184,22 @@ public class PlayerInventory : MonoBehaviour
         return true;
     }
 
-    public Transform GetInventoryTransform()
-    {
-        return inventoryTransform;
-    }
 
 
     void OnDisable()
     {
-        StarterAssetsInputs.OnChangeWeapon -= ChangeWeapon;
+        UnbindEvents();
     }
 
+    void UnbindEvents()
+    {
+        StarterAssetsInputs.OnChangeWeapon -= ChangeWeapon;
+        EventBus<OnCollectComponent>.Unregister(m_OnPlayerCollectComponent);
+    }
+
+}
+
+public class OnInventoryInputEvent : IEvent
+{
+    public bool isOpen;
 }

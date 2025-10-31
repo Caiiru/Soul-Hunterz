@@ -8,15 +8,16 @@ public class WeaponHolder : MonoBehaviour
     public Transform firePoint; // Point from where the weapon fires
 
     private bool _canFire = true;
+    
+    //Events
+    EventBinding<OnInventoryInputEvent> onInventoryToggleBinding;
+
     void Start()
     {
 
     }
 
-    private void HandleInventoryToggle(bool isOpen)
-    {
-        _canFire = !isOpen;
-    }
+    
 
     // Update is called once per frame
     void Update()
@@ -40,12 +41,16 @@ public class WeaponHolder : MonoBehaviour
 
     void OnEnable()
     {
-        PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;   
+
+        // PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
+        onInventoryToggleBinding = new EventBinding<OnInventoryInputEvent>(HandleInventoryToggle);
+        EventBus<OnInventoryInputEvent>.Register(onInventoryToggleBinding);
     }
 
     void OnDisable()
     {
-        PlayerInventory.OnPlayerInventoryToggle -= HandleInventoryToggle;   
+        // PlayerInventory.OnPlayerInventoryToggle -= HandleInventoryToggle;   
+        EventBus<OnInventoryInputEvent>.Unregister(onInventoryToggleBinding);
     }
 
     internal void HoldWeapon(GameObject weapon)
@@ -56,5 +61,9 @@ public class WeaponHolder : MonoBehaviour
         currentWeaponGO.transform.localPosition = Vector3.zero;
         currentWeaponGO.transform.localRotation = Quaternion.identity;
 
+    }
+    private void HandleInventoryToggle(OnInventoryInputEvent eventdata)
+    {
+        _canFire = !eventdata.isOpen;
     }
 }
