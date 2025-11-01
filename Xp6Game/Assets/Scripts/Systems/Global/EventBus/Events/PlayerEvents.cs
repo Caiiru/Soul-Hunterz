@@ -19,4 +19,9 @@ public class OnCollectComponent : IEvent
     public ComponentSO data;
 }
  
+
+public class OnPlayerTakeDamage : IEvent
+{
+    
+}
  

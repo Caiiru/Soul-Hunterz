@@ -105,9 +105,10 @@ namespace StarterAssets
         private int _animIDRoll;
         private int _animIDMotionSpeed;
         private int _animIDIsMoving;
-        private int _animIDSpeedX;
-        private int _animIDSpeedZ;
+        // private int _animIDSpeedX;
+        // private int _animIDSpeedZ;
         private int _animIDVelocity;
+        private int _animIDDead;
 
 #if ENABLE_INPUT_SYSTEM
         private PlayerInput _playerInput;
@@ -188,13 +189,14 @@ namespace StarterAssets
 
         private void AssignAnimationIDs()
         {
-            // _animIDSpeed = Animator.StringToHash("Speed"); 
-            _animIDRoll = Animator.StringToHash("Roll");
             // _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
-            _animIDSpeedX = Animator.StringToHash("SpeedX");
-            _animIDSpeedZ = Animator.StringToHash("SpeedZ");
-            _animIDIsMoving = Animator.StringToHash("isMoving");
+            // _animIDSpeedX = Animator.StringToHash("SpeedX");
+            // _animIDSpeedZ = Animator.StringToHash("SpeedZ");
+            // _animIDIsMoving = Animator.StringToHash("isMoving");
+            _animIDSpeed = Animator.StringToHash("Speed");
+            _animIDRoll = Animator.StringToHash("isDashing");
             _animIDVelocity = Animator.StringToHash("Velocity");
+            _animIDDead = Animator.StringToHash("isDead");
         }
 
         private void GroundedCheck()
@@ -255,14 +257,14 @@ namespace StarterAssets
                 // update animator if using character
                 if (_hasAnimator)
                 {
-                    _animator.SetBool(_animIDIsMoving, false);
+                    // _animator.SetBool(_animIDIsMoving, false);
                 }
 
             }
             else
             {
-                if (_hasAnimator)
-                    _animator.SetBool(_animIDIsMoving, true);
+                // if (_hasAnimator)
+                //     _animator.SetBool(_animIDIsMoving, true);
             }
 
 
@@ -341,7 +343,7 @@ namespace StarterAssets
             // else if (inputDirection.z < 0f)
             // {
             //     animRotation = Quaternion.Euler(0, 180, 0);
-                
+
             // }
             // transform.rotation = Quaternion.Slerp(transform.rotation, animRotation , Time.deltaTime * 10f);
             // move the player
@@ -354,9 +356,10 @@ namespace StarterAssets
                 // _animator.SetFloat(_animIDSpeed, _animationBlend);
 
                 // _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
-                _animator.SetFloat(_animIDSpeedX, animMoveDirection.normalized.x);
-                _animator.SetFloat(_animIDSpeedZ, animMoveDirection.normalized.z);
-                _animator.SetFloat(_animIDVelocity, _animationBlend);
+                // _animator.SetFloat(_animIDSpeedX, animMoveDirection.normalized.x);
+                // _animator.SetFloat(_animIDSpeedZ, animMoveDirection.normalized.z);
+                _animator.SetFloat(_animIDSpeed, _speed);
+                // _animator.SetFloat(_animIDVelocity, _animationBlend);
             }
 
 

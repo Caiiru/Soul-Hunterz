@@ -11,6 +11,7 @@ public class AudioManager : MonoBehaviour
     private static AudioManager instance;
 
     public static AudioManager Instance => instance;
+
     void Awake()
     {
         if (instance != this && instance != null)
@@ -23,7 +24,6 @@ public class AudioManager : MonoBehaviour
     #endregion
     public async UniTask Initialize()
     {
-
         await UniTask.CompletedTask;
     }
 

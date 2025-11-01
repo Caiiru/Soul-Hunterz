@@ -65,7 +65,7 @@ public class Enemy : Entity
 
 
     #region Take Damage & Death
-    protected override void TakeDamage(int damage)
+    public override void TakeDamage(int damage)
     {
         base.TakeDamage(damage);
 

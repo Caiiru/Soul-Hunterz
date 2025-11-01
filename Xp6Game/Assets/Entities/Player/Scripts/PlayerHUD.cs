@@ -49,11 +49,11 @@ public class PlayerHUD : MonoBehaviour
 
 
 
-    async void Start()
+    void Start()
     {
         BindObjects();
         BindEvents();
-        await Initialize();
+        Initialize();
     }
     void BindObjects()
     {
@@ -94,13 +94,12 @@ public class PlayerHUD : MonoBehaviour
         EventBus<OnInteractEnterEvent>.Unregister(onInteractEnterBinding);
     }
 
-    async Task<UniTask> Initialize()
+    void Initialize()
     {
         BoxCollider2D _dropZoneCollider = _dropZone.GetComponent<BoxCollider2D>();
         _dropZoneCollider.size = _dropZone.GetComponent<RectTransform>().rect.size;
 
         EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = false });
-        return UniTask.CompletedTask;
     }
 
     private void InventoryToggle(OnInventoryInputEvent eventData)
