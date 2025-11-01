@@ -127,6 +127,7 @@ public class PlayerEntity : Entity
 
     private void HandlePlayerAttack(OnPlayerAttack arg0)
     {
+        m_CombatTime = k_maxCombatTime;
         if (m_PlayerState == PlayerStates.Exploring || m_PlayerState == PlayerStates.PreCombat)
         {
             SetPlayerState(PlayerStates.Combat);

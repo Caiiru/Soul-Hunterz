@@ -39,6 +39,10 @@ public abstract class Bullet : MonoBehaviour
         this.Speed *= payload.SpeedMultiplier;
         this.LifeTime *= payload.LifetimeMultiplier;
 
+        // this.transform.rotation = direction;
+        // transform.LookAt(direction);
+        transform.rotation = Quaternion.LookRotation(direction);
+
         Destroy(gameObject, LifeTime);
     }
     void OnCollisionEnter(Collision collision)

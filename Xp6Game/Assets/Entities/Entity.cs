@@ -48,7 +48,8 @@ public class Entity : MonoBehaviour
             PopupTextManager.instance.ShowPopupText(
                 damage.ToString(),
                 new Vector3(transform.position.x, transform.position.y + transform.localScale.y + 1, transform.position.z),
-                Color.red);
+                Color.red,
+                new Vector3(0.5f,0.5f,0.5f));
 
         }
         currentHealth -= damage;

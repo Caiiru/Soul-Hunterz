@@ -40,6 +40,7 @@ public abstract class AbstractWeapon : MonoBehaviour
             AttackRate = WeaponData.AttackRate;
             AttackDamage = WeaponData.AttackDamage;
 
+
             Icon = WeaponData.Icon;
             WeaponName = WeaponData.WeaponName;
             Description = WeaponData.Description;
@@ -54,7 +55,9 @@ public abstract class AbstractWeapon : MonoBehaviour
                 return;
             }
             GameObject mesh = Instantiate(WeaponData.meshPrefab, transform);
-            _firePoint = transform.Find("FirePoint");
+            _firePoint = mesh.transform.Find("FirePoint");
+
+            // _firePoint.SetParent(transform.root);
 
             bulletPrefab.GetComponent<Bullet>().SetBullet(WeaponData.bullet);
 

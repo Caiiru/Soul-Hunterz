@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class WeaponHolder : MonoBehaviour
@@ -51,11 +52,11 @@ public class WeaponHolder : MonoBehaviour
         m_ShootingLayerIndex = m_Animator.GetLayerIndex("Shooting");
     }
 
-    void Update()
+    async void Update()
     {
         if (CanFire())
         {
-            FireWeapon();
+            await FireWeapon();
         }
 
     }
@@ -65,14 +66,19 @@ public class WeaponHolder : MonoBehaviour
         return Input.GetButton("Fire1") && currentWeapon != null && _canFire;
     }
 
-    public void FireWeapon()
+    public async UniTask FireWeapon()
     {
-        currentWeapon.Attack();
         EventBus<OnPlayerAttack>.Raise(new OnPlayerAttack());
-        if (m_Animator == null) return;
-        m_Animator.SetLayerWeight(m_ShootingLayerIndex, 1);
-        m_Animator.SetTrigger(m_ShootingAnimID);
-        
+        if (m_Animator != null)
+        {
+            m_Animator.SetLayerWeight(m_ShootingLayerIndex, 1);
+            m_Animator.SetTrigger(m_ShootingAnimID);
+        }
+        await UniTask.Delay(10);
+
+        currentWeapon.Attack();
+
+        await UniTask.CompletedTask;
     }
 
     void OnEnable()
