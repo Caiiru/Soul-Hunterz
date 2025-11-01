@@ -19,8 +19,7 @@ public class DummyBullet : Bullet
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.TryGetComponent<PlayerEntity>(out var player))
-        {
-            Debug.Log("Casting take damage on player");
+        { 
             player.TakeDamage(GetBulletDamage());
             SpawnVFX();
         }

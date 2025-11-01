@@ -1,34 +1,84 @@
 using System;
+using Cysharp.Threading.Tasks;
+using StarterAssets;
 using UnityEngine;
 
 public class PlayerEntity : Entity
 {
 
+    [Header("Player State")]
     [SerializeField] PlayerStates m_PlayerState = PlayerStates.Exploring;
-    Animator m_Animator;
 
     //Anim id hash bind
-
     int m_TakeDamageIDAnim;
 
     //COMBAT
     const float k_maxCombatTime = 10f;
     [SerializeField] float m_CombatTime;
 
+    [SerializeField] int m_invencibilityTime;
+
     //POST COMBAT
 
     const float k_maxPostCombatTime = 10f;
     [SerializeField] float m_PostCombatTime;
+
+    const int k_milliseconds = 1000;
 
     //Events
 
     EventBinding<OnPlayerAttack> m_OnPlayerAttackBinding;
     EventBinding<OnPlayerTakeDamage> m_OnPlayerTakeDamageBinding;
 
+
+
+    Animator m_Animator;
     void BindEvents()
     {
         m_OnPlayerAttackBinding = new EventBinding<OnPlayerAttack>(HandlePlayerAttack);
         EventBus<OnPlayerAttack>.Register(m_OnPlayerAttackBinding);
+
+        ThirdPersonController.onPlayerDash += HandleDashEvent;
+
+    }
+
+    void BindObjects()
+    {
+        if (entityData is PlayerEntitySO playerEntitySO)
+        {
+            m_invencibilityTime = (int)playerEntitySO.InvencibilityTime;
+        }
+    }
+    public override void Initialize()
+    {
+        base.Initialize();
+        m_Animator = GetComponentInChildren<Animator>();
+        BindEvents();
+        BindObjects();
+        BindAnim();
+
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        HandlePlayerState();
+    }
+
+
+
+    private void HandleDashEvent()
+    {
+        var _ = HandleInvencibility();
+    }
+
+    private async UniTask HandleInvencibility()
+    {
+
+        canBeDamaged = false;
+        await UniTask.Delay(m_invencibilityTime * k_milliseconds);
+        canBeDamaged = true;
 
     }
 
@@ -36,9 +86,9 @@ public class PlayerEntity : Entity
     {
         EventBus<OnPlayerAttack>.Unregister(m_OnPlayerAttackBinding);
         EventBus<OnPlayerTakeDamage>.Unregister(m_OnPlayerTakeDamageBinding);
+        ThirdPersonController.onPlayerDash -= HandleDashEvent;
 
     }
-
 
 
     void BindAnim()
@@ -47,20 +97,7 @@ public class PlayerEntity : Entity
         m_TakeDamageIDAnim = Animator.StringToHash("TakeDamage");
 
     }
-    public override void Initialize()
-    {
-        base.Initialize();
 
-        m_Animator = GetComponentInChildren<Animator>();
-        BindEvents();
-        BindAnim();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        HandlePlayerState();
-    }
 
 
 
@@ -118,8 +155,8 @@ public class PlayerEntity : Entity
                 break;
             case PlayerStates.Combat:
                 m_CombatTime = k_maxCombatTime;
-                break; 
-  
+                break;
+
             default:
                 break;
         }
@@ -142,7 +179,7 @@ public class PlayerEntity : Entity
                     SetPlayerState(PlayerStates.Exploring);
                 }
                 break;
-            
+
             default:
                 break;
         }
@@ -159,7 +196,6 @@ public enum PlayerStates
 {
     Exploring,
     PreCombat,
-    Combat, 
+    Combat,
 
 }
-

@@ -3,10 +3,11 @@ using UnityEngine;
 
 public class Entity : MonoBehaviour
 {
-
+    [Header("Life Settings")]
     [SerializeField] protected EntitySO entityData;
     [SerializeField] protected int currentHealth = 30;
     [SerializeField] public bool canBeDamaged = true;
+
 
     protected Transform _visualTransform;
 
@@ -38,6 +39,10 @@ public class Entity : MonoBehaviour
 
     public virtual void TakeDamage(int damage)
     {
+
+        if (!canBeDamaged)
+            return;
+
         if (PopupTextManager.instance != null)
         {
             PopupTextManager.instance.ShowPopupText(
@@ -46,9 +51,6 @@ public class Entity : MonoBehaviour
                 Color.red);
 
         }
-        if (!canBeDamaged)
-            return;
-
         currentHealth -= damage;
         PlayOneShotAtPosition(entityData.takeDamageSound);
 

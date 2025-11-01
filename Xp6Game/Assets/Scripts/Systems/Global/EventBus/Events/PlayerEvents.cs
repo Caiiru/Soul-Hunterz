@@ -34,3 +34,8 @@ public class OnPlayerChangeState : IEvent
     public PlayerStates newState;
 }
 
+public class OnPlayerDash : IEvent
+{
+    
+}
+
