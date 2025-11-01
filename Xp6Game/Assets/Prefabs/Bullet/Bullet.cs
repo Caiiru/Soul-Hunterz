@@ -50,7 +50,7 @@ public abstract class Bullet : MonoBehaviour
         if (target.TryGetComponent<Enemy>(out var enemy))
         {
 
-            enemy.SendMessage("TakeDamage", GetBulletDamage());
+            enemy.TakeDamage(GetBulletDamage());
 
         }
         SpawnVFX();
