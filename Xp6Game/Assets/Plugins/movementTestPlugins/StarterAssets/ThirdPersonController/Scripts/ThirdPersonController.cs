@@ -41,9 +41,9 @@ namespace StarterAssets
         public AudioClip[] FootstepAudioClips;
         [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
 
-        [Space(10)]
-        [Tooltip("The height the player can jump")]
-        float JumpHeight = 1.2f;
+        // [Space(10)]
+        // [Tooltip("The height the player can jump")]
+        // float JumpHeight = 1.2f;
 
         [Tooltip("The character uses its own gravity value. The engine default is -9.81f")]
         float Gravity = -15.0f;
