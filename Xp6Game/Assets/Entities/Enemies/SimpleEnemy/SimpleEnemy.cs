@@ -21,7 +21,7 @@ public class SimpleEnemy : Enemy
         // MoveTowards(_playerTransform.position);
 
     }
-    override protected void TakeDamage(int damage)
+    override public void TakeDamage(int damage)
     {
         base.TakeDamage(damage);
     }

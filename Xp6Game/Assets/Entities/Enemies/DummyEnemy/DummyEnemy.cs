@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class DummyEnemy : Enemy
 {
-
     private Animator _animator;
 
     public float attackCooldown = 5;
@@ -74,6 +73,7 @@ public class DummyEnemy : Enemy
     { 
         base.Attack();
         _attackTimer = 0;
+        
         GameObject bullet = Instantiate(bulletPrefab, _firePoint.transform.position, Quaternion.identity);
         // bullet.transform.position = _firePoint.transform.position;
         if (!fireVFXPrefab) return;

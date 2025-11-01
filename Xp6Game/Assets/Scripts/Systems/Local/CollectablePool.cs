@@ -10,15 +10,15 @@ public class CollectablePool : MonoBehaviour
     public GameObject collectableObject;
 
     private GameObject[] pool;
-    async void Start()
+    void Start()
     {
 
-        await InitializePool();
+        InitializePool();
 
     }
-    async Task<UniTask> InitializePool()
+    void InitializePool()
     {
-        if (!collectableObject) return UniTask.CompletedTask;
+        if (!collectableObject) return;
         pool = new GameObject[count];
         for (int i = 0; i < pool.Length; i++)
         {
@@ -26,7 +26,7 @@ public class CollectablePool : MonoBehaviour
             pool[i].SetActive(false);
         }
 
-        return UniTask.CompletedTask;
+
     }
 
     public GameObject GetCollectable()
