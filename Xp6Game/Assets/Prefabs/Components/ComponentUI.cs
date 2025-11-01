@@ -72,8 +72,8 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        Debug.Log("Begin Drag");
         if (!isDraggable()) return;
-
 
         _startDragPosition = this.transform.position;
         _oldParent = transform.parent;
@@ -137,7 +137,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     public void OnDrag(PointerEventData eventData)
     {
-        // Debug.Log("on drag");
+        Debug.Log("on drag");
         if (!isDraggable()) return;
         transform.position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1);
         // transform.SetParent(null);
