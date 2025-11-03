@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class Bullet : MonoBehaviour
@@ -12,6 +13,9 @@ public abstract class Bullet : MonoBehaviour
     public int Damage = 1;
     public int BonusDamage = 0;
 
+    public List<ComponentSO> UpdatePayload = new List<ComponentSO>();
+
+
     [SerializeField] protected bool wasInstancied = false;
     protected virtual void OnEnable()
     {
@@ -20,7 +24,10 @@ public abstract class Bullet : MonoBehaviour
     public virtual void FixedUpdate()
     {
         if (!wasInstancied) return;
+        UpdateBullet();
+        
         transform.position += Direction.normalized * Speed * Time.fixedDeltaTime;
+
     }
 
     /// <summary>
@@ -43,7 +50,17 @@ public abstract class Bullet : MonoBehaviour
         // transform.LookAt(direction);
         transform.rotation = Quaternion.LookRotation(direction);
 
+        this.UpdatePayload = payload.UpdatePayload;
+
         Destroy(gameObject, LifeTime);
+    }
+
+    public virtual void UpdateBullet()
+    {
+        foreach(var up in UpdatePayload)
+        {
+            up.ComponentUpdate(this);
+        }
     }
     void OnCollisionEnter(Collision collision)
     {
