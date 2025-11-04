@@ -26,6 +26,7 @@ public class DummyEnemy : Enemy
     {
         base.OnEnable();
         VFXDebugManager.OnInputPressed += OnInputPressed;
+        
         _animator = GetComponentInChildren<Animator>();
         _attackTimer = 0;
 

@@ -32,7 +32,7 @@ public class MinionEnemy : Enemy
         if (_navMesh.hasPath)
         {
             m_Animator.SetFloat("Speed", _navMesh.speed);
-            Debug.Log("Minion has path");
+            // Debug.Log("Minion has path");
         }
     }
     public bool GetMove()

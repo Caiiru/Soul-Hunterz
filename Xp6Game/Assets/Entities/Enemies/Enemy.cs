@@ -27,8 +27,8 @@ public class Enemy : Entity
 
 
     #region Visual 
-    private GameObject _hitVFXInstance;
-    private CinemachineImpulseSource impulseSource;
+    [SerializeField]private GameObject _hitVFXInstance;
+    public CinemachineImpulseSource impulseSource;
 
 
     #endregion
