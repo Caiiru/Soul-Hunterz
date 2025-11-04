@@ -45,6 +45,7 @@ public class Enemy : Entity
     {
         base.Initialize();
         attackRange = enemyData.attackRange;
+        Debug.Log(attackRange);
         speed = enemyData.movementSpeed;
 
         // Debug.Log($"Enemy Enabled: {gameObject.name} with Speed: {speed} and Attack Range: {attackRange}");

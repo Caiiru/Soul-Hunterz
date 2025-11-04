@@ -8,13 +8,22 @@ public class RangedEnemy : Enemy
 
     private float _shotCooldown;
     private float _timer;
+
+    [Header("Debug")]
+    public bool m_Initialize = true;
     protected override void OnEnable()
     {
         // base.OnEnable();
+        if (m_Initialize)
+        {
+            SetData(entityData as EnemySO);
+            Initialize();
+        }
+
     }
     public override void SetData(EnemySO newData)
     {
-        rangedEnemyData = newData as RangedEnemySO; 
+        rangedEnemyData = newData as RangedEnemySO;
         base.SetData(rangedEnemyData);
 
         // Initialize();
