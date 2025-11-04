@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using UnityEngine.AI;
+using Unity.Cinemachine;
+
 
 [RequireComponent(typeof(Collider))]
 public class Enemy : Entity
@@ -26,6 +28,8 @@ public class Enemy : Entity
 
     #region Visual 
     private GameObject _hitVFXInstance;
+    private CinemachineImpulseSource impulseSource;
+
 
     #endregion
 
@@ -69,7 +73,7 @@ public class Enemy : Entity
 
             _stateMachine.InitializeStateMachine();
         } 
-        
+        impulseSource = GetComponent<CinemachineImpulseSource>();
     }
 
 
@@ -77,6 +81,7 @@ public class Enemy : Entity
     public override void TakeDamage(int damage)
     {
         base.TakeDamage(damage);
+        cameraShakeManager.instance.CameraShake(impulseSource);
 
 
     }
