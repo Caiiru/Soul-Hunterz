@@ -19,6 +19,10 @@ public class Enemy : Entity
 
     [SerializeField] private Transform _targetTransform; 
 
+    [Header("Debug Mode")]
+
+    [SerializeField] private bool m_DebugMode = true; 
+
 
     #region Visual 
     private GameObject _hitVFXInstance;
@@ -37,6 +41,11 @@ public class Enemy : Entity
 
         // entityData = enemyData;
         // base.OnEnable();
+        if (m_DebugMode)
+        {
+            SetData(entityData as EnemySO);
+            Initialize();
+        }
 
         
     }
@@ -45,7 +54,6 @@ public class Enemy : Entity
     {
         base.Initialize();
         attackRange = enemyData.attackRange;
-        Debug.Log(attackRange);
         speed = enemyData.movementSpeed;
 
         // Debug.Log($"Enemy Enabled: {gameObject.name} with Speed: {speed} and Attack Range: {attackRange}");
