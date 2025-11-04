@@ -19,4 +19,5 @@ public abstract class ComponentSO : ScriptableObject
     /// <param name="slotIndex">O índice do slot do componente na arma.</param>
     /// <returns>O payload modificado.</returns>
     public abstract BulletPayload Execute(BulletPayload payload, Transform firePoint, int slotIndex);
+    public abstract void ComponentUpdate(Bullet bullet);
 }

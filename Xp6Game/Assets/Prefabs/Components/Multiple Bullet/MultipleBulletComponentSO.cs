@@ -7,6 +7,11 @@ public class MultipleBulletComponentSO : ComponentSO
     [SerializeField] int bulletCount = 2;
     [SerializeField] float distanceOffset = 1f;
 
+    public override void ComponentUpdate(Bullet bullet)
+    {
+        
+    }
+
     public override BulletPayload Execute(BulletPayload payload, Transform firePoint, int slotIndex)
     {
         // Este componente agora apenas informa o payload sobre o comportamento de múltiplos projéteis.
