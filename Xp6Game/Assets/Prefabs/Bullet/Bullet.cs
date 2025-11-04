@@ -25,8 +25,9 @@ public abstract class Bullet : MonoBehaviour
     {
         if (!wasInstancied) return;
         UpdateBullet();
-        
+
         transform.position += Direction.normalized * Speed * Time.fixedDeltaTime;
+        transform.rotation = Quaternion.LookRotation(Direction);
 
     }
 
@@ -52,15 +53,14 @@ public abstract class Bullet : MonoBehaviour
         // transform.LookAt(direction);
 
         this.UpdatePayload = payload.UpdatePayload;
-        // transform.rotation = Quaternion.LookRotation(direction);
-        transform.LookAt(transform.position + direction);
+        // transform.LookAt(transform.position + direction);
 
         Destroy(gameObject, LifeTime);
     }
 
     public virtual void UpdateBullet()
     {
-        foreach(var up in UpdatePayload)
+        foreach (var up in UpdatePayload)
         {
             up.ComponentUpdate(this);
         }
