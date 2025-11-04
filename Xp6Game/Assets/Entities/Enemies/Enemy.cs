@@ -19,6 +19,10 @@ public class Enemy : Entity
 
     [SerializeField] private Transform _targetTransform; 
 
+    [Header("Debug Mode")]
+
+    [SerializeField] private bool m_DebugMode = true; 
+
 
     #region Visual 
     private GameObject _hitVFXInstance;
@@ -37,6 +41,11 @@ public class Enemy : Entity
 
         // entityData = enemyData;
         // base.OnEnable();
+        if (m_DebugMode)
+        {
+            SetData(entityData as EnemySO);
+            Initialize();
+        }
 
         
     }

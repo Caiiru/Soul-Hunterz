@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
-using Cinemachine;
+using System.Collections.Generic; 
 using Unity.Cinemachine;
 using Unity.Cinemachine.Editor;
 

@@ -421,7 +421,7 @@ namespace StarterAssets
                 onPlayerDash?.Invoke();
 
                 //Dash 
-                _controller.Move(dashDirection * (DashForce / k_DashReduction));
+                _controller.Move(dashDirection.normalized * (DashForce / k_DashReduction));
 
 
 
