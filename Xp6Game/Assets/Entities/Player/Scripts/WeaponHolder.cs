@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class WeaponHolder : MonoBehaviour
@@ -8,23 +9,54 @@ public class WeaponHolder : MonoBehaviour
     public Transform firePoint; // Point from where the weapon fires
 
     private bool _canFire = true;
-    
+
+
     //Events
     EventBinding<OnInventoryInputEvent> onInventoryToggleBinding;
 
+    EventBinding<OnPlayerChangeState> m_OnPlayerChangeStateBinding;
+
+
+    //Animator
+    Animator m_Animator;
+
+    int m_ShootingLayerIndex;
+    int m_ShootingAnimID;
+
     void Start()
     {
+        BindObjects();
+        BindAnims();
+        BindEvents();
 
     }
 
-    
 
-    // Update is called once per frame
-    void Update()
+    void BindEvents()
+    {
+        onInventoryToggleBinding = new EventBinding<OnInventoryInputEvent>(HandleInventoryToggle);
+        EventBus<OnInventoryInputEvent>.Register(onInventoryToggleBinding);
+
+        m_OnPlayerChangeStateBinding = new EventBinding<OnPlayerChangeState>(HandlePlayerChangeState);
+        EventBus<OnPlayerChangeState>.Register(m_OnPlayerChangeStateBinding);
+    }
+
+    void BindObjects()
+    {
+        m_Animator = GetComponentInChildren<Animator>();
+    }
+
+    void BindAnims()
+    {
+        m_ShootingAnimID = Animator.StringToHash("Shooting");
+        m_ShootingLayerIndex = m_Animator.GetLayerIndex("Shooting");
+    }
+
+    async void Update()
     {
         if (CanFire())
         {
-            FireWeapon();
+            await FireWeapon();
         }
 
     }
@@ -34,17 +66,25 @@ public class WeaponHolder : MonoBehaviour
         return Input.GetButton("Fire1") && currentWeapon != null && _canFire;
     }
 
-    public void FireWeapon()
+    public async UniTask FireWeapon()
     {
+        EventBus<OnPlayerAttack>.Raise(new OnPlayerAttack());
+        if (m_Animator != null)
+        {
+            m_Animator.SetLayerWeight(m_ShootingLayerIndex, 1);
+            m_Animator.SetTrigger(m_ShootingAnimID);
+        }
+        await UniTask.Delay(10);
+
         currentWeapon.Attack();
+
+        await UniTask.CompletedTask;
     }
 
     void OnEnable()
     {
 
         // PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
-        onInventoryToggleBinding = new EventBinding<OnInventoryInputEvent>(HandleInventoryToggle);
-        EventBus<OnInventoryInputEvent>.Register(onInventoryToggleBinding);
     }
 
     void OnDisable()
@@ -66,4 +106,19 @@ public class WeaponHolder : MonoBehaviour
     {
         _canFire = !eventdata.isOpen;
     }
+
+
+    private void HandlePlayerChangeState(OnPlayerChangeState arg0)
+    {
+        if (arg0.newState == PlayerStates.PreCombat || arg0.newState == PlayerStates.Combat)
+        {
+            m_Animator.SetLayerWeight(m_ShootingLayerIndex, 1);
+        }
+        if (arg0.newState == PlayerStates.Exploring)
+        {
+            m_Animator.SetLayerWeight(m_ShootingLayerIndex, 0);
+        }
+
+    }
+
 }

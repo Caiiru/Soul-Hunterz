@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class DummyEnemy : Enemy
 {
+    [Header("Debug")]
+    public bool m_AlwaysShooting = true;
 
     private Animator _animator;
 
@@ -23,9 +25,12 @@ public class DummyEnemy : Enemy
         VFXDebugManager.OnInputPressed += OnInputPressed;
         _animator = GetComponentInChildren<Animator>();
         _attackTimer = 0;
+
+        if (m_AlwaysShooting)
+            StartShooting();
     }
     async void Update()
-    { 
+    {
         await HandleTimer();
     }
 
@@ -63,17 +68,18 @@ public class DummyEnemy : Enemy
 
 
     async UniTask Aim()
-    { 
+    {
         await UniTask.Delay(1000);
-        _animator.SetTrigger("aim"); 
-        
+        _animator.SetTrigger("aim");
+
         await UniTask.CompletedTask;
         // Attack();
     }
     public override void Attack()
-    { 
+    {
         base.Attack();
         _attackTimer = 0;
+
         GameObject bullet = Instantiate(bulletPrefab, _firePoint.transform.position, Quaternion.identity);
         // bullet.transform.position = _firePoint.transform.position;
         if (!fireVFXPrefab) return;

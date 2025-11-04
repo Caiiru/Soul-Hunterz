@@ -18,5 +18,24 @@ public class OnCollectComponent : IEvent
 {
     public ComponentSO data;
 }
- 
- 
+
+
+public class OnPlayerTakeDamage : IEvent
+{
+
+}
+public class OnPlayerAttack : IEvent
+{
+
+}
+
+public class OnPlayerChangeState : IEvent
+{
+    public PlayerStates newState;
+}
+
+public class OnPlayerDash : IEvent
+{
+    
+}
+

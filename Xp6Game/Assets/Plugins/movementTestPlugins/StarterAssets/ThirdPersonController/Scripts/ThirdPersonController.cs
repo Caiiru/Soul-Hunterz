@@ -1,5 +1,8 @@
-﻿using UnityEngine;
-#if ENABLE_INPUT_SYSTEM 
+﻿using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.Events;
+
+#if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
@@ -38,21 +41,19 @@ namespace StarterAssets
         public AudioClip[] FootstepAudioClips;
         [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
 
-        [Space(10)]
-        [Tooltip("The height the player can jump")]
-        public float JumpHeight = 1.2f;
+        // [Space(10)]
+        // [Tooltip("The height the player can jump")]
+        // float JumpHeight = 1.2f;
 
         [Tooltip("The character uses its own gravity value. The engine default is -9.81f")]
-        public float Gravity = -15.0f;
+        float Gravity = -15.0f;
 
         [Space(10)]
         [Tooltip("Time required to pass before being able to jump again. Set to 0f to instantly jump again")]
-        public float JumpTimeout = 0.50f;
+        float JumpTimeout = 0.50f;
 
         [Tooltip("Time required to pass before entering the fall state. Useful for walking down stairs")]
-        public float FallTimeout = 0.15f;
-
-        public float RollTimeout = 3f;
+        float FallTimeout = 0.15f;
 
         [Header("Player Grounded")]
         [Tooltip("If the character is grounded or not. Not part of the CharacterController built in grounded check")]
@@ -66,6 +67,13 @@ namespace StarterAssets
 
         [Tooltip("What layers the character uses as ground")]
         public LayerMask GroundLayers;
+
+        [Header("Player Dash")]
+        public bool CanDash;
+        public float DashForce = 1;
+
+        [Tooltip("Time required to dash again")]
+        public float DashTimeout = 1f;
 
         [Header("Cinemachine")]
         [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
@@ -98,26 +106,30 @@ namespace StarterAssets
         // timeout deltatime
         private float _jumpTimeoutDelta;
         private float _fallTimeoutDelta;
-        private float _rollTimeoutDelta;
+        private float _dashTimeoutDelta;
 
         // animation IDs
         private int _animIDSpeed;
-        private int _animIDRoll;
+        private int _animIDDash;
         private int _animIDMotionSpeed;
         private int _animIDIsMoving;
-        private int _animIDSpeedX;
-        private int _animIDSpeedZ;
+        // private int _animIDSpeedX;
+        // private int _animIDSpeedZ;
         private int _animIDVelocity;
+        private int _animIDDead;
+
+        private const int k_DashReduction = 100;
 
 #if ENABLE_INPUT_SYSTEM
         private PlayerInput _playerInput;
 #endif
-        [SerializeField] private Animator _animator;
+        private Animator _animator;
         private CharacterController _controller;
         private StarterAssetsInputs _input;
         private GameObject _mainCamera;
 
         private const float _threshold = 0.01f;
+
 
         private bool _hasAnimator;
 
@@ -133,7 +145,13 @@ namespace StarterAssets
             }
         }
 
+        //Events
+        public delegate void OnDashEvent();
+        public static OnDashEvent onPlayerDash;
 
+        
+
+        #region Start
         private void Awake()
         {
             // get a reference to our main camera
@@ -161,13 +179,14 @@ namespace StarterAssets
             Debug.LogError("Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
 
-            AssignAnimationIDs();
+            AssignAnimationIDs(); 
 
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
-            _rollTimeoutDelta = RollTimeout;
+            _dashTimeoutDelta = DashTimeout;
         }
+        #endregion
 
         private void Update()
         {
@@ -175,28 +194,34 @@ namespace StarterAssets
 
             // JumpAndGravity();
             HandleGravity();
-            Roll();
+            Dash();
             LookAtMouse();
             GroundedCheck();
             Move();
+
         }
 
         private void LateUpdate()
         {
             CameraRotation();
-        }
+        } 
 
+        #region Anim Bind
         private void AssignAnimationIDs()
         {
-            // _animIDSpeed = Animator.StringToHash("Speed"); 
-            _animIDRoll = Animator.StringToHash("Roll");
             // _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
-            _animIDSpeedX = Animator.StringToHash("SpeedX");
-            _animIDSpeedZ = Animator.StringToHash("SpeedZ");
-            _animIDIsMoving = Animator.StringToHash("isMoving");
+            // _animIDSpeedX = Animator.StringToHash("SpeedX");
+            // _animIDSpeedZ = Animator.StringToHash("SpeedZ");
+            // _animIDIsMoving = Animator.StringToHash("isMoving");
+            _animIDSpeed = Animator.StringToHash("Speed");
+            _animIDDash = Animator.StringToHash("isDashing");
             _animIDVelocity = Animator.StringToHash("Velocity");
+            _animIDDead = Animator.StringToHash("isDead");
         }
 
+        #endregion
+
+        #region Ground Check
         private void GroundedCheck()
         {
             // set sphere position, with offset
@@ -211,7 +236,8 @@ namespace StarterAssets
                 // _animator.SetBool(_animIDGrounded, Grounded);
             }
         }
-
+        #endregion
+        #region Camera Rotation
         private void CameraRotation()
         {
             // if there is an input and camera position is not fixed
@@ -232,6 +258,8 @@ namespace StarterAssets
             CinemachineCameraTarget.transform.rotation = Quaternion.Euler(_cinemachineTargetPitch + CameraAngleOverride,
                 _cinemachineTargetYaw, 0.0f);
         }
+        #endregion
+        #region Move
 
         private void Move()
         {
@@ -255,14 +283,14 @@ namespace StarterAssets
                 // update animator if using character
                 if (_hasAnimator)
                 {
-                    _animator.SetBool(_animIDIsMoving, false);
+                    // _animator.SetBool(_animIDIsMoving, false);
                 }
 
             }
             else
             {
-                if (_hasAnimator)
-                    _animator.SetBool(_animIDIsMoving, true);
+                // if (_hasAnimator)
+                //     _animator.SetBool(_animIDIsMoving, true);
             }
 
 
@@ -341,7 +369,7 @@ namespace StarterAssets
             // else if (inputDirection.z < 0f)
             // {
             //     animRotation = Quaternion.Euler(0, 180, 0);
-                
+
             // }
             // transform.rotation = Quaternion.Slerp(transform.rotation, animRotation , Time.deltaTime * 10f);
             // move the player
@@ -354,37 +382,61 @@ namespace StarterAssets
                 // _animator.SetFloat(_animIDSpeed, _animationBlend);
 
                 // _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
-                _animator.SetFloat(_animIDSpeedX, animMoveDirection.normalized.x);
-                _animator.SetFloat(_animIDSpeedZ, animMoveDirection.normalized.z);
-                _animator.SetFloat(_animIDVelocity, _animationBlend);
+                // _animator.SetFloat(_animIDSpeedX, animMoveDirection.normalized.x);
+                // _animator.SetFloat(_animIDSpeedZ, animMoveDirection.normalized.z);
+                _animator.SetFloat(_animIDSpeed, _speed);
+                // _animator.SetFloat(_animIDVelocity, _animationBlend);
             }
 
 
         }
-        private void Roll()
+        #endregion
+        #region Dash
+        private void Dash()
         {
-            if (_input.jump && _rollTimeoutDelta <= 0.0f)
+            if (_input.jump && _dashTimeoutDelta <= 0.0f)
             {
-                _rollTimeoutDelta = RollTimeout;
-                if (_hasAnimator)
+
+                Vector3 dashDirection = Vector3.zero;
+                // Grounded = false;
+                if (_input.move != Vector2.zero)
                 {
-                    _animator.SetTrigger("_animIDRoll");
+                    dashDirection = new Vector3(_input.move.x, 0f, _input.move.y);
+                }
+                else
+                {
+                    dashDirection = transform.forward * -1f; // do back dash
                 }
 
-                Vector3 _rollDirection = transform.forward;
+                CanDash = false;
+                _dashTimeoutDelta = DashTimeout;
 
-                GetComponent<Rigidbody>().AddForce(_rollDirection * 3f, ForceMode.Impulse);
+
+                if (_hasAnimator)
+                {
+                    _animator.SetTrigger(_animIDDash);
+                }
+
+                //Call Event
+                onPlayerDash?.Invoke();
+
+                //Dash 
+                _controller.Move(dashDirection * (DashForce / k_DashReduction));
+
+
 
             }
-            else if (_rollTimeoutDelta >= 0.0f)
+            else if (_dashTimeoutDelta <= 0.0f)
             {
-
+                CanDash = true;
             }
             else
             {
-                _rollTimeoutDelta -= Time.deltaTime;
+                _dashTimeoutDelta -= Time.deltaTime;
             }
         }
+        #endregion
+        #region Look At Mouse
 
         private void LookAtMouse()
         {
@@ -418,6 +470,8 @@ namespace StarterAssets
             }
 
         }
+        #endregion
+        #region Gravity
         private void HandleGravity()
         {
             if (Grounded)
@@ -428,7 +482,7 @@ namespace StarterAssets
                 // update animator if using character
                 if (_hasAnimator)
                 {
-                    _animator.SetBool(_animIDRoll, false);
+                    _animator.SetBool(_animIDDash, false);
                 }
 
                 // stop our velocity dropping infinitely when grounded
@@ -466,6 +520,9 @@ namespace StarterAssets
                 _verticalVelocity += Gravity * Time.deltaTime;
             }
         }
+        #endregion
+
+        #region Aux
 
         private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
         {
@@ -487,6 +544,8 @@ namespace StarterAssets
                 new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z),
                 GroundedRadius);
         }
+        #endregion
+        #region Sounds
 
         private void OnFootstep(AnimationEvent animationEvent)
         {
@@ -507,5 +566,7 @@ namespace StarterAssets
                 AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
             }
         }
+
+        #endregion
     }
 }

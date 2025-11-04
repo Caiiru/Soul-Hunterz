@@ -45,21 +45,35 @@ public class PopupTextManager : MonoBehaviour
         }
     }
 
-    public void ShowPopupText(string text, Vector3 position, Color color)
+    private GameObject GetPopup()
     {
         foreach (var popup in popupPool)
         {
             if (!popup.activeInHierarchy)
             {
-                popup.SetActive(true);
-                popup.transform.position = position;
-                var popupText = popup.GetComponent<PopupText>();
-                if (popupText != null)
-                {
-                    popupText.SetText(text, color);
-                }
-                break;
+                return popup;
             }
+        }
+        return null;
+    }
+
+    public void ShowPopupText(string text, Vector3 position, Color color)
+    {
+        ShowPopupText(text, position, color, new Vector3(1, 1, 1));
+    }
+
+
+    public void ShowPopupText(string text, Vector3 position, Color color, Vector3 scale)
+    {
+        GameObject popup = GetPopup();
+        popup.SetActive(true);
+        popup.transform.position = position;
+        popup.transform.localScale = scale;
+        var popupText = popup.GetComponent<PopupText>();
+        if (popupText != null)
+        {
+            popupText.SetText(text, color, scale);
         }
     }
 }
+

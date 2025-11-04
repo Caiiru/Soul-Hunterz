@@ -141,7 +141,10 @@ public class CollectableItem : MonoBehaviour, Interactable
                 _onEnterVFX.SetActive(false);
         }
         await UniTask.Delay(10);
-        _itemIcon.color = new Color(255, 255, 255, 0);
+
+        if (!isPlayerInRange)
+            _itemIcon.color = new Color(255, 255, 255, 0);
+
         return UniTask.CompletedTask;
     }
 
@@ -155,7 +158,8 @@ public class CollectableItem : MonoBehaviour, Interactable
         //Play VFX before desactivate
         if (_onInteractPrefabVFX)
         {
-            Instantiate(_onInteractPrefabVFX, transform.position, Quaternion.identity);
+            var _interactVFX = Instantiate(_onInteractPrefabVFX, transform.position, Quaternion.identity);
+            Destroy(_interactVFX, 5f);
         }
         EventBus<OnCollectComponent>.Raise(new OnCollectComponent
         {

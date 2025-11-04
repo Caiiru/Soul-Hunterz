@@ -3,14 +3,15 @@ using UnityEngine;
 
 public class Entity : MonoBehaviour
 {
-
+    [Header("Life Settings")]
     [SerializeField] protected EntitySO entityData;
     [SerializeField] protected int currentHealth = 30;
     [SerializeField] public bool canBeDamaged = true;
 
+
     protected Transform _visualTransform;
 
- 
+
     protected virtual void OnEnable()
     {
         Initialize();
@@ -31,20 +32,26 @@ public class Entity : MonoBehaviour
             _visualTransform = Instantiate(entityData.visualPrefab, transform).transform;
         }
 
-        
+
 
         transform.name = entityData.name;
     }
 
-    protected virtual void TakeDamage(int damage)
+    public virtual void TakeDamage(int damage)
     {
-        PopupTextManager.instance.ShowPopupText(
-            damage.ToString(),
-            new Vector3(transform.position.x, transform.position.y + transform.localScale.y + 1, transform.position.z),
-            Color.red);
+
         if (!canBeDamaged)
             return;
 
+        if (PopupTextManager.instance != null)
+        {
+            PopupTextManager.instance.ShowPopupText(
+                damage.ToString(),
+                new Vector3(transform.position.x, transform.position.y + transform.localScale.y + 1, transform.position.z),
+                Color.red,
+                new Vector3(0.5f,0.5f,0.5f));
+
+        }
         currentHealth -= damage;
         PlayOneShotAtPosition(entityData.takeDamageSound);
 
@@ -64,12 +71,13 @@ public class Entity : MonoBehaviour
 
     #region Sounds 
     protected void PlayOneShotAtPosition(EventReference audioEvent)
-    { 
+    {
         if (audioEvent.IsNull)
         {
-            Debug.LogWarning("No Audio Event");
+            // Debug.LogWarning("No Audio Event");
             return;
-        } 
+        }
+        if (AudioManager.Instance == null) return;
         AudioManager.Instance.PlayOneShotAtPosition(audioEvent, transform.position);
 
     }

@@ -72,8 +72,8 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        // Debug.Log("Begin Drag");
         if (!isDraggable()) return;
-
 
         _startDragPosition = this.transform.position;
         _oldParent = transform.parent;
