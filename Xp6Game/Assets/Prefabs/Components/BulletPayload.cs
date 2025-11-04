@@ -16,6 +16,8 @@ public class BulletPayload
     // Modificadores de Atributos da Bala
     public float SpeedMultiplier { get; set; } = 1.0f;
     public float LifetimeMultiplier { get; set; } = 1.0f;
+    public float FlatLifeTime { get; set; } = 0f;
+
 
     public List<ComponentSO> UpdatePayload = new List<ComponentSO>();
 }

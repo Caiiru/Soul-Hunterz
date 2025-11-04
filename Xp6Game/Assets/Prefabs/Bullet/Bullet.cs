@@ -44,13 +44,16 @@ public abstract class Bullet : MonoBehaviour
         this.Direction = direction;
         this.BonusDamage = (int)payload.BonusDamage;
         this.Speed *= payload.SpeedMultiplier;
+
+        this.LifeTime += payload.FlatLifeTime;
         this.LifeTime *= payload.LifetimeMultiplier;
 
         // this.transform.rotation = direction;
         // transform.LookAt(direction);
-        transform.rotation = Quaternion.LookRotation(direction);
 
         this.UpdatePayload = payload.UpdatePayload;
+        // transform.rotation = Quaternion.LookRotation(direction);
+        transform.LookAt(transform.position + direction);
 
         Destroy(gameObject, LifeTime);
     }
@@ -75,7 +78,6 @@ public abstract class Bullet : MonoBehaviour
 
         }
         SpawnVFX();
-        
         Destroy(gameObject);
 
 
