@@ -19,6 +19,9 @@ public class DummyEnemy : Enemy
 
     public GameObject bulletPrefab;
     public GameObject fireVFXPrefab;
+
+    //Animations
+
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -29,6 +32,7 @@ public class DummyEnemy : Enemy
         if (m_AlwaysShooting)
             StartShooting();
     }
+
     async void Update()
     {
         await HandleTimer();
@@ -69,8 +73,10 @@ public class DummyEnemy : Enemy
 
     async UniTask Aim()
     {
-        await UniTask.Delay(1000);
-        _animator.SetTrigger("aim");
+        // await UniTask.Delay(1000);
+        _animator.SetTrigger("Shoot");
+        // await UniTask.Delay(10);
+        Attack();
 
         await UniTask.CompletedTask;
         // Attack();
@@ -86,6 +92,15 @@ public class DummyEnemy : Enemy
         GameObject fireVFX = Instantiate(fireVFXPrefab);
         fireVFX.transform.position = _firePoint.transform.position;
         Destroy(fireVFX, 2f);
+    }
+
+    public override void TakeDamage(int damage)
+    {
+        base.TakeDamage(damage);
+        if (_animator)
+        {
+            _animator.SetTrigger("TakeDamage");
+        }
     }
 
 }
