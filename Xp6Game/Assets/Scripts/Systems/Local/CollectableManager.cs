@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class CollectableManager : MonoBehaviour
@@ -12,10 +13,20 @@ public class CollectableManager : MonoBehaviour
     //Events
     EventBinding<OnDropComponent> m_OnPlayerDropComponent;
 
+    EventBinding<GameReadyToStartEvent> m_OnGameReadyToStart;
+
+
+    public bool m_isDebug = false;
     void Start()
     {
-        BindObjects();
+        if (m_isDebug)
+        {
+            BindObjects();
+            BindEvents();
+        }
+
         BindEvents();
+
     }
 
     public void BindObjects()
@@ -28,8 +39,16 @@ public class CollectableManager : MonoBehaviour
     {
         m_OnPlayerDropComponent = new EventBinding<OnDropComponent>(HandlePlayerDropComponent);
         EventBus<OnDropComponent>.Register(m_OnPlayerDropComponent);
+        m_OnGameReadyToStart = new EventBinding<GameReadyToStartEvent>(HandleGameReadyToStart);
+        EventBus<GameReadyToStartEvent>.Register(m_OnGameReadyToStart);
 
 
+    }
+
+    private void HandleGameReadyToStart(GameReadyToStartEvent arg0)
+    {
+        BindObjects();
+        
     }
 
     // Update is called once per frame

@@ -51,8 +51,7 @@ public class GameManager : MonoBehaviour
     public GameObject PopupManagerPrefab;
 
     [Space]
-    public GameObject PlayerPrefab;
-    public GameObject CameraPrefab;
+    public GameObject PlayerPrefab; 
     public GameObject StartZonePrefab;
     public GameObject EndZonePrefab;
     public GameObject EnemyPrefab;
@@ -63,9 +62,7 @@ public class GameManager : MonoBehaviour
     [Space]
     [Header("Binded Objects")]
     [SerializeField] private GameObject _playerGO;
-    private GameObject _popupManagerGO;
-    private GameObject _cameraGO;
-    private CinemachineCamera _cinemachineCamera;
+    private GameObject _popupManagerGO; 
     private GameObject _environment;
     private GameObject _startZone;
     private GameObject _endZone;
@@ -157,10 +154,7 @@ public class GameManager : MonoBehaviour
     }
 
     private void BindObjects()
-    {
-        _cameraGO = Instantiate(CameraPrefab);
-        _cinemachineCamera = _cameraGO.GetComponentInChildren<CinemachineCamera>();
-
+    { 
         Instantiate(GlobalVolumePrefab);
         Instantiate(EventSystemPrefab);
 
@@ -201,8 +195,7 @@ public class GameManager : MonoBehaviour
     void SpawnPlayer()
     {
         GameObject player = Instantiate(PlayerPrefab);
-        _playerGO = player;
-        _cinemachineCamera.Target.TrackingTarget = _playerGO.transform;
+        _playerGO = player; 
 
     }
     void ChangePlayerPosition(Vector3 newPosition)
