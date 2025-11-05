@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using UnityEditor.Timeline;
 using UnityEngine;
 using UnityEngine.UI;
 

@@ -32,8 +32,6 @@ public class GameInitiator : MonoBehaviour
 
     public async void Start()
     {
-
-
         BindObjects();
         BindEvents();
         await _sceneLoader.Initialize();

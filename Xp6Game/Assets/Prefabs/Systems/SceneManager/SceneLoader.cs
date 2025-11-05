@@ -18,6 +18,12 @@ public class SceneLoader : MonoBehaviour
 
 
 
+    async void Start()
+    {
+        
+        await Initialize();
+    }
+
     public async UniTask Initialize()
     {
         SceneManager.sceneLoaded += (Scene _scene, LoadSceneMode mode) =>
@@ -135,6 +141,7 @@ public class SceneLoader : MonoBehaviour
 
     private void ChangeRootObjectsState(Scene scene, bool isVisible)
     {
+        Debug.Log(scene.name);
         GameObject[] rootObjects = scene.GetRootGameObjects();
         foreach (var rootObject in rootObjects)
         {

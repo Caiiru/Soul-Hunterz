@@ -81,10 +81,11 @@ public class GameManager : MonoBehaviour
 
 
     #region Begin Game
-    private void Start()
+    private async void Start()
     {
         BindEvents();
         BindEnemiesEvents();
+        await Initialize();
         // BindObjects();
         // await SpawnObjects();
         // PrepareGame();
@@ -148,6 +149,7 @@ public class GameManager : MonoBehaviour
         ChangeGameState(GameState.StartingGame);
 
         await BeginGame();
+        Debug.Log("Initialize");
 
         EventBus<GameStartEvent>.Raise(new GameStartEvent());
         await UniTask.CompletedTask;
