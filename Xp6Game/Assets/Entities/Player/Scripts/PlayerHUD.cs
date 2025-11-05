@@ -33,11 +33,17 @@ public class PlayerHUD : MonoBehaviour
     Transform _inventoryTransform;
     [SerializeField] Transform _dropZone;
 
+    public TextMeshProUGUI m_playerHealth;
+
 #if ENABLE_INPUT_SYSTEM
     InputAction _interactInput;
     InputAction _inventoryInput;
 #endif
+
+
     // Events
+    EventBinding<GameReadyToStartEvent> m_OnGameReadyToStart;
+
     EventBinding<OnInteractEnterEvent> onInteractEnterBinding;
     EventBinding<OnInteractLeaveEvent> onInteractLeaveBinding;
 
@@ -48,12 +54,20 @@ public class PlayerHUD : MonoBehaviour
     TextMeshProUGUI _interactText;
 
 
-
+    public bool m_isDebug = false;
     void Start()
     {
-        BindObjects();
+        if (m_isDebug)
+        {
+            BindObjects();
+            BindEvents();
+            Initialize();
+        }
         BindEvents();
-        Initialize();
+        DesactivateAll();
+
+
+
     }
     void BindObjects()
     {
@@ -70,14 +84,16 @@ public class PlayerHUD : MonoBehaviour
             _dropZone = _inventoryTransform.Find("DropZone");
 
         }
+        _interactInput = StarterAssetsInputs.Instance.GetInteractAction().action;
 
     }
 
     void BindEvents()
     {
         //Interact Button / Action
+        m_OnGameReadyToStart = new EventBinding<GameReadyToStartEvent>(HandleGameReadyToStart);
+        EventBus<GameReadyToStartEvent>.Register(m_OnGameReadyToStart);
 
-        _interactInput = StarterAssetsInputs.Instance.GetInteractAction().action;
 
         onInteractEnterBinding = new EventBinding<OnInteractEnterEvent>(OnInteractEnter);
         EventBus<OnInteractEnterEvent>.Register(onInteractEnterBinding);
@@ -87,9 +103,18 @@ public class PlayerHUD : MonoBehaviour
         onInventoryInputBinding = new EventBinding<OnInventoryInputEvent>(InventoryToggle);
         EventBus<OnInventoryInputEvent>.Register(onInventoryInputBinding);
     }
+
+    private void HandleGameReadyToStart(GameReadyToStartEvent arg0)
+    {
+        BindObjects();
+        Initialize();
+        Debug.Log("HUD start");
+    }
+
     void UnbindEvents()
     {
-
+        EventBus<GameReadyToStartEvent>.Unregister(m_OnGameReadyToStart);
+        EventBus<OnInventoryInputEvent>.Unregister(onInventoryInputBinding);
         EventBus<OnInteractLeaveEvent>.Unregister(onInteractLeaveBinding);
         EventBus<OnInteractEnterEvent>.Unregister(onInteractEnterBinding);
     }
@@ -99,13 +124,20 @@ public class PlayerHUD : MonoBehaviour
         BoxCollider2D _dropZoneCollider = _dropZone.GetComponent<BoxCollider2D>();
         _dropZoneCollider.size = _dropZone.GetComponent<RectTransform>().rect.size;
 
+        ActivateAll();
+
         EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = false });
+
+
     }
 
     private void InventoryToggle(OnInventoryInputEvent eventData)
     {
-        // _inventoryTransform.gameObject.SetActive(eventData.isOpen);
-        _inventoryTransform.GetComponent<Canvas>().enabled = eventData.isOpen;
+        if (eventData.isOpen)
+            ShowInventory();
+        else
+            HideInventory();
+
     }
 
 
@@ -115,28 +147,73 @@ public class PlayerHUD : MonoBehaviour
 
         string interactType = eventData.interactableType == InteractableType.Collectable ? "to collect " : "to interact with ";
         _isHovering = true;
-        _interactTransform.gameObject.SetActive(true);
 
-        _interactText.text = $"Press {_interactInput.GetBindingDisplayString(0)} {interactType}{eventData.InteractableName}";
+        SetTextToInteract($"Press {_interactInput.GetBindingDisplayString(0)} {interactType}{eventData.InteractableName}");
+        ShowInteractText();
+        PopupInteractText();
 
-        _interactText.transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InBounce).OnComplete(() =>
-        {
-            // _interactTransform.DOScale(Vector3.one - new Vector3(0.1f, 0.1f, 0.1f), 0.5f).SetEase(Ease.InSine).Flip();
-            // _interactTransform.transform.localScale = Vector3.one;
-        });
     }
 
     void OnInteractLeave()
     {
+
         if (!_isHovering) return;
+        HideInteractText();
+
+    }
+    void OnDisable()
+    {
+        UnbindEvents();
+    }
+    void ShowInteractText()
+    {
+        _interactTransform.gameObject.SetActive(true);
+    }
+    void SetTextToInteract(string text)
+    {
+        _interactText.text = text;
+
+    }
+    void PopupInteractText()
+    {
+        _interactText.transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InBounce).OnComplete(() =>
+       {
+           // _interactTransform.DOScale(Vector3.one - new Vector3(0.1f, 0.1f, 0.1f), 0.5f).SetEase(Ease.InSine).Flip();
+           // _interactTransform.transform.localScale = Vector3.one;
+       });
+    }
+
+    void HideInteractText()
+    {
         _interactText.transform.DOScale(Vector3.zero, 0.1f).SetEase(Ease.Flash).OnComplete(() =>
         {
             _isHovering = false;
             _interactTransform.gameObject.SetActive(false);
         });
     }
-    void OnDisable()
+
+    void ShowInventory()
     {
-        UnbindEvents();
+
+        _inventoryTransform.GetComponent<Canvas>().enabled = true;
+    }
+    void HideInventory()
+    {
+        _inventoryTransform.GetComponent<Canvas>().enabled = false;
+
+    }
+
+    void DesactivateAll()
+    {
+        _interactTransform.gameObject.SetActive(false);
+        _inventoryTransform.gameObject.SetActive(false);
+
+    }
+
+    void ActivateAll()
+    {
+        
+        _interactTransform.gameObject.SetActive(true);
+        _inventoryTransform.gameObject.SetActive(true);
     }
 }

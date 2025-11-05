@@ -44,6 +44,7 @@ public class PlayerInventory : MonoBehaviour
     {
         // isInventoryOpen = true;
         // ToggleInventory();
+        Debug.Log("Player inventory");
         BindEvents();
         Initialize();
 

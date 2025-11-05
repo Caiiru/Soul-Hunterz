@@ -81,7 +81,10 @@ public class Enemy : Entity
     public override void TakeDamage(int damage)
     {
         base.TakeDamage(damage);
-        cameraShakeManager.instance.CameraShake(impulseSource);
+        
+        
+        if(cameraShakeManager.instance!=null)
+            cameraShakeManager.instance.CameraShake(impulseSource);
 
 
     }

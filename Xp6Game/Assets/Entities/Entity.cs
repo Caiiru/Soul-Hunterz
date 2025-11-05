@@ -29,7 +29,7 @@ public class Entity : MonoBehaviour
         if (entityData.visualPrefab != null)
         {
 
-            // _visualTransform = Instantiate(entityData.visualPrefab, transform).transform;
+            _visualTransform = Instantiate(entityData.visualPrefab, transform).transform;
         }
 
 
