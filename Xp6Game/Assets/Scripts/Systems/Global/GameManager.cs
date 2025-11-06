@@ -28,14 +28,13 @@ public class GameManager : MonoBehaviour
     #region Events
     public delegate void GameStateChangeHandler(GameState newState);
     public static event GameStateChangeHandler OnGameStateChange;
-
-
-    EventBinding<MainMenuLoadedEvent> mainMenuLoadedBinding;
-    EventBinding<GameSceneLoaded> gameLoadedBinding;
+ 
     EventBinding<GameStartLoadingEvent> gameStartLoadingBinding;
     EventBinding<GameStartEvent> gameStartEventBinding;
     //INGAME
     EventBinding<EnemyDiedEvent> enemyDiedEventBinding;
+
+    EventBinding<MainMenuPlayButtonClickedEvent> m_OnMainMenuPlayButtonClicked;
 
     #endregion
 
@@ -84,8 +83,7 @@ public class GameManager : MonoBehaviour
     private async void Start()
     {
         BindEvents();
-        BindEnemiesEvents();
-        await Initialize();
+        BindEnemiesEvents(); 
         // BindObjects();
         // await SpawnObjects();
         // PrepareGame();
@@ -96,12 +94,11 @@ public class GameManager : MonoBehaviour
 
     void BindEvents()
     {
-        mainMenuLoadedBinding = new EventBinding<MainMenuLoadedEvent>(OnMainMenuLoadedHandler);
-        EventBus<MainMenuLoadedEvent>.Register(mainMenuLoadedBinding);
+        m_OnMainMenuPlayButtonClicked = new EventBinding<MainMenuPlayButtonClickedEvent>(StartGameHandler);
+        EventBus<MainMenuPlayButtonClickedEvent>.Register(m_OnMainMenuPlayButtonClicked);
 
-        gameLoadedBinding = new EventBinding<GameSceneLoaded>(OnGameSceneLoaded);
-        EventBus<GameSceneLoaded>.Register(gameLoadedBinding);
-
+    
+ 
         gameStartLoadingBinding = new EventBinding<GameStartLoadingEvent>(() =>
         {
             ChangeGameState(GameState.Loading);
@@ -111,6 +108,12 @@ public class GameManager : MonoBehaviour
 
 
     }
+
+    private async void StartGameHandler(MainMenuPlayButtonClickedEvent arg0)
+    {
+        await Initialize();
+    }
+
     void BindEnemiesEvents()
     {
         enemyDiedEventBinding = new EventBinding<EnemyDiedEvent>(OnEnemyDied);
@@ -119,14 +122,7 @@ public class GameManager : MonoBehaviour
 
 
     #region Events Methods
-    private async void OnGameSceneLoaded(GameSceneLoaded arg0)
-    {
-        await Initialize();
-    }
-    private void OnMainMenuLoadedHandler()
-    {
-        ChangeGameState(GameState.MainMenu);
-    }
+    
 
     private void OnEnemyDied(EnemyDiedEvent arg0)
     { 
