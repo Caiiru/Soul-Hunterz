@@ -15,7 +15,7 @@ public class MainMenuManager : MonoBehaviour
   
     public void OnStartButtonPressed()
     {
-        EventBus<MainMenuPlayButtonClickedEvent>.Raise(new MainMenuPlayButtonClickedEvent());
+        EventBus<StartGameEvent>.Raise(new StartGameEvent());
         
     }
   

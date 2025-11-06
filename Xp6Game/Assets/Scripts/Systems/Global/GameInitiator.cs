@@ -23,7 +23,7 @@ public class GameInitiator : MonoBehaviour
 
     //Events
 
-    EventBinding<MainMenuPlayButtonClickedEvent> menuPlayButtonBinding; 
+    EventBinding<StartGameEvent> menuPlayButtonBinding; 
     EventBinding<GameStartLoadingEvent> loadingEventBinding;
 
     EventBinding<LoadMenuEvent> loadMenuBinding;
@@ -60,8 +60,8 @@ public class GameInitiator : MonoBehaviour
 
     void BindEvents()
     {
-        menuPlayButtonBinding = new EventBinding<MainMenuPlayButtonClickedEvent>(OnMainMenuPlayButtonClicked);
-        EventBus<MainMenuPlayButtonClickedEvent>.Register(menuPlayButtonBinding);
+        menuPlayButtonBinding = new EventBinding<StartGameEvent>(OnMainMenuPlayButtonClicked);
+        EventBus<StartGameEvent>.Register(menuPlayButtonBinding);
  
 
 

@@ -24,6 +24,7 @@ public class PlayerHUD : MonoBehaviour
 
     #endregion
 
+    [Header("Interact")]
     [SerializeField]
     Transform _interactTransform;
     bool _isHovering = false;
@@ -33,26 +34,36 @@ public class PlayerHUD : MonoBehaviour
     Transform _inventoryTransform;
     [SerializeField] Transform _dropZone;
 
-    public TextMeshProUGUI m_playerHealth;
+    [Header("Player Health")]
+    //Player Health
+    public Transform m_PlayerHealthCanvas;
+    private int m_currentHealth;
+    private int m_maxHealth;
+
+
+    [Header("Texts")]
+    TextMeshProUGUI _interactText;
+    public TextMeshProUGUI m_playerHealthText;
+
+    // Events
+    EventBinding<GameReadyToStartEvent> m_OnGameReadyToStart;
+
+    EventBinding<OnInteractEnterEvent> m_OnInteractEnterBinding;
+    EventBinding<OnInteractLeaveEvent> m_OnInteractLeaveBinding;
+
+    EventBinding<OnInventoryInputEvent> m_OnInventoryInputBinding;
+
+    EventBinding<OnSetPlayerHealthEvent> m_OnSetHealthEvent;
+    EventBinding<OnPlayerTakeDamage> m_OnPlayerTakeDamage;
+
+
 
 #if ENABLE_INPUT_SYSTEM
     InputAction _interactInput;
     InputAction _inventoryInput;
 #endif
 
-
-    // Events
-    EventBinding<GameReadyToStartEvent> m_OnGameReadyToStart;
-
-    EventBinding<OnInteractEnterEvent> onInteractEnterBinding;
-    EventBinding<OnInteractLeaveEvent> onInteractLeaveBinding;
-
-    EventBinding<OnInventoryInputEvent> onInventoryInputBinding;
-
-
-    // [Header("Texts")]
-    TextMeshProUGUI _interactText;
-
+    [Header("Debug")]
 
     public bool m_isDebug = false;
     void Start()
@@ -86,6 +97,7 @@ public class PlayerHUD : MonoBehaviour
         }
         _interactInput = StarterAssetsInputs.Instance.GetInteractAction().action;
 
+
     }
 
     void BindEvents()
@@ -95,28 +107,37 @@ public class PlayerHUD : MonoBehaviour
         EventBus<GameReadyToStartEvent>.Register(m_OnGameReadyToStart);
 
 
-        onInteractEnterBinding = new EventBinding<OnInteractEnterEvent>(OnInteractEnter);
-        EventBus<OnInteractEnterEvent>.Register(onInteractEnterBinding);
-        onInteractLeaveBinding = new EventBinding<OnInteractLeaveEvent>(OnInteractLeave);
-        EventBus<OnInteractLeaveEvent>.Register(onInteractLeaveBinding);
+        m_OnInteractEnterBinding = new EventBinding<OnInteractEnterEvent>(OnInteractEnter);
+        EventBus<OnInteractEnterEvent>.Register(m_OnInteractEnterBinding);
+        m_OnInteractLeaveBinding = new EventBinding<OnInteractLeaveEvent>(OnInteractLeave);
+        EventBus<OnInteractLeaveEvent>.Register(m_OnInteractLeaveBinding);
 
-        onInventoryInputBinding = new EventBinding<OnInventoryInputEvent>(InventoryToggle);
-        EventBus<OnInventoryInputEvent>.Register(onInventoryInputBinding);
+        m_OnInventoryInputBinding = new EventBinding<OnInventoryInputEvent>(InventoryToggle);
+        EventBus<OnInventoryInputEvent>.Register(m_OnInventoryInputBinding);
+
+        m_OnPlayerTakeDamage = new EventBinding<OnPlayerTakeDamage>(HandlePlayerTakeDamage);
+        EventBus<OnPlayerTakeDamage>.Register(m_OnPlayerTakeDamage);
+
+        m_OnSetHealthEvent = new EventBinding<OnSetPlayerHealthEvent>((eventData) =>
+        {
+            m_currentHealth = eventData.currentHealth;
+            m_maxHealth = eventData.maxHealth;
+            UpdatePlayerHealthText();
+
+        });
+        EventBus<OnSetPlayerHealthEvent>.Register(m_OnSetHealthEvent);
+
+
+
     }
-
-    private void HandleGameReadyToStart(GameReadyToStartEvent arg0)
-    {
-        BindObjects();
-        Initialize();
-        Debug.Log("HUD start");
-    }
-
     void UnbindEvents()
     {
         EventBus<GameReadyToStartEvent>.Unregister(m_OnGameReadyToStart);
-        EventBus<OnInventoryInputEvent>.Unregister(onInventoryInputBinding);
-        EventBus<OnInteractLeaveEvent>.Unregister(onInteractLeaveBinding);
-        EventBus<OnInteractEnterEvent>.Unregister(onInteractEnterBinding);
+        EventBus<OnInventoryInputEvent>.Unregister(m_OnInventoryInputBinding);
+        EventBus<OnInteractLeaveEvent>.Unregister(m_OnInteractLeaveBinding);
+        EventBus<OnInteractEnterEvent>.Unregister(m_OnInteractEnterBinding);
+        EventBus<OnPlayerTakeDamage>.Unregister(m_OnPlayerTakeDamage);
+        EventBus<OnSetPlayerHealthEvent>.Unregister(m_OnSetHealthEvent);
     }
 
     void Initialize()
@@ -130,6 +151,29 @@ public class PlayerHUD : MonoBehaviour
 
 
     }
+
+
+    private void HandleGameReadyToStart(GameReadyToStartEvent arg0)
+    {
+        BindObjects();
+        Initialize();
+        _interactTransform.gameObject.SetActive(false);
+
+
+    }
+    private void HandlePlayerTakeDamage(OnPlayerTakeDamage arg0)
+    {
+        m_currentHealth -= arg0.value;
+        UpdatePlayerHealthText();
+
+    }
+    private void UpdatePlayerHealthText()
+    {
+        m_playerHealthText.text = $"Health: {m_currentHealth}/{m_maxHealth}";
+    }
+
+
+
 
     private void InventoryToggle(OnInventoryInputEvent eventData)
     {
@@ -207,13 +251,15 @@ public class PlayerHUD : MonoBehaviour
     {
         _interactTransform.gameObject.SetActive(false);
         _inventoryTransform.gameObject.SetActive(false);
+        m_PlayerHealthCanvas.gameObject.SetActive(false);
 
     }
 
     void ActivateAll()
     {
-        
+
         _interactTransform.gameObject.SetActive(true);
         _inventoryTransform.gameObject.SetActive(true);
+        m_PlayerHealthCanvas.gameObject.SetActive(true);
     }
 }

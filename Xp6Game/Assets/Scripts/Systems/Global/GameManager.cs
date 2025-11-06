@@ -29,12 +29,13 @@ public class GameManager : MonoBehaviour
     public delegate void GameStateChangeHandler(GameState newState);
     public static event GameStateChangeHandler OnGameStateChange;
  
-    EventBinding<GameStartLoadingEvent> gameStartLoadingBinding;
     EventBinding<GameStartEvent> gameStartEventBinding;
     //INGAME
     EventBinding<EnemyDiedEvent> enemyDiedEventBinding;
 
-    EventBinding<MainMenuPlayButtonClickedEvent> m_OnMainMenuPlayButtonClicked;
+    EventBinding<GameOverEvent> m_OnGameOverBinding;
+
+    EventBinding<StartGameEvent> m_OnMainMenuPlayButtonClicked;
 
     #endregion
 
@@ -50,7 +51,7 @@ public class GameManager : MonoBehaviour
     public GameObject PopupManagerPrefab;
 
     [Space]
-    public GameObject PlayerPrefab; 
+    public GameObject PlayerPrefab;
     public GameObject StartZonePrefab;
     public GameObject EndZonePrefab;
     public GameObject EnemyPrefab;
@@ -61,11 +62,11 @@ public class GameManager : MonoBehaviour
     [Space]
     [Header("Binded Objects")]
     [SerializeField] private GameObject _playerGO;
-    private GameObject _popupManagerGO; 
+    private GameObject _popupManagerGO;
     private GameObject _environment;
     private GameObject _startZone;
     private GameObject _endZone;
-    private EnemyManager _enemyManager;
+    [SerializeField] private EnemyManager _enemyManager;
 
     [Space]
     [Header("Start Settings")]
@@ -83,7 +84,7 @@ public class GameManager : MonoBehaviour
     private async void Start()
     {
         BindEvents();
-        BindEnemiesEvents(); 
+        BindEnemiesEvents();
         // BindObjects();
         // await SpawnObjects();
         // PrepareGame();
@@ -94,22 +95,18 @@ public class GameManager : MonoBehaviour
 
     void BindEvents()
     {
-        m_OnMainMenuPlayButtonClicked = new EventBinding<MainMenuPlayButtonClickedEvent>(StartGameHandler);
-        EventBus<MainMenuPlayButtonClickedEvent>.Register(m_OnMainMenuPlayButtonClicked);
+        m_OnMainMenuPlayButtonClicked = new EventBinding<StartGameEvent>(StartGameHandler);
+        EventBus<StartGameEvent>.Register(m_OnMainMenuPlayButtonClicked);
 
-    
- 
-        gameStartLoadingBinding = new EventBinding<GameStartLoadingEvent>(() =>
+        m_OnGameOverBinding = new EventBinding<GameOverEvent>(() =>
         {
-            ChangeGameState(GameState.Loading);
-
+            LoseGame();
         });
-
-
-
+        EventBus<GameOverEvent>.Register(m_OnGameOverBinding);
+  
     }
 
-    private async void StartGameHandler(MainMenuPlayButtonClickedEvent arg0)
+    private async void StartGameHandler(StartGameEvent arg0)
     {
         await Initialize();
     }
@@ -117,15 +114,15 @@ public class GameManager : MonoBehaviour
     void BindEnemiesEvents()
     {
         enemyDiedEventBinding = new EventBinding<EnemyDiedEvent>(OnEnemyDied);
-        EventBus<EnemyDiedEvent>.Register(enemyDiedEventBinding); 
+        EventBus<EnemyDiedEvent>.Register(enemyDiedEventBinding);
     }
 
 
     #region Events Methods
-    
+
 
     private void OnEnemyDied(EnemyDiedEvent arg0)
-    { 
+    {
         enemiesDefeated++;
         if (!IsGameState(GameState.Playing)) return;
         if (enemiesDefeated >= enemiesToDefeatToWin)
@@ -152,9 +149,9 @@ public class GameManager : MonoBehaviour
     }
 
     private void BindObjects()
-    { 
-        Instantiate(GlobalVolumePrefab);
-        Instantiate(EventSystemPrefab);
+    {
+        // Instantiate(GlobalVolumePrefab);
+        // Instantiate(EventSystemPrefab);
 
         _popupManagerGO = Instantiate(PopupManagerPrefab);
         _enemyManager = Instantiate(EnemyManagerPrefab).GetComponent<EnemyManager>();
@@ -193,7 +190,7 @@ public class GameManager : MonoBehaviour
     void SpawnPlayer()
     {
         GameObject player = Instantiate(PlayerPrefab);
-        _playerGO = player; 
+        _playerGO = player;
 
     }
     void ChangePlayerPosition(Vector3 newPosition)
@@ -297,6 +294,8 @@ public class GameManager : MonoBehaviour
     public void LoseGame()
     {
         ChangeGameState(GameState.GameOver);
+        DestroyObjects(); 
+
     }
 
     public GameObject GetPlayer()
@@ -307,6 +306,16 @@ public class GameManager : MonoBehaviour
     public EnemyManager GetEnemyManager()
     {
         return _enemyManager;
+    }
+
+    private void DestroyObjects()
+    {
+        // Destroy(_enemyManager.gameObject);
+        Destroy(_popupManagerGO);
+        Destroy(_environment);
+        Destroy(_startZone);
+        Destroy(_endZone);
+        Destroy(_playerGO);
     }
 
 }

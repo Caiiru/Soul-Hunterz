@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class WeaponHolder : MonoBehaviour
@@ -18,7 +19,7 @@ public class WeaponHolder : MonoBehaviour
 
 
     //Animator
-    Animator m_Animator;
+    [SerializeField] Animator m_Animator;
 
     int m_ShootingLayerIndex;
     int m_ShootingAnimID;
@@ -43,6 +44,7 @@ public class WeaponHolder : MonoBehaviour
 
     void BindObjects()
     {
+        Debug.Log("Bind Events Weapon Holder");
         m_Animator = GetComponentInChildren<Animator>();
     }
 
@@ -81,17 +83,7 @@ public class WeaponHolder : MonoBehaviour
         await UniTask.CompletedTask;
     }
 
-    void OnEnable()
-    {
 
-        // PlayerInventory.OnPlayerInventoryToggle += HandleInventoryToggle;
-    }
-
-    void OnDisable()
-    {
-        // PlayerInventory.OnPlayerInventoryToggle -= HandleInventoryToggle;   
-        EventBus<OnInventoryInputEvent>.Unregister(onInventoryToggleBinding);
-    }
 
     internal void HoldWeapon(GameObject weapon)
     {
@@ -119,6 +111,17 @@ public class WeaponHolder : MonoBehaviour
             m_Animator.SetLayerWeight(m_ShootingLayerIndex, 0);
         }
 
+    }
+
+    void OnDisable()
+    {
+        UnbindEvents();
+    }
+
+    void UnbindEvents()
+    {
+        EventBus<OnInventoryInputEvent>.Unregister(onInventoryToggleBinding);
+        EventBus<OnPlayerChangeState>.Unregister(m_OnPlayerChangeStateBinding);
     }
 
 }

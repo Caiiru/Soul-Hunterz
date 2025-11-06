@@ -37,6 +37,7 @@ public static class EventBus<T> where T : IEvent
     {
         foreach (var binding in bindings)
         {
+            Debug.WriteLine(binding);
             binding.OnEvent.Invoke(@event);
             binding.OnEventNoArgs.Invoke();
         }

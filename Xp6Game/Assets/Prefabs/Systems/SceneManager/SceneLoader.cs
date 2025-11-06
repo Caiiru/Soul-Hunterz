@@ -9,7 +9,7 @@ public class SceneLoader : MonoBehaviour
 {
     public List<SceneRef> scenes = new List<SceneRef>();
 
-    EventBinding<MainMenuPlayButtonClickedEvent> playButtonBinding;
+    EventBinding<StartGameEvent> playButtonBinding;
 
     EventBinding<GameWinEvent> gameWinBinding;
 
@@ -40,11 +40,10 @@ public class SceneLoader : MonoBehaviour
     }
     async UniTask BindEvents()
     {
-        playButtonBinding = new EventBinding<MainMenuPlayButtonClickedEvent>(OnMainMenuPlayButtonClicked);
-        EventBus<MainMenuPlayButtonClickedEvent>.Register(playButtonBinding);
+        playButtonBinding = new EventBinding<StartGameEvent>(OnMainMenuPlayButtonClicked);
+        EventBus<StartGameEvent>.Register(playButtonBinding);
 
-        gameWinBinding = new EventBinding<GameWinEvent>(OnGameWin);
-        EventBus<GameWinEvent>.Register(gameWinBinding);
+        gameWinBinding = new EventBinding<GameWinEvent>(OnGameWin); 
 
         gameSceneLoadedBinding = new EventBinding<GameSceneLoaded>(() =>
         {
