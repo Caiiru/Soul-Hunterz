@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -9,7 +10,7 @@ public class EnemyManager : MonoBehaviour
     [Header("Enemy Empty Prefab")]
     [SerializeField] private GameObject EmptyEnemyRanged;
     [SerializeField] private GameObject EmptyEnemyMelee;
- 
+
     [Header("Enemy Pool")]
     [SerializeField] private int maxEnemies = 50;
     [SerializeField] List<GameObject> rangedPool;
@@ -19,11 +20,19 @@ public class EnemyManager : MonoBehaviour
 
     Transform _enemyHolder;
 
+    //Events
+
+    EventBinding<GameWinEvent> m_OnGameWinEventBinding;
+    EventBinding<GameOverEvent> m_OnGameOverBinding;
+
     public async UniTask Initialize()
     {
-        _enemyHolder = new GameObject().transform;
-        _enemyHolder.SetParent(transform);
-        _enemyHolder.transform.name = "EnemyHolder";
+        if (_enemyHolder == null)
+        {
+            _enemyHolder = new GameObject().transform;
+            _enemyHolder.SetParent(transform);
+            _enemyHolder.transform.name = "EnemyHolder";
+        }
 
         await SpawnRangedEnemyPool();
 
@@ -35,8 +44,44 @@ public class EnemyManager : MonoBehaviour
         {
             _enemySpawner = gameObject.AddComponent<EnemySpawner>();
         }
+
+        BindEvents();
+        await UniTask.CompletedTask;
     }
 
+    private void BindEvents()
+    {
+        m_OnGameOverBinding = new EventBinding<GameOverEvent>(() =>
+        {
+            EndGame();
+        });
+        EventBus<GameOverEvent>.Register(m_OnGameOverBinding);
+
+        m_OnGameWinEventBinding = new EventBinding<GameWinEvent>(() =>
+        {
+            EndGame();
+        });
+        EventBus<GameWinEvent>.Register(m_OnGameWinEventBinding);
+
+    }
+
+    void EndGame()
+    {
+        StopSpawning();
+        UnbindEvents();
+        Destroy(this.gameObject);
+    }
+
+    private void UnbindEvents()
+    {
+        EventBus<GameOverEvent>.Unregister(m_OnGameOverBinding);
+        EventBus<GameWinEvent>.Unregister(m_OnGameWinEventBinding);
+    }
+
+    void OnDestroy()
+    {
+        UnbindEvents();
+    }
     async UniTask SpawnRangedEnemyPool()
     {
         for (int i = 0; i < maxEnemies; i++)
@@ -59,7 +104,7 @@ public class EnemyManager : MonoBehaviour
         return null;
     }
     public void StartSpawning()
-    { 
+    {
         _enemySpawner.StartSpawning();
     }
     public void StopSpawning()

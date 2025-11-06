@@ -33,12 +33,24 @@ public class PlayerEntity : Entity
 
 
     Animator m_Animator;
+
+
+    [Header("Debug")]
+
+    [SerializeField] bool m_die=false;
     void BindEvents()
     {
         m_OnPlayerAttackBinding = new EventBinding<OnPlayerAttack>(HandlePlayerAttack);
         EventBus<OnPlayerAttack>.Register(m_OnPlayerAttackBinding);
 
         ThirdPersonController.onPlayerDash += HandleDashEvent;
+
+    }
+    void UnbindEvents()
+    {
+        EventBus<OnPlayerAttack>.Unregister(m_OnPlayerAttackBinding);
+        EventBus<OnPlayerTakeDamage>.Unregister(m_OnPlayerTakeDamageBinding);
+        ThirdPersonController.onPlayerDash -= HandleDashEvent;
 
     }
 
@@ -58,16 +70,19 @@ public class PlayerEntity : Entity
         BindAnim();
 
 
+        EventBus<OnSetPlayerHealthEvent>.Raise(new OnSetPlayerHealthEvent { maxHealth = entityData.maxHealth, currentHealth = entityData.maxHealth });
+
+
     }
 
     // Update is called once per frame
     void Update()
     {
         HandlePlayerState();
+        DebugUpdateHandler();
+
     }
-
-
-
+ 
     private void HandleDashEvent()
     {
         var _ = HandleInvencibility();
@@ -82,13 +97,7 @@ public class PlayerEntity : Entity
 
     }
 
-    void UnbindEvents()
-    {
-        EventBus<OnPlayerAttack>.Unregister(m_OnPlayerAttackBinding);
-        EventBus<OnPlayerTakeDamage>.Unregister(m_OnPlayerTakeDamageBinding);
-        ThirdPersonController.onPlayerDash -= HandleDashEvent;
 
-    }
 
 
     void BindAnim()
@@ -104,10 +113,9 @@ public class PlayerEntity : Entity
     public override void TakeDamage(int damage)
     {
 
-        base.TakeDamage(damage);
 
 
-        EventBus<OnPlayerTakeDamage>.Raise(new OnPlayerTakeDamage());
+        EventBus<OnPlayerTakeDamage>.Raise(new OnPlayerTakeDamage { value = damage });
         SetPlayerState(PlayerStates.Combat);
 
 
@@ -115,13 +123,14 @@ public class PlayerEntity : Entity
         if (m_Animator == null) return;
         m_Animator.SetTrigger(m_TakeDamageIDAnim);
 
+        base.TakeDamage(damage);
     }
 
     protected override void Die()
     {
-        base.Die();
-        // GameManager.Instance.LoseGame();
         EventBus<GameOverEvent>.Raise(new GameOverEvent());
+        // base.Die();
+        // GameManager.Instance.LoseGame();
 
     }
 
@@ -185,6 +194,14 @@ public class PlayerEntity : Entity
                 break;
         }
 
+    }
+    void DebugUpdateHandler()
+    {
+        if (m_die)
+        {
+            m_die = false;
+            Die();
+        }
     }
 
     void OnDestroy()

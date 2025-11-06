@@ -19,25 +19,29 @@ public class Enemy : Entity
     StateMachine _stateMachine;
 
 
-    [SerializeField] private Transform _targetTransform; 
+    [SerializeField] private Transform _targetTransform;
 
     [Header("Debug Mode")]
 
-    [SerializeField] private bool m_DebugMode = true; 
+    [SerializeField] private bool m_DebugMode = true;
 
 
     #region Visual 
-    [SerializeField]private GameObject _hitVFXInstance;
+    [SerializeField] private GameObject _hitVFXInstance;
     public CinemachineImpulseSource impulseSource;
 
 
     #endregion
 
+    //Events
+    EventBinding<GameWinEvent> m_OnGameWinEventBinding;
+    EventBinding<GameOverEvent> m_OnGameOverBinding;
+
 
     public virtual void SetData(EnemySO newData)
     {
-        enemyData = newData; 
-        entityData = enemyData; 
+        enemyData = newData;
+        entityData = enemyData;
     }
 
     override protected void OnEnable()
@@ -51,9 +55,9 @@ public class Enemy : Entity
             Initialize();
         }
 
-        
+
     }
-    
+
     public override void Initialize()
     {
         base.Initialize();
@@ -68,12 +72,41 @@ public class Enemy : Entity
             _navMesh.speed = speed;
             _navMesh.stoppingDistance = attackRange;
         }
-        if(TryGetComponent(out StateMachine comp)){
+        if (TryGetComponent(out StateMachine comp))
+        {
             _stateMachine = comp;
 
             _stateMachine.InitializeStateMachine();
-        } 
+        }
         impulseSource = GetComponent<CinemachineImpulseSource>();
+
+        BindEvents();
+    }
+
+    void BindEvents()
+    {
+        m_OnGameOverBinding = new EventBinding<GameOverEvent>(() =>
+        {
+            EndGame();
+        });
+        EventBus<GameOverEvent>.Register(m_OnGameOverBinding);
+
+        m_OnGameWinEventBinding = new EventBinding<GameWinEvent>(() =>
+        {
+            EndGame();
+        });
+        EventBus<GameWinEvent>.Register(m_OnGameWinEventBinding);
+    }
+    void UnbindEvents()
+    {
+        EventBus<GameOverEvent>.Unregister(m_OnGameOverBinding);
+        EventBus<GameWinEvent>.Unregister(m_OnGameWinEventBinding);
+    }
+
+    void EndGame()
+    {
+        UnbindEvents();
+        Destroy(this.gameObject);
     }
 
 
@@ -81,9 +114,9 @@ public class Enemy : Entity
     public override void TakeDamage(int damage)
     {
         base.TakeDamage(damage);
-        
-        
-        if(cameraShakeManager.instance!=null)
+
+
+        if (cameraShakeManager.instance != null)
             cameraShakeManager.instance.CameraShake(impulseSource);
 
 
@@ -92,7 +125,7 @@ public class Enemy : Entity
     protected override void Die()
     {
         EventBus<EnemyDiedEvent>.Raise(new EnemyDiedEvent());
-        Debug.Log("Enemy died");
+        // Debug.Log("Enemy died");
         base.Die();
     }
 
@@ -146,7 +179,7 @@ public class Enemy : Entity
 
     }
     public virtual bool HasTarget()
-    { 
+    {
         return _targetTransform != null;
     }
     public virtual Transform GetTarget()

@@ -22,7 +22,12 @@ public class OnCollectComponent : IEvent
 
 public class OnPlayerTakeDamage : IEvent
 {
-
+    public int value;
+}
+public class OnSetPlayerHealthEvent : IEvent
+{
+    public int maxHealth;
+    public int currentHealth;
 }
 public class OnPlayerAttack : IEvent
 {
