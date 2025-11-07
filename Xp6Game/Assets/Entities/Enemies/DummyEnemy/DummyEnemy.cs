@@ -7,7 +7,6 @@ public class DummyEnemy : Enemy
     [Header("Debug")]
     public bool m_AlwaysShooting = true;
 
-    private Animator _animator;
 
     public float attackCooldown = 5;
     private float _attackTimer;
@@ -26,13 +25,13 @@ public class DummyEnemy : Enemy
     {
         base.OnEnable();
         VFXDebugManager.OnInputPressed += OnInputPressed;
-        
-        _animator = GetComponentInChildren<Animator>();
+
         _attackTimer = 0;
 
         if (m_AlwaysShooting)
             StartShooting();
     }
+ 
 
     async void Update()
     {
@@ -75,8 +74,8 @@ public class DummyEnemy : Enemy
     async UniTask Aim()
     {
         // await UniTask.Delay(1000);
-        _animator.SetTrigger("Shoot");
         // await UniTask.Delay(10);
+        _animator.SetTrigger("Shoot");
         Attack();
 
         await UniTask.CompletedTask;
@@ -98,10 +97,7 @@ public class DummyEnemy : Enemy
     public override void TakeDamage(int damage)
     {
         base.TakeDamage(damage);
-        if (_animator)
-        {
-            _animator.SetTrigger("TakeDamage");
-        }
+        
     }
 
 }

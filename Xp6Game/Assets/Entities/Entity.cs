@@ -25,11 +25,12 @@ public class Entity : MonoBehaviour
         }
         currentHealth = entityData.maxHealth;
         canBeDamaged = entityData.canBeDamaged;
-        if (_visualTransform) { Destroy(_visualTransform.gameObject); }
-        if (entityData.visualPrefab != null)
+        // if (_visualTransform) { Destroy(_visualTransform.gameObject); }
+        if (_visualTransform == null)
         {
 
-            _visualTransform = Instantiate(entityData.visualPrefab, transform).transform;
+            // _visualTransform = Instantiate(entityData.visualPrefab, transform).transform;
+            Debug.LogWarning("No visual found");
         }
 
 
@@ -49,10 +50,12 @@ public class Entity : MonoBehaviour
                 damage.ToString(),
                 new Vector3(transform.position.x, transform.position.y + transform.localScale.y + 1, transform.position.z),
                 Color.red,
-                new Vector3(0.5f,0.5f,0.5f));
+                new Vector3(0.5f, 0.5f, 0.5f));
 
         }
         currentHealth -= damage;
+
+
         PlayOneShotAtPosition(entityData.takeDamageSound);
 
         if (currentHealth <= 0)
@@ -70,14 +73,15 @@ public class Entity : MonoBehaviour
     }
 
     #region Sounds 
-    protected void PlayOneShotAtPosition(EventReference audioEvent)
+    public void PlayOneShotAtPosition(EventReference audioEvent)
     {
         if (audioEvent.IsNull)
-        {
-            // Debug.LogWarning("No Audio Event");
             return;
-        }
-        if (AudioManager.Instance == null) return;
+
+        if (AudioManager.Instance == null)
+            return;
+
+
         AudioManager.Instance.PlayOneShotAtPosition(audioEvent, transform.position);
 
     }

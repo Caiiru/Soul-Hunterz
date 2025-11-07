@@ -21,9 +21,6 @@ public class Enemy : Entity
 
     [SerializeField] private Transform _targetTransform;
 
-    [Header("Debug Mode")]
-
-    [SerializeField] private bool m_DebugMode = true;
 
 
     #region Visual 
@@ -37,6 +34,12 @@ public class Enemy : Entity
     EventBinding<GameWinEvent> m_OnGameWinEventBinding;
     EventBinding<GameOverEvent> m_OnGameOverBinding;
 
+
+
+    [Header("Debug Mode", order = 8)]
+
+    [SerializeField] private bool m_DebugMode = true;
+    public Animator _animator;
 
     public virtual void SetData(EnemySO newData)
     {
@@ -54,6 +57,9 @@ public class Enemy : Entity
             SetData(entityData as EnemySO);
             Initialize();
         }
+
+        _animator = GetComponentInChildren<Animator>();
+
 
 
     }
@@ -115,8 +121,12 @@ public class Enemy : Entity
     {
         base.TakeDamage(damage);
 
+        if (_animator)
+            _animator.SetTrigger("TakeDamage");
 
-        if (cameraShakeManager.instance != null)
+
+
+        if (cameraShakeManager.instance != null && impulseSource != null)
             cameraShakeManager.instance.CameraShake(impulseSource);
 
 
@@ -171,7 +181,6 @@ public class Enemy : Entity
 
     public virtual void Attack()
     {
-
     }
     public virtual void SetTarget(Transform targetTransform)
     {
