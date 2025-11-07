@@ -6,6 +6,6 @@ public class MinionSounds : MonoBehaviour
 
     void PlaySound()
     {
-        Debug.Log("play sound minion");
+        // Debug.Log("play sound minion");
     } 
 }

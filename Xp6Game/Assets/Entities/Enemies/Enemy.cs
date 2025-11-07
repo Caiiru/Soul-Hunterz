@@ -36,7 +36,7 @@ public class Enemy : Entity
 
 
 
-    [Header("Debug Mode",order = 8)]
+    [Header("Debug Mode", order = 8)]
 
     [SerializeField] private bool m_DebugMode = true;
     public Animator _animator;
@@ -126,7 +126,7 @@ public class Enemy : Entity
 
 
 
-        if (cameraShakeManager.instance != null)
+        if (cameraShakeManager.instance != null && impulseSource != null)
             cameraShakeManager.instance.CameraShake(impulseSource);
 
 

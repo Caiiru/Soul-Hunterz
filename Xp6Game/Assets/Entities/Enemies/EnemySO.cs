@@ -14,7 +14,6 @@ public class EnemySO : EntitySO
     public State initialState;
     public State remainState;
 
-    [HideInInspector] public LayerMask playerMask = 1 << 7;
- 
-    
+    [HideInInspector]
+    public LayerMask playerMask = 1 << 7;
 }
