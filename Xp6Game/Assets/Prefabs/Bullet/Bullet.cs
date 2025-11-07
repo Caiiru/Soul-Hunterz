@@ -71,10 +71,12 @@ public abstract class Bullet : MonoBehaviour
     }
     public virtual void HandleCollision(GameObject target)
     {
-        if (target.TryGetComponent<Enemy>(out var enemy))
+        // Debug.Log("hit something");
+        if (target.TryGetComponent<StateMachine>(out var _enemyStateMachine))
         {
-
-            enemy.TakeDamage(GetBulletDamage());
+            // Debug.Log("I hit an enemy");
+            _enemyStateMachine.TakeDamage(GetBulletDamage());
+            // return;
 
         }
         SpawnVFX();

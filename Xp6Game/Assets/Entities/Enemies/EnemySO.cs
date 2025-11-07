@@ -1,11 +1,11 @@
 using UnityEngine;
-
-[CreateAssetMenu(fileName = "Enemy Data", menuName = "Entity/Enemies/Enemy Data")]
+ 
 public class EnemySO : EntitySO
 {
     [Header("Enemy Settings")]
     public float movementSpeed = 3.5f;
     public float attackRange = 1.5f;
+    public Transform Target;
 
     [Header("VFX Settings")]
     public GameObject hitVFXPrefab;

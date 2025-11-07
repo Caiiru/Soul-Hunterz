@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(Collider))]
-public class SimpleEnemy : Enemy
+public class SimpleEnemy : Enemy<EnemySO>
 { 
     // private NavMeshAgent _navMesh;
     protected override void OnEnable()
@@ -10,12 +10,7 @@ public class SimpleEnemy : Enemy
         base.OnEnable();
 
     }
-
-    public override void Initialize()
-    {
-        base.Initialize();
-
-    } 
+ 
     void Update()
     {
         // MoveTowards(_playerTransform.position);

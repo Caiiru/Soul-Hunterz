@@ -1,15 +1,16 @@
 using FMODUnity;
 using UnityEngine;
 
-public class Entity : MonoBehaviour
+public abstract class Entity<T> : MonoBehaviour where T:EntitySO
 {
     [Header("Life Settings")]
-    [SerializeField] protected EntitySO entityData;
-    [SerializeField] protected int currentHealth = 30;
+    public T m_Data;
+    [HideInInspector]public T m_entityData;
+
+    public int m_MaxHealth;
+    [SerializeField] protected int m_currentHealth = 30;
     [SerializeField] public bool canBeDamaged = true;
-
-
-    protected Transform _visualTransform;
+ 
 
 
     protected virtual void OnEnable()
@@ -18,24 +19,17 @@ public class Entity : MonoBehaviour
     }
     public virtual void Initialize()
     {
-        if (entityData == null)
+        if(m_Data == null)
         {
-            Debug.LogError("EntitySO is not assigned in " + gameObject.name);
-            return;
+            Debug.LogError($"Entity Data not assigned in: {gameObject.name}");
         }
-        currentHealth = entityData.maxHealth;
-        canBeDamaged = entityData.canBeDamaged;
-        // if (_visualTransform) { Destroy(_visualTransform.gameObject); }
-        if (_visualTransform == null)
-        {
+        m_entityData = Instantiate(m_Data);
+        
+        m_MaxHealth = m_entityData.maxHealth;
+        m_currentHealth = this.m_MaxHealth;
+        canBeDamaged = m_entityData.canBeDamaged; 
 
-            // _visualTransform = Instantiate(entityData.visualPrefab, transform).transform;
-            Debug.LogWarning("No visual found");
-        }
-
-
-
-        transform.name = entityData.name;
+        transform.name = m_entityData.name;
     }
 
     public virtual void TakeDamage(int damage)
@@ -53,12 +47,12 @@ public class Entity : MonoBehaviour
                 new Vector3(0.5f, 0.5f, 0.5f));
 
         }
-        currentHealth -= damage;
+        m_currentHealth -= damage;
 
 
-        PlayOneShotAtPosition(entityData.takeDamageSound);
+        PlayOneShotAtPosition(m_entityData.takeDamageSound);
 
-        if (currentHealth <= 0)
+        if (m_currentHealth <= 0)
             Die();
 
 
@@ -66,7 +60,7 @@ public class Entity : MonoBehaviour
 
     protected virtual void Die()
     {
-        PlayOneShotAtPosition(entityData.dieSound);
+        PlayOneShotAtPosition(m_entityData.dieSound);
         canBeDamaged = false;
         gameObject.SetActive(false);
 

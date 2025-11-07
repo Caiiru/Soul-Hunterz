@@ -1,23 +1,10 @@
 using UnityEngine;
 
-public class MinionEnemy : Enemy
+public class MinionEnemy : Enemy<EnemySO>
 {
     public bool m_IsMoving;
 
-    Animator m_Animator;
 
-    public override void Initialize()
-    {
-        base.Initialize();
-
-
-        //Try cast all types of get component
-        m_Animator = GetComponentInChildren<Animator>();
-        if (m_Animator == null)
-        {
-            m_Animator = GetComponent<Animator>();
-        }
-    }
 
 
     public void SetMove(bool isMoving)
@@ -29,21 +16,21 @@ public class MinionEnemy : Enemy
 
     void Update()
     {
-        if (_navMesh.hasPath)
+        if (m_navMesh.hasPath)
         {
-            m_Animator.SetFloat("Speed", _navMesh.speed);
+            _animator.SetFloat("Speed", m_navMesh.speed);
             // Debug.Log("Minion has path");
         }
     }
     public bool GetMove()
     {
         return m_IsMoving;
-    } 
-    public void PlayWalkSound()
-    { 
-        PlayOneShotAtPosition(entityData.walkSound);
     }
- 
+    public void PlayWalkSound()
+    {
+        PlayOneShotAtPosition(m_entityData.walkSound);
+    }
 
-    
+
+
 }
