@@ -51,6 +51,10 @@ public class RangedEnemy : Enemy
 
     public override void Attack()
     {
+        if (_animator)
+        {
+            _animator.SetTrigger("Shoot");
+        }
         if (rangedEnemyData.bulletPrefab != null && _firePoint != null)
         {
             Instantiate(rangedEnemyData.bulletPrefab, _firePoint.position, _firePoint.rotation);
