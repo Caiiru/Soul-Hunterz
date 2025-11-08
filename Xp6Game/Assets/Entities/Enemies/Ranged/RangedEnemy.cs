@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class RangedEnemy : Enemy<RangedEnemySO>
@@ -50,11 +51,7 @@ public class RangedEnemy : Enemy<RangedEnemySO>
             Instantiate(m_entityData.bulletPrefab, _firePoint.position, _firePoint.rotation);
 
         }
-    }
-    protected override void Die()
-    {
-        base.Die();
-    }
+    } 
  
 
 }

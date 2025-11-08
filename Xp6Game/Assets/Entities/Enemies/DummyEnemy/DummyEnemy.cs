@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Triggers;
 using UnityEngine;
 
 public class DummyEnemy : Enemy<EnemySO>
@@ -76,6 +77,10 @@ public class DummyEnemy : Enemy<EnemySO>
     {
         base.TakeDamage(damage);
 
+    }
+    protected override UniTask Die()
+    {
+        return base.Die();
     }
 
     private async UniTask CastAim()

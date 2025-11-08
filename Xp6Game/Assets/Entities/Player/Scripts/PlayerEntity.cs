@@ -126,12 +126,14 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
         base.TakeDamage(damage);
     }
-
-    protected override void Die()
+    protected async override UniTask Die()
     {
+        PlayOneShotAtPosition(EntitySoundType.Die);
+        canBeDamaged = false;
+        m_Animator.SetTrigger("isDead");
+        var m_AnimationClipInfo = m_Animator.GetCurrentAnimatorClipInfo(0)[0].clip.length;
+        await UniTask.Delay((int)m_AnimationClipInfo * 1000);
         EventBus<GameOverEvent>.Raise(new GameOverEvent());
-        // base.Die();
-        // GameManager.Instance.LoseGame();
 
     }
 
@@ -146,7 +148,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
     public void SetPlayerState(PlayerStates newState)
     {
         EventBus<OnPlayerChangeState>.Raise(new OnPlayerChangeState { newState = newState });
-        
+
 
         if (PopupTextManager.instance != null && m_PlayerState != newState)
         {
@@ -197,12 +199,12 @@ public class PlayerEntity : Entity<PlayerEntitySO>
         }
 
     }
-    void DebugUpdateHandler()
+    async void DebugUpdateHandler()
     {
         if (m_die)
         {
             m_die = false;
-            Die();
+            await Die();
         }
     }
 
