@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Cinemachine;
-using Unity.VisualScripting;
 
 
 [RequireComponent(typeof(Collider))]
@@ -80,10 +79,6 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
                 // Debug.Log("Im have navmesh");
                 m_navMesh.enabled = true;
             }
-            else
-            {
-                m_navMesh = transform.AddComponent<NavMeshAgent>();
-            }
 
             m_navMesh.speed = m_speed;
             m_navMesh.stoppingDistance = m_attackRange;
@@ -95,6 +90,11 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
             m_stateMachine = comp;
 
             m_stateMachine.InitializeStateMachine(m_entityData as EnemySO);
+
+            if(!m_hasNavMesh)
+                m_stateMachine.SetActive(false);
+
+            
         }
         m_impulseSource = GetComponent<CinemachineImpulseSource>();
 
@@ -108,9 +108,11 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     void BindEvents()
     {
         //Local Events
-        m_stateMachine.m_OnAttack.AddListener(OnAttackEventListener);
-        m_stateMachine.m_OnTakeDamage.AddListener(OnTakeDamageEventListener);
-
+        if (m_stateMachine != null)
+        {
+            m_stateMachine.m_OnAttack.AddListener(OnAttackEventListener);
+            m_stateMachine.m_OnTakeDamage.AddListener(OnTakeDamageEventListener);
+        }
         //Event Bus
         m_OnGameOverBinding = new EventBinding<GameOverEvent>(() =>
         {

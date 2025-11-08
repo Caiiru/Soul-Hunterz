@@ -104,4 +104,9 @@ public class StateMachine : MonoBehaviour
     {
         m_OnTakeDamage?.Invoke(v);
     }
+    public void SetActive(bool isActive)
+    {
+        this.isActive = isActive;
+
+    }
 }

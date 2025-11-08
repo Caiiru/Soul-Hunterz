@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DummyEnemy : Enemy<EnemySO>
 {
-    [Header("Debug")]
+    [Header("Dummy Debug")]
     public bool m_AlwaysShooting = true;
     public bool _canAttack = true;
 
@@ -57,6 +57,7 @@ public class DummyEnemy : Enemy<EnemySO>
             Attack();
 
         await UniTask.CompletedTask;
+        await CastAim();
         // Attack();
     }
     public override void Attack()

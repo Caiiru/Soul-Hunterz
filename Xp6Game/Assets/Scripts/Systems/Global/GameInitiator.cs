@@ -1,10 +1,5 @@
-using System.Collections;
-using UnityEditor;
 using UnityEngine;
-using Cysharp.Threading.Tasks;
-using UnityEngine.SceneManagement;
-using Unity.VisualScripting;
-using System.Collections.Specialized;
+using Cysharp.Threading.Tasks; 
 
 public class GameInitiator : MonoBehaviour
 {
@@ -45,11 +40,7 @@ public class GameInitiator : MonoBehaviour
         if (TryGetComponent<SceneLoader>(out SceneLoader comp))
         {
             _sceneLoader = comp;
-        }
-        else
-        {
-            _sceneLoader = this.transform.AddComponent<SceneLoader>();
-        }
+        } 
         var _gameManagerGO = Instantiate(GameManagerPrefab);
         _gameManager = _gameManagerGO.GetComponent<GameManager>();
         var _audioManagerGO = Instantiate(AudioManagerPrefab);
