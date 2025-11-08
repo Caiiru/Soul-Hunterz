@@ -82,7 +82,7 @@ public class EnemySpawner : MonoBehaviour
     }
     private void SpawnRandomRangedEnemy(Vector3 spawnPosition)
     {
-        EnemySO _enemyData = GetRandomRangedData();
+        // EnemySO _enemyData = GetRandomRangedData();
 
         GameObject enemy = _enemyManager.GetRangedEnemy();
 
@@ -91,7 +91,7 @@ public class EnemySpawner : MonoBehaviour
 
         enemy.SetActive(true);
 
-        enemy.GetComponent<RangedEnemy>().SetData(_enemyData);
+        // enemy.GetComponent<RangedEnemy>().SetData(_enemyData);
         enemy.GetComponent<RangedEnemy>().Initialize();
 
     }

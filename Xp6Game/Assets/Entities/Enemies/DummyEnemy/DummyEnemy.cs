@@ -2,7 +2,7 @@ using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public class DummyEnemy : Enemy
+public class DummyEnemy : Enemy<EnemySO>
 {
     [Header("Debug")]
     public bool m_AlwaysShooting = true;

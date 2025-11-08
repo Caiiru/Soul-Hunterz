@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using StarterAssets;
 using UnityEngine;
 
-public class PlayerEntity : Entity
+public class PlayerEntity : Entity<PlayerEntitySO>
 {
 
     [Header("Player State")]
@@ -37,7 +37,7 @@ public class PlayerEntity : Entity
 
     [Header("Debug")]
 
-    [SerializeField] bool m_die=false;
+    [SerializeField] bool m_die = false;
     void BindEvents()
     {
         m_OnPlayerAttackBinding = new EventBinding<OnPlayerAttack>(HandlePlayerAttack);
@@ -56,10 +56,7 @@ public class PlayerEntity : Entity
 
     void BindObjects()
     {
-        if (entityData is PlayerEntitySO playerEntitySO)
-        {
-            m_invencibilityTime = (int)playerEntitySO.InvencibilityTime;
-        }
+
     }
     public override void Initialize()
     {
@@ -70,7 +67,10 @@ public class PlayerEntity : Entity
         BindAnim();
 
 
-        EventBus<OnSetPlayerHealthEvent>.Raise(new OnSetPlayerHealthEvent { maxHealth = entityData.maxHealth, currentHealth = entityData.maxHealth });
+        m_invencibilityTime = (int)m_entityData.InvencibilityTime;
+
+
+        EventBus<OnSetPlayerHealthEvent>.Raise(new OnSetPlayerHealthEvent { maxHealth = m_entityData.m_MaxHealth, currentHealth = m_entityData.m_MaxHealth });
 
 
     }
@@ -82,7 +82,7 @@ public class PlayerEntity : Entity
         DebugUpdateHandler();
 
     }
- 
+
     private void HandleDashEvent()
     {
         var _ = HandleInvencibility();

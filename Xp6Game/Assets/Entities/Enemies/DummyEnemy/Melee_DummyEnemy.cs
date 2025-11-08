@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
 
-public class Melee_DummyEnemy : Enemy
+public class Melee_DummyEnemy : Enemy<EnemySO>
 {
     public float attackCooldown = 5f;
     private float _attackTimer = 0f;

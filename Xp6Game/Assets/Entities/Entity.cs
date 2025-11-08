@@ -1,15 +1,16 @@
 using FMODUnity;
 using UnityEngine;
 
-public class Entity : MonoBehaviour
+public abstract class Entity<T> : MonoBehaviour where T : EntitySO
 {
     [Header("Life Settings")]
-    [SerializeField] protected EntitySO entityData;
-    [SerializeField] protected int currentHealth = 30;
+    public T m_Data;
+    [HideInInspector] public T m_entityData;
+
+    public int m_MaxHealth;
+    [SerializeField] protected int m_currentHealth = 30;
     [SerializeField] public bool canBeDamaged = true;
 
-
-    protected Transform _visualTransform;
 
 
     protected virtual void OnEnable()
@@ -18,24 +19,17 @@ public class Entity : MonoBehaviour
     }
     public virtual void Initialize()
     {
-        if (entityData == null)
+        if (m_Data == null)
         {
-            Debug.LogError("EntitySO is not assigned in " + gameObject.name);
-            return;
+            Debug.LogError($"Entity Data not assigned in: {gameObject.name}");
         }
-        currentHealth = entityData.maxHealth;
-        canBeDamaged = entityData.canBeDamaged;
-        // if (_visualTransform) { Destroy(_visualTransform.gameObject); }
-        if (_visualTransform == null)
-        {
+        m_entityData = Instantiate(m_Data);
 
-            // _visualTransform = Instantiate(entityData.visualPrefab, transform).transform;
-            Debug.LogWarning("No visual found");
-        }
+        m_MaxHealth = m_entityData.m_MaxHealth;
+        m_currentHealth = this.m_MaxHealth;
+        canBeDamaged = m_entityData.m_CanBeDamaged;
 
-
-
-        transform.name = entityData.name;
+        transform.name = m_entityData.name;
     }
 
     public virtual void TakeDamage(int damage)
@@ -53,12 +47,12 @@ public class Entity : MonoBehaviour
                 new Vector3(0.5f, 0.5f, 0.5f));
 
         }
-        currentHealth -= damage;
+        m_currentHealth -= damage;
 
 
-        PlayOneShotAtPosition(entityData.takeDamageSound);
+        PlayOneShotAtPosition(EntitySoundType.TakeDamage);
 
-        if (currentHealth <= 0)
+        if (m_currentHealth <= 0)
             Die();
 
 
@@ -66,24 +60,40 @@ public class Entity : MonoBehaviour
 
     protected virtual void Die()
     {
-        PlayOneShotAtPosition(entityData.dieSound);
+        PlayOneShotAtPosition(EntitySoundType.Die);
         canBeDamaged = false;
         gameObject.SetActive(false);
 
     }
 
     #region Sounds 
-    public void PlayOneShotAtPosition(EventReference audioEvent)
+    public void PlayOneShotAtPosition(EntitySoundType audioType)
     {
-        if (audioEvent.IsNull)
-            return;
+        EventReference? audioEvent = GetAudioFromString(audioType);
+
+        if (audioEvent == null) return;
 
         if (AudioManager.Instance == null)
             return;
 
 
-        AudioManager.Instance.PlayOneShotAtPosition(audioEvent, transform.position);
+        AudioManager.Instance.PlayOneShotAtPosition((EventReference)audioEvent, transform.position);
 
+    }
+
+    private EventReference? GetAudioFromString(EntitySoundType audioName)
+    {
+        for (int i = 0; i < m_entityData.m_SoundsList.Length; i++)
+        {
+            Debug.Log($"Comparing {audioName} with {m_entityData.m_SoundsList[i].m_SoundType}");
+            if (m_entityData.m_SoundsList[i].m_SoundType == audioName)
+            {
+                Debug.Log($"Are Equal");
+                return m_entityData.m_SoundsList[i].m_SoundReference;
+            }
+        }
+
+        return null;
     }
 
     #endregion

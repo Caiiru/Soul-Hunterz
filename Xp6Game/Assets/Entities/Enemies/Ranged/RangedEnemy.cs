@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public class RangedEnemy : Enemy
+public class RangedEnemy : Enemy<RangedEnemySO>
 {
-    [HideInInspector] public RangedEnemySO rangedEnemyData;
     [SerializeField] private Transform _firePoint;
 
 
@@ -13,29 +12,30 @@ public class RangedEnemy : Enemy
     // public bool m_Initialize = true;
     protected override void OnEnable()
     {
-        // base.OnEnable();
+        base.OnEnable();
         // if (m_Initialize)
         // {
         //     SetData(entityData as EnemySO);
         //     Initialize();
         // }
 
-    }
-    public override void SetData(EnemySO newData)
-    {
-        rangedEnemyData = newData as RangedEnemySO;
-        base.SetData(rangedEnemyData);
 
-        // Initialize();
+
     }
 
     public override void Initialize()
     {
         base.Initialize();
 
-        _shotCooldown = rangedEnemyData.timeBetweenShots;
+
+        _shotCooldown = m_entityData.timeBetweenShots;
         _timer = _shotCooldown; // So it can shoot immediately on spawn 
-        _firePoint = _visualTransform.Find("FirePoint");
+
+        m_attackRange = m_entityData.attackRange;
+        m_speed = m_entityData.movementSpeed;
+
+
+        _firePoint = transform.Find("FirePoint");
     }
     public override bool CanAttack()
     {
@@ -46,18 +46,20 @@ public class RangedEnemy : Enemy
         }
         _timer = 0;
 
-        return base.CanAttack();
+        return true;
     }
 
     public override void Attack()
     {
+        // Debug.Log("ranged atk");
+        if (!CanAttack()) return;
         if (_animator)
         {
             _animator.SetTrigger("Shoot");
         }
-        if (rangedEnemyData.bulletPrefab != null && _firePoint != null)
+        if (m_entityData.bulletPrefab != null && _firePoint != null)
         {
-            Instantiate(rangedEnemyData.bulletPrefab, _firePoint.position, _firePoint.rotation);
+            Instantiate(m_entityData.bulletPrefab, _firePoint.position, _firePoint.rotation);
 
         }
     }
@@ -65,5 +67,6 @@ public class RangedEnemy : Enemy
     {
         base.Die();
     }
+ 
 
 }

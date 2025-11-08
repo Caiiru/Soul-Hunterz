@@ -53,8 +53,7 @@ public class GameManager : MonoBehaviour
     [Space]
     public GameObject PlayerPrefab;
     public GameObject StartZonePrefab;
-    public GameObject EndZonePrefab;
-    public GameObject EnemyPrefab;
+    public GameObject EndZonePrefab; 
     public GameObject EnvironmentPrefab;
 
 
@@ -81,7 +80,7 @@ public class GameManager : MonoBehaviour
 
 
     #region Begin Game
-    private async void Start()
+    private void Start()
     {
         BindEvents();
         BindEnemiesEvents();
