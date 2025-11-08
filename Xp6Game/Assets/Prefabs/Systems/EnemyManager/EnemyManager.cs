@@ -1,20 +1,16 @@
+using System;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
-using Unity.VisualScripting;
+using Cysharp.Threading.Tasks; 
 using UnityEngine;
 
 
 public class EnemyManager : MonoBehaviour
 
 {
-    [Header("Enemy Empty Prefab")]
-    [SerializeField] private GameObject EmptyEnemyRanged;
-    [SerializeField] private GameObject EmptyEnemyMelee;
-
+    public EnemyData[] m_EnemiesToSpawn;
     [Header("Enemy Pool")]
-    [SerializeField] private int maxEnemies = 50;
+    [SerializeField] private int maxEnemies = 25;
     [SerializeField] List<GameObject> rangedPool;
-
 
     private EnemySpawner _enemySpawner;
 
@@ -84,11 +80,35 @@ public class EnemyManager : MonoBehaviour
     }
     async UniTask SpawnRangedEnemyPool()
     {
+        int m_enemyDataIndex = 0;
         for (int i = 0; i < maxEnemies; i++)
         {
-            GameObject enemy = Instantiate(EmptyEnemyRanged, _enemyHolder);
+            GameObject enemy = Instantiate(m_EnemiesToSpawn[0].prefabs[m_enemyDataIndex], _enemyHolder);
             rangedPool.Add(enemy);
             enemy.SetActive(false);
+
+            m_enemyDataIndex++;
+            if (m_enemyDataIndex >= m_EnemiesToSpawn[0].prefabs.Length)
+            {
+                m_enemyDataIndex = 0;
+            }
+        }
+        await UniTask.CompletedTask;
+    }
+    async UniTask SpawnMeeleEnemyPool()
+    {
+        int m_enemyDataIndex = 0;
+        for (int i = 0; i < maxEnemies; i++)
+        {
+            GameObject enemy = Instantiate(m_EnemiesToSpawn[1].prefabs[m_enemyDataIndex], _enemyHolder);
+            rangedPool.Add(enemy);
+            enemy.SetActive(false);
+
+            m_enemyDataIndex++;
+            if (m_enemyDataIndex >= m_EnemiesToSpawn[0].prefabs.Length)
+            {
+                m_enemyDataIndex = 0;
+            }   
         }
         await UniTask.CompletedTask;
     }
@@ -119,3 +139,11 @@ public class EnemyManager : MonoBehaviour
 
 
 }
+
+[Serializable]
+public struct EnemyData
+{
+    public string name;
+    public GameObject[] prefabs;
+}
+

@@ -1,5 +1,4 @@
-using Unity.VisualScripting;
-using UnityEngine;
+ using UnityEngine;
 
 [CreateAssetMenu(fileName = "Follow Target Component", menuName = "Components/FollowTarget")]
 public class FollowTargetComponent : ComponentSO

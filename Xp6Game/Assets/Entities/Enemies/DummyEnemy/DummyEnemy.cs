@@ -2,15 +2,11 @@ using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public class DummyEnemy : Enemy
+public class DummyEnemy : Enemy<EnemySO>
 {
-    [Header("Debug")]
+    [Header("Dummy Debug")]
     public bool m_AlwaysShooting = true;
-
-
-    public float attackCooldown = 5;
-    private float _attackTimer;
-    private bool _canAttack = false;
+    public bool _canAttack = true;
 
     [SerializeField] private Transform _firePoint;
     [Space]
@@ -26,27 +22,9 @@ public class DummyEnemy : Enemy
         base.OnEnable();
         VFXDebugManager.OnInputPressed += OnInputPressed;
 
-        _attackTimer = 0;
 
         if (m_AlwaysShooting)
             StartShooting();
-    }
- 
-
-    async void Update()
-    {
-        await HandleTimer();
-    }
-
-    private async UniTask HandleTimer()
-    {
-        if (!_canAttack) return;
-        _attackTimer += Time.deltaTime;
-        if (_attackTimer >= attackCooldown)
-        {
-            // _attackTimer = 0;
-            await Aim();
-        }
     }
 
 
@@ -73,18 +51,18 @@ public class DummyEnemy : Enemy
 
     async UniTask Aim()
     {
-        // await UniTask.Delay(1000);
-        // await UniTask.Delay(10);
-        _animator.SetTrigger("Shoot");
-        Attack();
+        await UniTask.Delay(10);
+        m_animator.SetTrigger("Shoot");
+        if (CanAttack())
+            Attack();
 
         await UniTask.CompletedTask;
+        await CastAim();
         // Attack();
     }
     public override void Attack()
     {
         base.Attack();
-        _attackTimer = 0;
 
         GameObject bullet = Instantiate(bulletPrefab, _firePoint.transform.position, Quaternion.identity);
         // bullet.transform.position = _firePoint.transform.position;
@@ -97,7 +75,17 @@ public class DummyEnemy : Enemy
     public override void TakeDamage(int damage)
     {
         base.TakeDamage(damage);
-        
+
+    }
+
+    private async UniTask CastAim()
+    {
+        // await UniTask.Delay(1000);
+        await UniTask.Delay((int)m_entityData.m_AttackCooldown * 1000);
+        await Aim();
+
+
+        return;
     }
 
 }

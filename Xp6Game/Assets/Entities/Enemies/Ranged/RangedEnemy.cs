@@ -1,8 +1,7 @@
 using UnityEngine;
 
-public class RangedEnemy : Enemy
+public class RangedEnemy : Enemy<RangedEnemySO>
 {
-    [HideInInspector] public RangedEnemySO rangedEnemyData;
     [SerializeField] private Transform _firePoint;
 
 
@@ -13,51 +12,42 @@ public class RangedEnemy : Enemy
     // public bool m_Initialize = true;
     protected override void OnEnable()
     {
-        // base.OnEnable();
+        base.OnEnable();
         // if (m_Initialize)
         // {
         //     SetData(entityData as EnemySO);
         //     Initialize();
         // }
 
-    }
-    public override void SetData(EnemySO newData)
-    {
-        rangedEnemyData = newData as RangedEnemySO;
-        base.SetData(rangedEnemyData);
 
-        // Initialize();
+
     }
 
     public override void Initialize()
     {
         base.Initialize();
+ 
+        m_attackRange = m_entityData.m_AttackRange;
+        m_speed = m_entityData.m_MoveSpeed;
 
-        _shotCooldown = rangedEnemyData.timeBetweenShots;
-        _timer = _shotCooldown; // So it can shoot immediately on spawn 
-        _firePoint = _visualTransform.Find("FirePoint");
+
+        _firePoint = transform.Find("FirePoint");
     }
     public override bool CanAttack()
     {
-        if (_timer < _shotCooldown)
-        {
-            _timer += Time.deltaTime;
-            return false;
-        }
-        _timer = 0;
-
         return base.CanAttack();
     }
 
     public override void Attack()
     {
-        if (_animator)
+        if (!CanAttack()) return;
+        if (m_animator)
         {
-            _animator.SetTrigger("Shoot");
+            m_animator.SetTrigger("Shoot");
         }
-        if (rangedEnemyData.bulletPrefab != null && _firePoint != null)
+        if (m_entityData.bulletPrefab != null && _firePoint != null)
         {
-            Instantiate(rangedEnemyData.bulletPrefab, _firePoint.position, _firePoint.rotation);
+            Instantiate(m_entityData.bulletPrefab, _firePoint.position, _firePoint.rotation);
 
         }
     }
@@ -65,5 +55,6 @@ public class RangedEnemy : Enemy
     {
         base.Die();
     }
+ 
 
 }

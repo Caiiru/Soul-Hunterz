@@ -1,6 +1,5 @@
 using DG.Tweening;
-using TMPro;
-using Unity.VisualScripting;
+using TMPro; 
 using UnityEngine;
 
 public class PopupText : MonoBehaviour

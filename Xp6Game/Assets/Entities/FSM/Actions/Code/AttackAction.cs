@@ -5,12 +5,8 @@ public class AttackAction : Action
 {
     public override void Act(StateMachine stateMachine)
     {
-        Enemy _enemy = stateMachine.GetEnemy();
-        if (_enemy.CanAttack())
-        {
-            stateMachine.SetMoving(false);
-            stateMachine.GetEnemy().Attack();
-        }
+
+        stateMachine.Attack();
     }
 
     public override void Exit(StateMachine stateMachine)
@@ -20,6 +16,7 @@ public class AttackAction : Action
 
     public override void Setup(StateMachine stateMachine)
     {
+        stateMachine.SetMoving(false);
 
     }
 
