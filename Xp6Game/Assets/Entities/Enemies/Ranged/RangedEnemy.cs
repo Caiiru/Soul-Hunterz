@@ -19,14 +19,14 @@ public class RangedEnemy : Enemy<RangedEnemySO>
         //     Initialize();
         // }
 
-        
+
 
     }
 
     public override void Initialize()
     {
         base.Initialize();
- 
+
 
         _shotCooldown = m_entityData.timeBetweenShots;
         _timer = _shotCooldown; // So it can shoot immediately on spawn 
@@ -51,14 +51,14 @@ public class RangedEnemy : Enemy<RangedEnemySO>
 
     public override void Attack()
     {
-        Debug.Log("ranged atk");
+        // Debug.Log("ranged atk");
         if (!CanAttack()) return;
         if (_animator)
         {
             _animator.SetTrigger("Shoot");
         }
         if (m_entityData.bulletPrefab != null && _firePoint != null)
-        { 
+        {
             Instantiate(m_entityData.bulletPrefab, _firePoint.position, _firePoint.rotation);
 
         }
@@ -67,5 +67,6 @@ public class RangedEnemy : Enemy<RangedEnemySO>
     {
         base.Die();
     }
+ 
 
 }

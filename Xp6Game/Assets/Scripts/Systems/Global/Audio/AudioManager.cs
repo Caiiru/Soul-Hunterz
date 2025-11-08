@@ -29,7 +29,8 @@ public class AudioManager : MonoBehaviour
 
     
     public void PlayOneShotAtPosition(EventReference eventRef, Vector3 position)
-    { 
+    {
+        Debug.Log($"Playing {eventRef.Guid} on {position}");
         RuntimeManager.PlayOneShot(eventRef, position);
     }
 

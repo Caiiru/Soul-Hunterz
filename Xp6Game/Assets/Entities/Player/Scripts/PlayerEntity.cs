@@ -70,7 +70,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
         m_invencibilityTime = (int)m_entityData.InvencibilityTime;
 
 
-        EventBus<OnSetPlayerHealthEvent>.Raise(new OnSetPlayerHealthEvent { maxHealth = m_entityData.maxHealth, currentHealth = m_entityData.maxHealth });
+        EventBus<OnSetPlayerHealthEvent>.Raise(new OnSetPlayerHealthEvent { maxHealth = m_entityData.m_MaxHealth, currentHealth = m_entityData.m_MaxHealth });
 
 
     }

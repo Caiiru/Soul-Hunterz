@@ -25,11 +25,7 @@ public class MinionEnemy : Enemy<EnemySO>
     public bool GetMove()
     {
         return m_IsMoving;
-    }
-    public void PlayWalkSound()
-    {
-        PlayOneShotAtPosition(m_entityData.walkSound);
-    }
+    } 
 
 
 
