@@ -59,19 +59,7 @@ MonoBehaviour:
     - model: {fileID: 8926484042661614935}
       id: 0
       isStickyNote: 0
-    - model: {fileID: 8926484042661614940}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614942}
-      id: 0
-      isStickyNote: 0
     - model: {fileID: 8926484042661615010}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661615033}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661615113}
       id: 0
       isStickyNote: 0
     - model: {fileID: 8926484042661615111}
@@ -98,19 +86,7 @@ MonoBehaviour:
     - model: {fileID: 8926484042661614957}
       id: 0
       isStickyNote: 0
-    - model: {fileID: 8926484042661614959}
-      id: 0
-      isStickyNote: 0
     - model: {fileID: 8926484042661614962}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661614977}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661615063}
-      id: 0
-      isStickyNote: 0
-    - model: {fileID: 8926484042661615026}
       id: 0
       isStickyNote: 0
     - model: {fileID: 8926484042661615298}
@@ -744,7 +720,7 @@ MonoBehaviour:
   - {fileID: 8926484042661614903}
   m_ExposedName: Frequency
   m_Exposed: 1
-  m_Order: 3
+  m_Order: 7
   m_Category: Animation
   m_Min:
     m_Type:
@@ -962,7 +938,7 @@ MonoBehaviour:
   - {fileID: 8926484042661614909}
   m_ExposedName: Height
   m_Exposed: 1
-  m_Order: 5
+  m_Order: 10
   m_Category: Animation
   m_Min:
     m_Type:
@@ -1157,7 +1133,6 @@ MonoBehaviour:
   m_Direction: 1
   m_LinkedSlots:
   - {fileID: 8926484042661615037}
-  - {fileID: 8926484042661615237}
   - {fileID: 8926484042661615715}
 --- !u!114 &8926484042661614935
 MonoBehaviour:
@@ -3481,7 +3456,7 @@ MonoBehaviour:
   - {fileID: 8926484042661615112}
   m_ExposedName: Fresnel intensity
   m_Exposed: 1
-  m_Order: 7
+  m_Order: 12
   m_Category: Animation
   m_Min:
     m_Type:
@@ -6324,8 +6299,7 @@ MonoBehaviour:
       m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
   m_Direction: 0
-  m_LinkedSlots:
-  - {fileID: 8926484042661614913}
+  m_LinkedSlots: []
 --- !u!114 &8926484042661615238
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6752,7 +6726,7 @@ MonoBehaviour:
   - {fileID: 8926484042661615253}
   m_ExposedName: Spin
   m_Exposed: 1
-  m_Order: 9
+  m_Order: 13
   m_Category: Animation
   m_Min:
     m_Type:
@@ -6914,7 +6888,7 @@ MonoBehaviour:
   - {fileID: 8926484042661615287}
   m_ExposedName: Item Mesh
   m_Exposed: 1
-  m_Order: 1
+  m_Order: 3
   m_Category: Item
   m_Min:
     m_Type:
@@ -6995,7 +6969,7 @@ MonoBehaviour:
   - {fileID: 8926484042661615289}
   m_ExposedName: BaseColor
   m_Exposed: 1
-  m_Order: 3
+  m_Order: 8
   m_Category: Item
   m_Min:
     m_Type:
@@ -7076,7 +7050,7 @@ MonoBehaviour:
   - {fileID: 8926484042661615291}
   m_ExposedName: Metallic
   m_Exposed: 1
-  m_Order: 4
+  m_Order: 9
   m_Category: Item
   m_Min:
     m_Type:
@@ -7157,7 +7131,7 @@ MonoBehaviour:
   - {fileID: 8926484042661615293}
   m_ExposedName: AO
   m_Exposed: 1
-  m_Order: 5
+  m_Order: 11
   m_Category: Item
   m_Min:
     m_Type:
@@ -7238,7 +7212,7 @@ MonoBehaviour:
   - {fileID: 8926484042661615295}
   m_ExposedName: Sparkle count
   m_Exposed: 1
-  m_Order: 0
+  m_Order: 1
   m_Category: Main Sparkles
   m_Min:
     m_Type:
@@ -7328,7 +7302,7 @@ MonoBehaviour:
   - {fileID: 8926484042661615297}
   m_ExposedName: FresnelColor Gradient
   m_Exposed: 1
-  m_Order: 0
+  m_Order: 2
   m_Category: Item
   m_Min:
     m_Type:
@@ -7729,7 +7703,7 @@ MonoBehaviour:
   - {fileID: 8926484042661615338}
   m_ExposedName: Sparkle Color
   m_Exposed: 1
-  m_Order: 1
+  m_Order: 4
   m_Category: Main Sparkles
   m_Min:
     m_Type:
@@ -10148,7 +10122,7 @@ MonoBehaviour:
   - {fileID: 8926484042661615424}
   m_ExposedName: Item Size
   m_Exposed: 1
-  m_Order: 2
+  m_Order: 5
   m_Category: Item
   m_Min:
     m_Type:
@@ -10229,7 +10203,7 @@ MonoBehaviour:
   - {fileID: 8926484042661615426}
   m_ExposedName: Base Height
   m_Exposed: 1
-  m_Order: 13
+  m_Order: 14
   m_Category: Animation
   m_Min:
     m_Type:
@@ -11022,7 +10996,7 @@ MonoBehaviour:
   - {fileID: 8926484042661615449}
   m_ExposedName: Turbulence
   m_Exposed: 1
-  m_Order: 2
+  m_Order: 6
   m_Category: Main Sparkles
   m_Min:
     m_Type:
