@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Cinemachine;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 
 
 [RequireComponent(typeof(Collider))]
@@ -9,7 +11,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 {
     [Space(1)]
     [Header("Enemy Stats")]
-    protected float m_speed = 3.5f; 
+    protected float m_speed = 3.5f;
     protected float m_attackRange = 1.5f;
     protected float m_attackCooldown = 2f;
 
@@ -43,6 +45,8 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
     [SerializeField] private bool m_DebugMode = true;
     public Animator m_animator;
+
+    private int k_Milliseconds = 1000;
 
     #region Initialize
 
@@ -92,13 +96,14 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
             m_stateMachine.InitializeStateMachine(m_entityData as EnemySO);
 
-            if(!m_hasNavMesh)
+            if (!m_hasNavMesh)
                 m_stateMachine.SetActive(false);
 
-            
+
         }
         m_impulseSource = GetComponent<CinemachineImpulseSource>();
 
+        this.GetComponent<Collider>().enabled = true;
 
 
         BindEvents();
@@ -182,11 +187,34 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
     }
 
-    protected override void Die()
+    protected async override UniTask Die()
     {
+        if (m_hasNavMesh)
+        {
+            m_navMesh.enabled = false;
+        }
+
+        if (m_stateMachine != null)
+        {
+            m_stateMachine.SetActive(false);
+        }
+        this.GetComponent<Collider>().enabled = false;
+
+        m_animator.SetTrigger("isDead");
+
+
+        await UniTask.Delay(2 * k_Milliseconds);
+        var m_AnimationClipInfo = m_animator.GetCurrentAnimatorClipInfo(0)[0].clip.length;
+
+
+        await UniTask.Delay((int)m_AnimationClipInfo * k_Milliseconds);
+        transform.DOMoveY(transform.position.y - 2f, 2).SetEase(Ease.Linear);
+
+        await UniTask.Delay(3 * k_Milliseconds);
+
         EventBus<EnemyDiedEvent>.Raise(new EnemyDiedEvent());
         // Debug.Log("Enemy died");
-        base.Die();
+        await base.Die();
     }
 
     protected virtual void SpawnHitVFX()
@@ -239,8 +267,10 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
     public virtual bool CanAttack()
     {
+        if (m_currentHealth <= 0) return false;
+
         if (m_attackTimer >= 0)
-        { 
+        {
             return false;
         }
 

@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using FMODUnity;
 using UnityEngine;
 
@@ -32,7 +33,7 @@ public abstract class Entity<T> : MonoBehaviour where T : EntitySO
         transform.name = m_entityData.name;
     }
 
-    public virtual void TakeDamage(int damage)
+    public virtual async void TakeDamage(int damage)
     {
 
         if (!canBeDamaged)
@@ -53,16 +54,18 @@ public abstract class Entity<T> : MonoBehaviour where T : EntitySO
         PlayOneShotAtPosition(EntitySoundType.TakeDamage);
 
         if (m_currentHealth <= 0)
-            Die();
+            await Die();
 
 
     }
 
-    protected virtual void Die()
+    protected async virtual UniTask Die()
     {
         PlayOneShotAtPosition(EntitySoundType.Die);
         canBeDamaged = false;
         gameObject.SetActive(false);
+
+        await UniTask.CompletedTask;
 
     }
 

@@ -10,7 +10,7 @@ public class EnemySO : EntitySO
     public Transform Target;
 
     [Header("VFX Settings")]
-    public GameObject m_takeDamageVFX;
+    public GameObject m_takeDamageVFX; 
 
     [Header("State Machine")]
     public State m_InitialState; 
