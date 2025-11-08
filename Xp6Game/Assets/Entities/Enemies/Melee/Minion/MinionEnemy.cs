@@ -14,14 +14,22 @@ public class MinionEnemy : Enemy<EnemySO>
 
     }
 
-    void Update()
+    public override void Update()
     {
+        base.Update();
         if (m_navMesh.hasPath)
         {
-            _animator.SetFloat("Speed", m_navMesh.speed);
+            m_animator.SetFloat("Speed", m_navMesh.speed);
             // Debug.Log("Minion has path");
         }
     }
+
+    public override void Attack()
+    {
+        base.Attack();
+
+    }
+
     public bool GetMove()
     {
         return m_IsMoving;

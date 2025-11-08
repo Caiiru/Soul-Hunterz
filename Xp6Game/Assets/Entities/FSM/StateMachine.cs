@@ -29,7 +29,7 @@ public class StateMachine : MonoBehaviour
 
         data = enemyData;
 
-        initialState = data.initialState;
+        initialState = data.m_InitialState;
         currentState = Instantiate(initialState);
 
         isActive = true;
