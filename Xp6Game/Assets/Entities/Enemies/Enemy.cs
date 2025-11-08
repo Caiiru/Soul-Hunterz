@@ -9,10 +9,11 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 {
     [Space(1)]
     [Header("Enemy Stats")]
-    protected float m_speed = 3.5f;
+    protected float m_speed = 3.5f; 
     protected float m_attackRange = 1.5f;
     protected float m_attackCooldown = 2f;
 
+    [SerializeField]
     private float m_attackTimer = 0;
 
     [Tooltip("Does this enemy use a NavMeshAgent for movement?")]
@@ -239,8 +240,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     public virtual bool CanAttack()
     {
         if (m_attackTimer >= 0)
-        {
-            m_attackTimer -= Time.deltaTime;
+        { 
             return false;
         }
 

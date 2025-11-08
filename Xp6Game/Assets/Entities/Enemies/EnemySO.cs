@@ -6,6 +6,7 @@ public class EnemySO : EntitySO
     public float m_MoveSpeed = 3.5f;
     public float m_AttackRange = 1.5f;
     public float m_AttackCooldown = 2f;
+    public int m_AttackMeleeDamage = 0;
     public Transform Target;
 
     [Header("VFX Settings")]
