@@ -18,7 +18,7 @@ public class Melee_DummyEnemy : Enemy<EnemySO>
     protected override void OnEnable()
     {
         base.OnEnable();
-        _animator = GetComponent<Animator>();
+        m_animator = GetComponent<Animator>();
         VFXDebugManager.OnInputPressed += OnInputPressed;
 
     }
@@ -37,8 +37,9 @@ public class Melee_DummyEnemy : Enemy<EnemySO>
 
     // Update is called once per frame
 
-    protected void Update()
+    public override void Update()
     {
+        base.Update();
         HandleTimer();
     }
 
@@ -57,7 +58,7 @@ public class Melee_DummyEnemy : Enemy<EnemySO>
     public override void Attack()
     {
 
-        _animator.SetTrigger("Attack");
+        m_animator.SetTrigger("Attack");
 
     }
 

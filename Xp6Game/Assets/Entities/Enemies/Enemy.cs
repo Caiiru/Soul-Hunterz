@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Cinemachine;
-using Unity.VisualScripting;
 
 
 [RequireComponent(typeof(Collider))]
@@ -10,8 +9,12 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 {
     [Space(1)]
     [Header("Enemy Stats")]
-    protected float m_speed = 3.5f;
+    protected float m_speed = 3.5f; 
     protected float m_attackRange = 1.5f;
+    protected float m_attackCooldown = 2f;
+
+    [SerializeField]
+    private float m_attackTimer = 0;
 
     [Tooltip("Does this enemy use a NavMeshAgent for movement?")]
     [SerializeField] bool m_hasNavMesh;
@@ -19,13 +22,13 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     protected StateMachine m_stateMachine;
 
 
-    [SerializeField] private Transform _targetTransform;
+    [SerializeField] private Transform m_targetTransform;
 
 
 
     #region Visual 
-    [SerializeField] private GameObject _hitVFXInstance;
-    public CinemachineImpulseSource impulseSource;
+    [SerializeField] private GameObject m_hitVFXInstance;
+    public CinemachineImpulseSource m_impulseSource;
 
 
     #endregion
@@ -39,8 +42,9 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     [Header("Debug Mode", order = 8)]
 
     [SerializeField] private bool m_DebugMode = true;
-    public Animator _animator;
+    public Animator m_animator;
 
+    #region Initialize
 
     override protected void OnEnable()
     {
@@ -52,7 +56,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
             // SetData(entityData as EnemySO);
             Initialize();
         }
-        _animator = GetComponentInChildren<Animator>();
+        m_animator = GetComponentInChildren<Animator>();
 
 
 
@@ -64,8 +68,9 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         // Debug.Log($"Enemy Enabled: {gameObject.name} with Speed: {speed} and Attack Range: {attackRange}");
 
-        m_attackRange = m_entityData.attackRange;
-        m_speed = m_entityData.movementSpeed;
+        m_attackRange = m_entityData.m_AttackRange;
+        m_speed = m_entityData.m_MoveSpeed;
+        m_attackCooldown = m_entityData.m_AttackCooldown;
 
 
         if (m_hasNavMesh)
@@ -74,10 +79,6 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
             {
                 // Debug.Log("Im have navmesh");
                 m_navMesh.enabled = true;
-            }
-            else
-            {
-                m_navMesh = transform.AddComponent<NavMeshAgent>();
             }
 
             m_navMesh.speed = m_speed;
@@ -90,20 +91,29 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
             m_stateMachine = comp;
 
             m_stateMachine.InitializeStateMachine(m_entityData as EnemySO);
-        }
-        impulseSource = GetComponent<CinemachineImpulseSource>();
 
-        
+            if(!m_hasNavMesh)
+                m_stateMachine.SetActive(false);
+
+            
+        }
+        m_impulseSource = GetComponent<CinemachineImpulseSource>();
+
+
 
         BindEvents();
     }
 
+    #endregion
+    #region Bind Events
     void BindEvents()
-    {   
+    {
         //Local Events
-        m_stateMachine.m_OnAttack.AddListener(OnAttackEventListener);
-        m_stateMachine.m_OnTakeDamage.AddListener(OnTakeDamageEventListener);
-
+        if (m_stateMachine != null)
+        {
+            m_stateMachine.m_OnAttack.AddListener(OnAttackEventListener);
+            m_stateMachine.m_OnTakeDamage.AddListener(OnTakeDamageEventListener);
+        }
         //Event Bus
         m_OnGameOverBinding = new EventBinding<GameOverEvent>(() =>
         {
@@ -133,16 +143,27 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
         EventBus<GameOverEvent>.Unregister(m_OnGameOverBinding);
         EventBus<GameWinEvent>.Unregister(m_OnGameWinEventBinding);
 
-        
+
         m_stateMachine.m_OnAttack.RemoveListener(OnAttackEventListener);
         m_stateMachine.m_OnTakeDamage.RemoveListener(OnTakeDamageEventListener);
     }
-
+    #endregion
+    #region End Game
     void EndGame()
     {
         UnbindEvents();
         Destroy(this.gameObject);
     }
+
+    #endregion
+    #region Update
+
+    public virtual void Update()
+    {
+        HandleAttackTimer();
+    }
+
+    #endregion
 
 
     #region Take Damage & Death
@@ -150,13 +171,13 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     {
         base.TakeDamage(damage);
 
-        if (_animator)
-            _animator.SetTrigger("TakeDamage");
+        if (m_animator)
+            m_animator.SetTrigger("TakeDamage");
 
 
 
-        if (cameraShakeManager.instance != null && impulseSource != null)
-            cameraShakeManager.instance.CameraShake(impulseSource);
+        if (cameraShakeManager.instance != null && m_impulseSource != null)
+            cameraShakeManager.instance.CameraShake(m_impulseSource);
 
 
     }
@@ -170,14 +191,14 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
     protected virtual void SpawnHitVFX()
     {
-        if (m_entityData.hitVFXPrefab != null)
+        if (m_entityData.m_takeDamageVFX != null)
         {
-            if (_hitVFXInstance != null)
+            if (m_hitVFXInstance != null)
             {
-                Destroy(_hitVFXInstance);
+                Destroy(m_hitVFXInstance);
             }
-            _hitVFXInstance = Instantiate(m_entityData.hitVFXPrefab, transform.position + Vector3.up * 1.5f, Quaternion.identity);
-            Destroy(_hitVFXInstance, 2f);
+            m_hitVFXInstance = Instantiate(m_entityData.m_takeDamageVFX, transform.position + Vector3.up * 1.5f, Quaternion.identity);
+            Destroy(m_hitVFXInstance, 2f);
         }
     }
 
@@ -199,27 +220,39 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     public virtual void Attack()
     {
         // PlayOneShotAtPosition
+        m_attackTimer = m_attackCooldown;
+
     }
     public virtual void SetTarget(Transform targetTransform)
     {
-        this._targetTransform = targetTransform;
+        this.m_targetTransform = targetTransform;
 
     }
     public virtual bool HasTarget()
     {
-        return _targetTransform != null;
+        return m_targetTransform != null;
     }
     public virtual Transform GetTarget()
     {
-        return _targetTransform;
+        return m_targetTransform;
     }
 
     public virtual bool CanAttack()
     {
-        if (!HasTarget()) return false;
+        if (m_attackTimer >= 0)
+        { 
+            return false;
+        }
 
-        float distanceToTarget = Vector3.Distance(transform.position, GetTarget().transform.position);
-        return distanceToTarget <= m_attackRange;
+        return true;
+    }
+
+    public virtual void HandleAttackTimer()
+    {
+        if (m_attackTimer >= 0)
+        {
+            m_attackTimer -= Time.deltaTime;
+        }
     }
 
     public float GetAttackRange()

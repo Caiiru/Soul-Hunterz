@@ -29,7 +29,7 @@ public class StateMachine : MonoBehaviour
 
         data = enemyData;
 
-        initialState = data.initialState;
+        initialState = data.m_InitialState;
         currentState = Instantiate(initialState);
 
         isActive = true;
@@ -103,5 +103,10 @@ public class StateMachine : MonoBehaviour
     internal void TakeDamage(int v)
     {
         m_OnTakeDamage?.Invoke(v);
+    }
+    public void SetActive(bool isActive)
+    {
+        this.isActive = isActive;
+
     }
 }
