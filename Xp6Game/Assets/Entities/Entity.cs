@@ -85,10 +85,9 @@ public abstract class Entity<T> : MonoBehaviour where T : EntitySO
     {
         for (int i = 0; i < m_entityData.m_SoundsList.Length; i++)
         {
-            Debug.Log($"Comparing {audioName} with {m_entityData.m_SoundsList[i].m_SoundType}");
+            // Debug.Log($"Comparing {audioName} with {m_entityData.m_SoundsList[i].m_SoundType}");
             if (m_entityData.m_SoundsList[i].m_SoundType == audioName)
-            {
-                Debug.Log($"Are Equal");
+            { 
                 return m_entityData.m_SoundsList[i].m_SoundReference;
             }
         }

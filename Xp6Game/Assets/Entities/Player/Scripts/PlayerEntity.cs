@@ -116,6 +116,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
 
         EventBus<OnPlayerTakeDamage>.Raise(new OnPlayerTakeDamage { value = damage });
+
         SetPlayerState(PlayerStates.Combat);
 
 
@@ -145,9 +146,9 @@ public class PlayerEntity : Entity<PlayerEntitySO>
     public void SetPlayerState(PlayerStates newState)
     {
         EventBus<OnPlayerChangeState>.Raise(new OnPlayerChangeState { newState = newState });
-        m_PlayerState = newState;
+        
 
-        if (PopupTextManager.instance != null)
+        if (PopupTextManager.instance != null && m_PlayerState != newState)
         {
             PopupTextManager.instance.ShowPopupText(
                 $"New State: {newState.ToString()}",
@@ -157,6 +158,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
         }
 
+        m_PlayerState = newState;
         switch (newState)
         {
             case PlayerStates.Exploring:
