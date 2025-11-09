@@ -67,6 +67,8 @@ public class Collectable : MonoBehaviour, Interactable
     public virtual void Interact()
     {
         if (!CanInteract()) return;
+        var _myInteractVFX = Instantiate(_onInteractPrefabVFX, transform.position, Quaternion.identity);
+        Destroy(_myInteractVFX, 3f);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
