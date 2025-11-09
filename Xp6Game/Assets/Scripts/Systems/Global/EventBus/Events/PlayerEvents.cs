@@ -41,6 +41,11 @@ public class OnPlayerChangeState : IEvent
 
 public class OnPlayerDash : IEvent
 {
+
+}
+
+public class OnPlayerDied : IEvent
+{
     
 }
 

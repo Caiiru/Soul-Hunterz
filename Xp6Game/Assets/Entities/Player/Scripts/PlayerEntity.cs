@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using StarterAssets;
 using UnityEngine;
 
@@ -126,16 +127,25 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
         base.TakeDamage(damage);
     }
+
+    #region Die
     protected async override UniTask Die()
     {
         PlayOneShotAtPosition(EntitySoundType.Die);
         canBeDamaged = false;
         m_Animator.SetTrigger("isDead");
+        await UniTask.Delay(k_milliseconds * 1);
         var m_AnimationClipInfo = m_Animator.GetCurrentAnimatorClipInfo(0)[0].clip.length;
+
+        transform.DOMoveY(transform.position.y - 2f, 2).SetEase(Ease.Linear);
+
         await UniTask.Delay((int)m_AnimationClipInfo * 1000);
-        EventBus<GameOverEvent>.Raise(new GameOverEvent());
+        Debug.Log("Die Event");
+        EventBus<OnPlayerDied>.Raise(new OnPlayerDied());
 
     }
+    
+    #endregion
 
     private void HandlePlayerAttack(OnPlayerAttack arg0)
     {

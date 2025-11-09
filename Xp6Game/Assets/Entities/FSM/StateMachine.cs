@@ -20,8 +20,8 @@ public class StateMachine : MonoBehaviour
 
     //Events
 
-    public UnityEvent m_OnAttack;     
-    public UnityEvent<int> m_OnTakeDamage;     
+    public UnityEvent m_OnAttack;
+    public UnityEvent<int> m_OnTakeDamage;
 
     public UniTask InitializeStateMachine(EnemySO enemyData)
     {
@@ -38,7 +38,7 @@ public class StateMachine : MonoBehaviour
 
         m_OnAttack = new UnityEvent();
         m_OnTakeDamage = new UnityEvent<int>();
- 
+
 
 
         return UniTask.CompletedTask;
@@ -65,9 +65,14 @@ public class StateMachine : MonoBehaviour
 
     }
 
-    public GameObject GetTarget()
+#nullable enable
+    public GameObject? GetTarget()
     {
-        return data.Target.gameObject;
+
+        if (data.Target != null)
+            return data.Target.gameObject;
+
+        return null;
     }
     public NavMeshAgent GetNavMeshAgent()
     {
@@ -85,7 +90,7 @@ public class StateMachine : MonoBehaviour
     }
 
     internal void SetMoving(bool newState)
-    { 
+    {
         if (_navMeshAgent.isStopped != newState) return;
         _navMeshAgent.isStopped = !newState;
     }
