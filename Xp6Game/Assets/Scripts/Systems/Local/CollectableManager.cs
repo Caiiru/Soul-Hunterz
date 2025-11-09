@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+[RequireComponent(typeof(CollectablePool))]
 public class CollectableManager : MonoBehaviour
 {
     CollectablePool _collectablePool;
@@ -44,11 +45,16 @@ public class CollectableManager : MonoBehaviour
 
 
     }
+    private void UnbindEvents()
+    {
+        EventBus<OnDropComponent>.Unregister(m_OnPlayerDropComponent);
+        EventBus<GameReadyToStartEvent>.Unregister(m_OnGameReadyToStart);
+    }
 
     private void HandleGameReadyToStart(GameReadyToStartEvent arg0)
     {
         BindObjects();
-        
+
     }
 
     // Update is called once per frame
@@ -76,9 +82,8 @@ public class CollectableManager : MonoBehaviour
         }
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
-
-        EventBus<OnDropComponent>.Unregister(m_OnPlayerDropComponent);
+        UnbindEvents();
     }
 }

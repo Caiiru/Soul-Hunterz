@@ -26,6 +26,8 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
     const int k_milliseconds = 1000;
 
+    ThirdPersonController m_Controller;
+
     //Events
 
     EventBinding<OnPlayerAttack> m_OnPlayerAttackBinding;
@@ -57,7 +59,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
     void BindObjects()
     {
-
+        m_Controller = GetComponent<ThirdPersonController>();
     }
     public override void Initialize()
     {
@@ -131,6 +133,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
     #region Die
     protected async override UniTask Die()
     {
+        m_Controller.enabled = false;
         PlayOneShotAtPosition(EntitySoundType.Die);
         canBeDamaged = false;
         m_Animator.SetTrigger("isDead");
@@ -140,8 +143,11 @@ public class PlayerEntity : Entity<PlayerEntitySO>
         transform.DOMoveY(transform.position.y - 2f, 2).SetEase(Ease.Linear);
 
         await UniTask.Delay((int)m_AnimationClipInfo * 1000);
-        Debug.Log("Die Event");
+        // Debug.Log("Die Event");
         EventBus<OnPlayerDied>.Raise(new OnPlayerDied());
+        EventBus<GameOverEvent>.Raise(new GameOverEvent());
+        UnbindEvents();
+        gameObject.SetActive(false);
 
     }
     

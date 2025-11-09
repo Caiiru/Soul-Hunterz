@@ -61,4 +61,15 @@ public class ComponentSlot : MonoBehaviour
         this.weapon = weapon;
         this.slotPosition = slotPosition;
     }
+
+    internal void ClearComponent()
+    {
+        if (currentComponentUI != null)
+        {
+            Destroy(currentComponentUI.gameObject);
+        }
+        currentComponent = null;
+        currentComponentUI = null;
+        weapon = null;
+    }
 }
