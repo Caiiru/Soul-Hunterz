@@ -22,7 +22,7 @@ public class InventoryVisual : MonoBehaviour
     private Canvas _canvas;
 
     //events
-
+    #region Events
     public delegate void UpdateWeaponVisualDelegate(int slot, ComponentSO component);
     public static event UpdateWeaponVisualDelegate OnUpdateWeaponVisual;
 
@@ -30,9 +30,11 @@ public class InventoryVisual : MonoBehaviour
 
     EventBinding<OnCollectComponent> m_OnPlayerCollectComponent;
 
+    EventBinding<OnPlayerDied> m_OnPlayerDied;
 
 
 
+    #endregion
     void Start()
     {
 
@@ -58,6 +60,8 @@ public class InventoryVisual : MonoBehaviour
         m_OnPlayerCollectComponent = new EventBinding<OnCollectComponent>(HandlePlayerCollectComponent);
         EventBus<OnCollectComponent>.Register(m_OnPlayerCollectComponent);
 
+        m_OnPlayerDied = new EventBinding<OnPlayerDied>(HandlePlayerDeath);
+        EventBus<OnPlayerDied>.Register(m_OnPlayerDied);
 
 
         PlayerInventory.OnPlayerGetWeapon += AddWeaponVisual;
@@ -109,8 +113,7 @@ public class InventoryVisual : MonoBehaviour
         // _canvas.enabled = eventData.isOpen;
     }
     public void AddWeaponVisual(AbstractWeapon weapon, int slot)
-    {
-        Debug.Log("Add Weapon Visual");
+    { 
         GameObject visual = Instantiate(weaponVisualPrefab, weaponsPanel);
 
         visual.GetComponent<UIWeaponVisual>().UpdateVisual(weapon, componentUIPrefab);
@@ -135,6 +138,27 @@ public class InventoryVisual : MonoBehaviour
     public void UpdateWeaponVisual(int slot, ComponentSO component)
     {
         OnUpdateWeaponVisual?.Invoke(slot, component);
+    }
+
+    private void HandlePlayerDeath()
+    {
+        ClearWeapons();
+        ClearComponents();
+
+    }
+    void ClearWeapons()
+    {
+        foreach (Transform child in weaponsPanel)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+    void ClearComponents()
+    {
+        foreach (var component in componentsArray)
+        {
+            component.GetComponent<ComponentSlot>().ClearComponent();
+        }
     }
 
 

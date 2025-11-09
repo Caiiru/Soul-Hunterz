@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
     #region Events
     public delegate void GameStateChangeHandler(GameState newState);
     public static event GameStateChangeHandler OnGameStateChange;
- 
+
     EventBinding<GameStartEvent> gameStartEventBinding;
     //INGAME
     EventBinding<EnemyDiedEvent> enemyDiedEventBinding;
@@ -53,19 +53,22 @@ public class GameManager : MonoBehaviour
     [Space]
     public GameObject PlayerPrefab;
     public GameObject StartZonePrefab;
-    public GameObject EndZonePrefab; 
+    public GameObject EndZonePrefab;
     public GameObject EnvironmentPrefab;
+    public GameObject GenericManager;
+
 
 
 
     [Space]
     [Header("Binded Objects")]
-    [SerializeField] private GameObject _playerGO;
+    private GameObject _playerGO;
     private GameObject _popupManagerGO;
     private GameObject _environment;
     private GameObject _startZone;
     private GameObject _endZone;
-    [SerializeField] private EnemyManager _enemyManager;
+    private EnemyManager _enemyManager;
+    private GameObject m_GenericManager;
 
     [Space]
     [Header("Start Settings")]
@@ -84,11 +87,21 @@ public class GameManager : MonoBehaviour
     {
         BindEvents();
         BindEnemiesEvents();
-        // BindObjects();
-        // await SpawnObjects();
-        // PrepareGame();
+    }
 
-        // await BeginGame();
+    private async UniTask Initialize()
+    {
+        BindObjects();
+        await SpawnObjects();
+        PrepareGame();
+
+        EventBus<GameReadyToStartEvent>.Raise(new GameReadyToStartEvent());
+        ChangeGameState(GameState.StartingGame);
+
+        await BeginGame(); 
+
+        EventBus<GameStartEvent>.Raise(new GameStartEvent());
+        await UniTask.CompletedTask;
     }
 
 
@@ -102,58 +115,21 @@ public class GameManager : MonoBehaviour
             LoseGame();
         });
         EventBus<GameOverEvent>.Register(m_OnGameOverBinding);
-  
+
     }
 
-    private async void StartGameHandler(StartGameEvent arg0)
-    {
-        await Initialize();
-    }
-
-    void BindEnemiesEvents()
-    {
-        enemyDiedEventBinding = new EventBinding<EnemyDiedEvent>(OnEnemyDied);
-        EventBus<EnemyDiedEvent>.Register(enemyDiedEventBinding);
-    }
-
-
-    #region Events Methods
-
-
-    private void OnEnemyDied(EnemyDiedEvent arg0)
-    {
-        enemiesDefeated++;
-        if (!IsGameState(GameState.Playing)) return;
-        if (enemiesDefeated >= enemiesToDefeatToWin)
-        {
-            ActivateWinAltar();
-        }
-    }
-    #endregion
-
-    private async UniTask Initialize()
-    {
-        BindObjects();
-        await SpawnObjects();
-        PrepareGame();
-
-        EventBus<GameReadyToStartEvent>.Raise(new GameReadyToStartEvent());
-        ChangeGameState(GameState.StartingGame);
-
-        await BeginGame();
-        Debug.Log("Initialize");
-
-        EventBus<GameStartEvent>.Raise(new GameStartEvent());
-        await UniTask.CompletedTask;
-    }
 
     private void BindObjects()
     {
-        // Instantiate(GlobalVolumePrefab);
-        // Instantiate(EventSystemPrefab);
-
-        _popupManagerGO = Instantiate(PopupManagerPrefab);
         _enemyManager = Instantiate(EnemyManagerPrefab).GetComponent<EnemyManager>();
+        // m_GenericManager = Instantiate(GenericManager);
+        if (this.transform.childCount > 0)
+            m_GenericManager = this.transform.GetChild(0).gameObject;
+        else
+        {
+            m_GenericManager = Instantiate(GenericManager);
+            m_GenericManager.transform.parent = this.transform;
+        }
     }
     private async UniTask SpawnObjects()
     {
@@ -186,6 +162,35 @@ public class GameManager : MonoBehaviour
     {
         // HandleSpawning();
     }
+
+
+
+    private async void StartGameHandler(StartGameEvent arg0)
+    {
+        await Initialize();
+    }
+
+    void BindEnemiesEvents()
+    {
+        enemyDiedEventBinding = new EventBinding<EnemyDiedEvent>(OnEnemyDied);
+        EventBus<EnemyDiedEvent>.Register(enemyDiedEventBinding);
+    }
+
+
+    #region Events Methods
+
+
+    private void OnEnemyDied(EnemyDiedEvent arg0)
+    {
+        enemiesDefeated++;
+        if (!IsGameState(GameState.Playing)) return;
+        if (enemiesDefeated >= enemiesToDefeatToWin)
+        {
+            ActivateWinAltar();
+        }
+    }
+    #endregion
+
     void SpawnPlayer()
     {
         GameObject player = Instantiate(PlayerPrefab);
@@ -203,8 +208,7 @@ public class GameManager : MonoBehaviour
         if (CurrentGameState != newState)
         {
             CurrentGameState = newState;
-            OnGameStateChange?.Invoke(newState);
-            Debug.Log("Game State changed to: " + newState);
+            OnGameStateChange?.Invoke(newState); 
         }
 
         HandleGameState();
@@ -251,14 +255,12 @@ public class GameManager : MonoBehaviour
     {
         _endZone = Instantiate(EndZonePrefab, Vector3.zero, Quaternion.identity);
 
-        await UniTask.WaitForSeconds(0.1f);
-        Debug.Log("Win Altar Spawned and Desactivated");
+        await UniTask.WaitForSeconds(0.1f); 
         _endZone.SetActive(false);
     }
     void ActivateWinAltar()
     {
-        if (_endZone.activeSelf) return;
-        Debug.Log("Win altar instancied");
+        if (_endZone.activeSelf) return; 
         _endZone.SetActive(true);
         _endZone.transform.position = GetRandomAltarSpawn().transform.position;
     }
@@ -284,19 +286,32 @@ public class GameManager : MonoBehaviour
         return altarSpawnPosition;
     }
     #endregion
-
+    #region Game End Methods
     public void WinGame()
     {
         ChangeGameState(GameState.Win);
         EventBus<GameWinEvent>.Raise(new GameWinEvent());
     }
-    public void LoseGame()
+    public async void LoseGame()
     {
         ChangeGameState(GameState.GameOver);
-        DestroyObjects(); 
+        await DestroyObjects();
 
     }
 
+    private async UniTask DestroyObjects()
+    {
+        // Destroy(_enemyManager.gameObject);
+        await UniTask.Delay(100);
+        // Destroy(m_GenericManager);
+        // Destroy(_popupManagerGO);
+        Destroy(_environment);
+        Destroy(_startZone);
+        Destroy(_endZone);
+        Destroy(_playerGO);
+    }
+    #endregion
+    #region Getters
     public GameObject GetPlayer()
     {
         return _playerGO;
@@ -307,16 +322,7 @@ public class GameManager : MonoBehaviour
         return _enemyManager;
     }
 
-    private void DestroyObjects()
-    {
-        // Destroy(_enemyManager.gameObject);
-        Destroy(_popupManagerGO);
-        Destroy(_environment);
-        Destroy(_startZone);
-        Destroy(_endZone);
-        Destroy(_playerGO);
-    }
-
+    #endregion
 }
 
 public enum GameState

@@ -43,8 +43,7 @@ public class PlayerInventory : MonoBehaviour
     void Start()
     {
         // isInventoryOpen = true;
-        // ToggleInventory();
-        Debug.Log("Player inventory");
+        // ToggleInventory(); 
         BindEvents();
         Initialize();
 
@@ -113,8 +112,7 @@ public class PlayerInventory : MonoBehaviour
         {
             if (weapons[i] == null)
             {
-                weapons[i] = weapon.gameObject;
-                Debug.Log("Add Weapon On Inventory");
+                weapons[i] = weapon.gameObject; 
                 OnPlayerGetWeapon?.Invoke(weapon, i);
                 return;
             }
