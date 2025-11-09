@@ -14,23 +14,24 @@ public class EnemyBullet : Bullet
     }
     void OnCollisionEnter(Collision collision)
     {
-        HandleCollision(collision.gameObject);       
+        HandleCollision(collision.gameObject);
     }
     public override void HandleCollision(GameObject target)
     {
         if (target.TryGetComponent<PlayerEntity>(out var entity))
         {
 
-            entity.SendMessage("TakeDamage", GetBulletDamage());
+            entity.TakeDamage(GetBulletDamage());
 
         }
-        Destroy(gameObject);
 
         if (bulletData.hitVFX)
         {
             GameObject vfx = Instantiate(bulletData.hitVFX, transform.position, transform.rotation);
             Destroy(vfx, 5f);
         }
+        
+        Destroy(gameObject);
     }
 
 }

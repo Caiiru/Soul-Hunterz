@@ -27,7 +27,7 @@ public class RangedEnemy : Enemy<RangedEnemySO>
     public override void Initialize()
     {
         base.Initialize();
- 
+
         m_attackRange = m_entityData.m_AttackRange;
         m_speed = m_entityData.m_MoveSpeed;
 
@@ -42,6 +42,10 @@ public class RangedEnemy : Enemy<RangedEnemySO>
     public override void Attack()
     {
         if (!CanAttack()) return;
+
+
+        base.Attack();
+        
         if (m_animator)
         {
             m_animator.SetTrigger("Shoot");
@@ -51,7 +55,7 @@ public class RangedEnemy : Enemy<RangedEnemySO>
             Instantiate(m_entityData.bulletPrefab, _firePoint.position, _firePoint.rotation);
 
         }
-    } 
- 
+    }
+
 
 }
