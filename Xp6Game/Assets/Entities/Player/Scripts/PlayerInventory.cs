@@ -36,7 +36,7 @@ public class PlayerInventory : MonoBehaviour
 
     #region Events
  
-    EventBinding<OnUpdateSouls> m_OnCollectSouls;
+    EventBinding<OnCollectSouls> m_OnCollectSouls;
 
 
     public delegate void PlayerGetWeapon(AbstractWeapon weapon, int slot);
@@ -72,13 +72,13 @@ public class PlayerInventory : MonoBehaviour
     {
         StarterAssetsInputs.OnChangeWeapon += ChangeWeapon;
 
-        m_OnCollectSouls = new EventBinding<OnUpdateSouls>(HandleCollectSoulsEvent);
-        EventBus<OnUpdateSouls>.Register(m_OnCollectSouls);
+        m_OnCollectSouls = new EventBinding<OnCollectSouls>(HandleCollectSoulsEvent);
+        EventBus<OnCollectSouls>.Register(m_OnCollectSouls);
 
     }
     #endregion
     #region Events Handlers
-    private void HandleCollectSoulsEvent(OnUpdateSouls eventData)
+    private void HandleCollectSoulsEvent(OnCollectSouls eventData)
     {
         m_currency += eventData.amount;
         EventBus<OnUpdateSouls>.Raise(new OnUpdateSouls { amount = m_currency });
@@ -184,7 +184,7 @@ public class PlayerInventory : MonoBehaviour
     void UnbindEvents()
     {
         StarterAssetsInputs.OnChangeWeapon -= ChangeWeapon;
-        EventBus<OnUpdateSouls>.Unregister(m_OnCollectSouls);
+        EventBus<OnCollectSouls>.Unregister(m_OnCollectSouls); 
     }
     #endregion
 }
