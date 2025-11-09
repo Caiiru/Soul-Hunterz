@@ -117,6 +117,10 @@ public class PlayerEntity : Entity<PlayerEntitySO>
     {
 
 
+        if (!canBeDamaged)
+        {
+            return;
+        }
 
         EventBus<OnPlayerTakeDamage>.Raise(new OnPlayerTakeDamage { value = damage });
 
@@ -142,8 +146,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
         transform.DOMoveY(transform.position.y - 2f, 2).SetEase(Ease.Linear);
 
-        await UniTask.Delay((int)m_AnimationClipInfo * 1000);
-        // Debug.Log("Die Event");
+        await UniTask.Delay((int)m_AnimationClipInfo * 1000); 
         EventBus<OnPlayerDied>.Raise(new OnPlayerDied());
         EventBus<GameOverEvent>.Raise(new GameOverEvent());
         UnbindEvents();
