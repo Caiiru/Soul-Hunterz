@@ -28,6 +28,7 @@ public class PlayerHUD : MonoBehaviour
     [SerializeField]
     Transform _interactTransform;
     bool _isHovering = false;
+    public TextMeshProUGUI _interactText;
 
     [Header("Inventory")]
     [SerializeField]
@@ -39,11 +40,10 @@ public class PlayerHUD : MonoBehaviour
     public Transform m_PlayerHealthCanvas;
     private int m_currentHealth;
     private int m_maxHealth;
-
-
-    [Header("Texts")]
-    TextMeshProUGUI _interactText;
     public TextMeshProUGUI m_playerHealthText;
+
+
+    [Header("Currency")]
     public TextMeshProUGUI m_playerCurrencyText;
 
     // Events
@@ -77,6 +77,10 @@ public class PlayerHUD : MonoBehaviour
             BindObjects();
             BindEvents();
             Initialize();
+            this.m_currentHealth = 100;
+            this.m_maxHealth = 100;
+            UpdatePlayerHealthText();
+            return;
         }
         BindEvents();
         DesactivateAll();
@@ -187,10 +191,9 @@ public class PlayerHUD : MonoBehaviour
 
 
     private void HandleUpdateCurrencyEvent(OnUpdateSouls eventData)
-    {
-        int currentCurrency = int.Parse(m_playerCurrencyText.text);
-        currentCurrency = eventData.amount;
-        m_playerCurrencyText.text = currentCurrency.ToString();
+    { 
+        int currentCurrency = eventData.amount;
+        m_playerCurrencyText.text = $"Souls: {currentCurrency.ToString()}";
     }
 
 

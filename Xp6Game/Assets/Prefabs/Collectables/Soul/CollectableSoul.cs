@@ -10,6 +10,10 @@ public class CollectableSoul : Collectable
     [SerializeField] private float m_AnimDuration = 0.5f;
 
 
+    void Start()
+    {
+        this.name = soulValue > 1 ? $"Souls ({soulValue})": "Soul";       
+    }
     public override void Interact()
     {
         base.Interact();
