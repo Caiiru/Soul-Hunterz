@@ -18,6 +18,14 @@ public class OnCollectComponent : IEvent
 {
     public ComponentSO data;
 }
+public class OnUpdateSouls : IEvent
+{
+    public int amount;
+}
+public class OnUpdateSoulsUI : IEvent
+{
+    public int currentSouls;
+}
 
 
 public class OnPlayerTakeDamage : IEvent

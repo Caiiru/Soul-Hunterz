@@ -30,10 +30,13 @@ public class PlayerInventory : MonoBehaviour
     public GameObject simpleComponentPrefab;
     public GameObject simpleWeaponPrefab;
 
+    [Header("Currency")]
+    public int m_currency = 0;
+
 
     #region Events
-
-    EventBinding<OnCollectComponent> m_OnPlayerCollectComponent;
+ 
+    EventBinding<OnUpdateSouls> m_OnCollectSouls;
 
 
     public delegate void PlayerGetWeapon(AbstractWeapon weapon, int slot);
@@ -41,20 +44,13 @@ public class PlayerInventory : MonoBehaviour
 
     #endregion
     void Start()
-    {
-        // isInventoryOpen = true;
-        // ToggleInventory(); 
+    { 
         BindEvents();
         Initialize();
 
 
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        CheckInput();
-    }
+ 
     private void Initialize()
     {
         //Input
@@ -67,20 +63,26 @@ public class PlayerInventory : MonoBehaviour
         StartCoroutine(AddDebugWeapon());
 
         // EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent{isOpen = false});
-        
+
 
 
     }
+    #region BindEvents
     private void BindEvents()
     {
         StarterAssetsInputs.OnChangeWeapon += ChangeWeapon;
 
-        // m_OnPlayerCollectComponent = new EventBinding<OnCollectComponent>(HandlePlayerCollectComponent);
-        // EventBus<OnCollectComponent>.Register(m_OnPlayerCollectComponent);
+        m_OnCollectSouls = new EventBinding<OnUpdateSouls>(HandleCollectSoulsEvent);
+        EventBus<OnUpdateSouls>.Register(m_OnCollectSouls);
 
     }
-
-
+    #endregion
+    #region Events Handlers
+    private void HandleCollectSoulsEvent(OnUpdateSouls eventData)
+    {
+        m_currency += eventData.amount;
+        EventBus<OnUpdateSouls>.Raise(new OnUpdateSouls { amount = m_currency });
+    }
 
     private void HandlePlayerCollectComponent(OnCollectComponent arg0)
     {
@@ -90,11 +92,8 @@ public class PlayerInventory : MonoBehaviour
         }
         components.Add(arg0.data);
     }
-
-    void CheckInput()
-    {
-        InputDebugWeapon();
-    }
+    #endregion
+ 
 
     void ToggleInventory(bool newState)
     {
@@ -102,7 +101,7 @@ public class PlayerInventory : MonoBehaviour
         // OnPlayerInventoryToggle?.Invoke(isInventoryOpen);
         EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = newState });
     }
-
+    #region Weapons
     public void AddWeapon(AbstractWeapon weapon)
     {
         if (!hasWeaponSlot())
@@ -139,26 +138,8 @@ public class PlayerInventory : MonoBehaviour
         _weaponHolder.currentWeapon = null;
         _weaponHolder.currentWeaponGO = null;
     }
-    public void AddComponent(GameObject component)
-    {
-
-    }
-
-    public void DebugComponent()
-    {
-        if (Input.GetKeyDown(debugWeapon))
-        {
-            GameObject comp = Instantiate(simpleComponentPrefab);
-            AddComponent(comp);
-        }
-    }
-    public void InputDebugWeapon()
-    {
-        if (Input.GetKeyDown(debugWeapon))
-        {
-            // AddDebugWeapon();
-        }
-    }
+    #endregion 
+  
 
     public IEnumerator AddDebugWeapon()
     {
@@ -182,10 +163,20 @@ public class PlayerInventory : MonoBehaviour
 
         return true;
     }
+    #region Getters
+    public bool IsInventoryOpen()
+    {
+        return isInventoryOpen;
+    }
+    public int GetCurrency()
+    {
+        return m_currency;
+    }
+    #endregion
 
+    #region Unbind methods
 
-
-    void OnDisable()
+    void OnDestroy()
     {
         UnbindEvents();
     }
@@ -193,9 +184,9 @@ public class PlayerInventory : MonoBehaviour
     void UnbindEvents()
     {
         StarterAssetsInputs.OnChangeWeapon -= ChangeWeapon;
-        EventBus<OnCollectComponent>.Unregister(m_OnPlayerCollectComponent);
+        EventBus<OnUpdateSouls>.Unregister(m_OnCollectSouls);
     }
-
+    #endregion
 }
 
 public class OnInventoryInputEvent : IEvent

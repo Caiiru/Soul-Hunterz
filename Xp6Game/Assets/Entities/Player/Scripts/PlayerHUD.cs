@@ -44,8 +44,10 @@ public class PlayerHUD : MonoBehaviour
     [Header("Texts")]
     TextMeshProUGUI _interactText;
     public TextMeshProUGUI m_playerHealthText;
+    public TextMeshProUGUI m_playerCurrencyText;
 
     // Events
+    #region Events
     EventBinding<GameReadyToStartEvent> m_OnGameReadyToStart;
 
     EventBinding<OnInteractEnterEvent> m_OnInteractEnterBinding;
@@ -56,6 +58,8 @@ public class PlayerHUD : MonoBehaviour
     EventBinding<OnSetPlayerHealthEvent> m_OnSetHealthEvent;
     EventBinding<OnPlayerTakeDamage> m_OnPlayerTakeDamage;
 
+    EventBinding<OnUpdateSouls> m_OnUpdateSouls;
+    #endregion
 
 
 #if ENABLE_INPUT_SYSTEM
@@ -102,19 +106,21 @@ public class PlayerHUD : MonoBehaviour
 
     void BindEvents()
     {
-        //Interact Button / Action
+        //Game Start
         m_OnGameReadyToStart = new EventBinding<GameReadyToStartEvent>(HandleGameReadyToStart);
         EventBus<GameReadyToStartEvent>.Register(m_OnGameReadyToStart);
 
-
+        //Enter & Leave Interactable Zone
         m_OnInteractEnterBinding = new EventBinding<OnInteractEnterEvent>(OnInteractEnter);
         EventBus<OnInteractEnterEvent>.Register(m_OnInteractEnterBinding);
+
         m_OnInteractLeaveBinding = new EventBinding<OnInteractLeaveEvent>(OnInteractLeave);
         EventBus<OnInteractLeaveEvent>.Register(m_OnInteractLeaveBinding);
 
+        //Inventory INput
         m_OnInventoryInputBinding = new EventBinding<OnInventoryInputEvent>(InventoryToggle);
         EventBus<OnInventoryInputEvent>.Register(m_OnInventoryInputBinding);
-
+        //Take Damage & Set Health
         m_OnPlayerTakeDamage = new EventBinding<OnPlayerTakeDamage>(HandlePlayerTakeDamage);
         EventBus<OnPlayerTakeDamage>.Register(m_OnPlayerTakeDamage);
 
@@ -127,9 +133,15 @@ public class PlayerHUD : MonoBehaviour
         });
         EventBus<OnSetPlayerHealthEvent>.Register(m_OnSetHealthEvent);
 
+        //Update Currency
+        m_OnUpdateSouls = new EventBinding<OnUpdateSouls>(HandleUpdateCurrencyEvent);
+        EventBus<OnUpdateSouls>.Register(m_OnUpdateSouls);
+
 
 
     }
+
+
     void UnbindEvents()
     {
         EventBus<GameReadyToStartEvent>.Unregister(m_OnGameReadyToStart);
@@ -138,6 +150,7 @@ public class PlayerHUD : MonoBehaviour
         EventBus<OnInteractEnterEvent>.Unregister(m_OnInteractEnterBinding);
         EventBus<OnPlayerTakeDamage>.Unregister(m_OnPlayerTakeDamage);
         EventBus<OnSetPlayerHealthEvent>.Unregister(m_OnSetHealthEvent);
+        EventBus<OnUpdateSouls>.Unregister(m_OnUpdateSouls);
     }
 
     void Initialize()
@@ -151,7 +164,7 @@ public class PlayerHUD : MonoBehaviour
 
 
     }
-
+    #region Event Handlers
 
     private void HandleGameReadyToStart(GameReadyToStartEvent arg0)
     {
@@ -173,6 +186,12 @@ public class PlayerHUD : MonoBehaviour
     }
 
 
+    private void HandleUpdateCurrencyEvent(OnUpdateSouls eventData)
+    {
+        int currentCurrency = int.Parse(m_playerCurrencyText.text);
+        currentCurrency = eventData.amount;
+        m_playerCurrencyText.text = currentCurrency.ToString();
+    }
 
 
     private void InventoryToggle(OnInventoryInputEvent eventData)
@@ -205,10 +224,8 @@ public class PlayerHUD : MonoBehaviour
         HideInteractText();
 
     }
-    void OnDisable()
-    {
-        UnbindEvents();
-    }
+    #endregion
+    #region Interact Methods
     void ShowInteractText()
     {
         _interactTransform.gameObject.SetActive(true);
@@ -235,6 +252,8 @@ public class PlayerHUD : MonoBehaviour
             _interactTransform.gameObject.SetActive(false);
         });
     }
+    #endregion
+    #region Inventory Methods
 
     void ShowInventory()
     {
@@ -246,6 +265,7 @@ public class PlayerHUD : MonoBehaviour
         _inventoryTransform.GetComponent<Canvas>().enabled = false;
 
     }
+    #endregion
 
     void DesactivateAll()
     {
@@ -261,5 +281,10 @@ public class PlayerHUD : MonoBehaviour
         _interactTransform.gameObject.SetActive(true);
         _inventoryTransform.gameObject.SetActive(true);
         m_PlayerHealthCanvas.gameObject.SetActive(true);
+    }
+
+    void OnDisable()
+    {
+        UnbindEvents();
     }
 }
