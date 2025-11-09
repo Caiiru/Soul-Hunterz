@@ -63,11 +63,11 @@ public class CollectableManager : MonoBehaviour
         BindObjects();
 
     }
-    
+
     private void HandleEnemyDied(SpawnSoulEvent eventData)
     {
         // Spawn Souls
-        Debug.Log("Spawning Souls: " + eventData.soulAmount);
+        // Debug.Log("Spawning Souls: " + eventData.soulAmount);
         if (eventData.soulAmount > 0)
         {
             GameObject collectable = _collectablePool.GetSoulCollectable();
@@ -80,8 +80,9 @@ public class CollectableManager : MonoBehaviour
                 collectable.SetActive(true);
             }
         }
+        return;
     }
- 
+
 
     void HandlePlayerDropComponent(OnDropComponent eventData)
     {

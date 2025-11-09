@@ -25,7 +25,7 @@ public class CollectableSoul : Collectable
 
         // Destroy Soul Object
         transform.DOMoveY(transform.position.y + m_upOffset, m_AnimDuration);
-        transform.DOScale(Vector3.zero, m_AnimDuration+0.1f).OnComplete(() => Destroy(gameObject));
+        transform.DOScale(Vector3.zero, m_AnimDuration+0.1f).OnComplete(() => gameObject.SetActive(false));
 
     }
 

@@ -167,7 +167,7 @@ public class PlayerHUD : MonoBehaviour
         _dropZoneCollider.size = _dropZone.GetComponent<RectTransform>().rect.size;
 
         ActivateAll();
-
+        _interactTransform.gameObject.SetActive(false);
         EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = false });
 
 

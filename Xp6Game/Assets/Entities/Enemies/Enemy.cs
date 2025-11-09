@@ -202,27 +202,33 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         m_animator.SetTrigger("isDead");
 
+        DropSoul();
 
+        
         await UniTask.Delay(2 * k_Milliseconds);
         var m_AnimationClipInfo = m_animator.GetCurrentAnimatorClipInfo(0)[0].clip.length;
 
 
         await UniTask.Delay((int)m_AnimationClipInfo * k_Milliseconds);
 
-        
+
         transform.DOMoveY(transform.position.y - 2f, 2).SetEase(Ease.Linear);
 
 
-        var m_DeathEvent = new SpawnSoulEvent { spawnPosition = this.transform.position, soulAmount = GetSoulValue() };
-        EventBus<SpawnSoulEvent>.Raise(m_DeathEvent);
 
         await UniTask.Delay(3 * k_Milliseconds);
-        
-            
+
+
         // Debug.Log("Enemy died");
         await base.Die();
     }
 
+    private void DropSoul()
+    {
+
+        var m_DeathEvent = new SpawnSoulEvent { spawnPosition = this.transform.position, soulAmount = GetSoulValue() };
+        EventBus<SpawnSoulEvent>.Raise(m_DeathEvent);
+    }
     protected virtual void SpawnHitVFX()
     {
         if (m_entityData.m_takeDamageVFX != null)
