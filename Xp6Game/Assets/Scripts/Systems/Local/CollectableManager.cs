@@ -65,7 +65,7 @@ public class CollectableManager : MonoBehaviour
 
     void HandlePlayerDropComponent(OnDropComponent eventData)
     {
-        GameObject collectable = _collectablePool.GetCollectable();
+        GameObject collectable = _collectablePool.GetComponentCollectable();
         if (collectable != null)
         {
             Vector3 m_dropPosition = new Vector3(
@@ -76,8 +76,8 @@ public class CollectableManager : MonoBehaviour
             );
 
             collectable.transform.position = m_dropPosition;
-            collectable.GetComponent<CollectableItem>().SetComponentData(eventData.data);
-            collectable.GetComponent<CollectableItem>().SpawnOnPosition(m_dropPosition, m_PlayerTransform.forward * k_DropForce);
+            collectable.GetComponent<CollectableComponent>().SetComponentData(eventData.data);
+            collectable.GetComponent<CollectableComponent>().SpawnOnPosition(m_dropPosition, m_PlayerTransform.forward * k_DropForce);
             collectable.SetActive(true);
         }
     }

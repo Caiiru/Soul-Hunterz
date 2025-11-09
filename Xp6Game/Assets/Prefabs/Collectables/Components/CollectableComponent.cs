@@ -4,7 +4,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CollectableItem : MonoBehaviour, Interactable
+public class CollectableComponent : Collectable, Interactable
 {
 
     [Header("Data")]
@@ -16,24 +16,13 @@ public class CollectableItem : MonoBehaviour, Interactable
     [SerializeField] Transform _iconHolder;
     [SerializeField] Transform _mesh;
 
-
     [Header("Offset")]
     [SerializeField] float animDuration = 0.25f;
     [SerializeField] float offsetY = 10f;
     Vector3 _startSize;
 
+ 
 
-    [Header("VFX")]
-    // public GameObject enterVFX;
-    // public GameObject interactVFX;
-    [SerializeField] private GameObject _onEnterVFX;
-    [SerializeField] private GameObject _onInteractPrefabVFX;
-
-    //Player
-    [SerializeField] bool isPlayerInRange = false;
-
-    public Rigidbody m_Rigidbody;
-    Camera _mainCamera;
 
     public async void Start()
     {
@@ -86,7 +75,7 @@ public class CollectableItem : MonoBehaviour, Interactable
 
     }
 
-    async void OnTriggerEnter(Collider other)
+    public override async void OnTriggerEnter(Collider other)
     {
         // return;
         if (other.CompareTag("Player"))
@@ -97,7 +86,7 @@ public class CollectableItem : MonoBehaviour, Interactable
         }
     }
 
-    async void OnTriggerExit(Collider other)
+    public override async void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
         {
@@ -145,15 +134,11 @@ public class CollectableItem : MonoBehaviour, Interactable
             _itemIcon.color = new Color(255, 255, 255, 0);
 
         return UniTask.CompletedTask;
-    }
+    } 
 
-    public bool CanInteract()
+    public override void Interact()
     {
-        return true;
-    }
-
-    public void Interact()
-    {
+        base.Interact();
         //Play VFX before desactivate
         if (_onInteractPrefabVFX)
         {
@@ -191,12 +176,7 @@ public class CollectableItem : MonoBehaviour, Interactable
         m_Rigidbody.AddForce(force, ForceMode.Impulse);
         m_Rigidbody.useGravity = true;
     }
-
-
-    public InteractableType GetInteractableType()
-    {
-        return InteractableType.Collectable;
-    }
+ 
 
     public void SetComponentData(ComponentSO data)
     {
