@@ -113,8 +113,7 @@ public class InventoryVisual : MonoBehaviour
         // _canvas.enabled = eventData.isOpen;
     }
     public void AddWeaponVisual(AbstractWeapon weapon, int slot)
-    {
-        Debug.Log("Add Weapon Visual");
+    { 
         GameObject visual = Instantiate(weaponVisualPrefab, weaponsPanel);
 
         visual.GetComponent<UIWeaponVisual>().UpdateVisual(weapon, componentUIPrefab);

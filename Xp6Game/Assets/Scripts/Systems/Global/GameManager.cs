@@ -98,8 +98,7 @@ public class GameManager : MonoBehaviour
         EventBus<GameReadyToStartEvent>.Raise(new GameReadyToStartEvent());
         ChangeGameState(GameState.StartingGame);
 
-        await BeginGame();
-        Debug.Log("Initialize");
+        await BeginGame(); 
 
         EventBus<GameStartEvent>.Raise(new GameStartEvent());
         await UniTask.CompletedTask;
@@ -209,8 +208,7 @@ public class GameManager : MonoBehaviour
         if (CurrentGameState != newState)
         {
             CurrentGameState = newState;
-            OnGameStateChange?.Invoke(newState);
-            Debug.Log("Game State changed to: " + newState);
+            OnGameStateChange?.Invoke(newState); 
         }
 
         HandleGameState();
@@ -257,14 +255,12 @@ public class GameManager : MonoBehaviour
     {
         _endZone = Instantiate(EndZonePrefab, Vector3.zero, Quaternion.identity);
 
-        await UniTask.WaitForSeconds(0.1f);
-        Debug.Log("Win Altar Spawned and Desactivated");
+        await UniTask.WaitForSeconds(0.1f); 
         _endZone.SetActive(false);
     }
     void ActivateWinAltar()
     {
-        if (_endZone.activeSelf) return;
-        Debug.Log("Win altar instancied");
+        if (_endZone.activeSelf) return; 
         _endZone.SetActive(true);
         _endZone.transform.position = GetRandomAltarSpawn().transform.position;
     }

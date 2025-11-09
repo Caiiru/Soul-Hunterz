@@ -42,8 +42,7 @@ public class WeaponHolder : MonoBehaviour
     }
 
     void BindObjects()
-    {
-        Debug.Log("Bind Events Weapon Holder");
+    { 
         m_Animator = GetComponentInChildren<Animator>();
     }
 
