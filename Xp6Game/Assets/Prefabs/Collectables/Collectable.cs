@@ -15,6 +15,7 @@ public class Collectable : MonoBehaviour, Interactable
 
     //Player
     public bool isPlayerInRange = false;
+    protected bool m_CanInteract = true;
 
     public Rigidbody m_Rigidbody;
     public Camera _mainCamera;
@@ -55,7 +56,7 @@ public class Collectable : MonoBehaviour, Interactable
 
     public bool CanInteract()
     {
-        return true;
+        return m_CanInteract;
     }
 
     public virtual InteractableType GetInteractableType()

@@ -13,6 +13,7 @@ public class CollectableManager : MonoBehaviour
 
     //Events
     EventBinding<OnDropComponent> m_OnPlayerDropComponent;
+    EventBinding<SpawnSoulEvent> m_OnEnemyDiedEvent;
 
     EventBinding<GameReadyToStartEvent> m_OnGameReadyToStart;
 
@@ -43,12 +44,18 @@ public class CollectableManager : MonoBehaviour
         m_OnGameReadyToStart = new EventBinding<GameReadyToStartEvent>(HandleGameReadyToStart);
         EventBus<GameReadyToStartEvent>.Register(m_OnGameReadyToStart);
 
+        m_OnEnemyDiedEvent = new EventBinding<SpawnSoulEvent>(HandleEnemyDied);
+        EventBus<SpawnSoulEvent>.Register(m_OnEnemyDiedEvent);
+
 
     }
+
+
     private void UnbindEvents()
     {
         EventBus<OnDropComponent>.Unregister(m_OnPlayerDropComponent);
         EventBus<GameReadyToStartEvent>.Unregister(m_OnGameReadyToStart);
+        EventBus<SpawnSoulEvent>.Unregister(m_OnEnemyDiedEvent);
     }
 
     private void HandleGameReadyToStart(GameReadyToStartEvent arg0)
@@ -56,12 +63,25 @@ public class CollectableManager : MonoBehaviour
         BindObjects();
 
     }
-
-    // Update is called once per frame
-    void Update()
+    
+    private void HandleEnemyDied(SpawnSoulEvent eventData)
     {
-
+        // Spawn Souls
+        Debug.Log("Spawning Souls: " + eventData.soulAmount);
+        if (eventData.soulAmount > 0)
+        {
+            GameObject collectable = _collectablePool.GetSoulCollectable();
+            if (collectable != null)
+            {
+                Vector3 spawnPosition = eventData.spawnPosition + Vector3.up * 0.5f;
+                collectable.transform.position = spawnPosition;
+                CollectableSoul soulCollectable = collectable.GetComponent<CollectableSoul>();
+                soulCollectable.SetSoulValue(eventData.soulAmount);
+                collectable.SetActive(true);
+            }
+        }
     }
+ 
 
     void HandlePlayerDropComponent(OnDropComponent eventData)
     {

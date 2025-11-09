@@ -208,11 +208,17 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
 
         await UniTask.Delay((int)m_AnimationClipInfo * k_Milliseconds);
+
+        
         transform.DOMoveY(transform.position.y - 2f, 2).SetEase(Ease.Linear);
 
-        await UniTask.Delay(3 * k_Milliseconds);
 
-        EventBus<EnemyDiedEvent>.Raise(new EnemyDiedEvent());
+        var m_DeathEvent = new SpawnSoulEvent { spawnPosition = this.transform.position, soulAmount = GetSoulValue() };
+        EventBus<SpawnSoulEvent>.Raise(m_DeathEvent);
+
+        await UniTask.Delay(3 * k_Milliseconds);
+        
+            
         // Debug.Log("Enemy died");
         await base.Die();
     }

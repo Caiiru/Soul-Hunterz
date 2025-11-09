@@ -18,6 +18,7 @@ public class CollectablePool : MonoBehaviour
     {
 
         InitializeComponentPool();
+        InitializeSoulPool();
 
     }
     void InitializeComponentPool()

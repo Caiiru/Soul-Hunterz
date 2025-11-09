@@ -69,6 +69,13 @@ public abstract class Entity<T> : MonoBehaviour where T : EntitySO
 
     }
 
+    protected int GetSoulValue()
+    {
+        int _min = m_entityData.m_minSoulAmount;
+        int _max = m_entityData.m_maxSoulAmount;
+        return Random.Range(_min, _max + 1);
+    }
+
     #region Sounds 
     public void PlayOneShotAtPosition(EntitySoundType audioType)
     {

@@ -9,7 +9,8 @@ public abstract class EntitySO : ScriptableObject
     public int m_MaxHealth = 100;
     public bool m_CanBeDamaged = true;
 
-    // public GameObject visualPrefab;
+    public int m_minSoulAmount = 5;
+    public int m_maxSoulAmount = 15;
 
     [Header("Sounds"), Space(1)]
     public EntitySounds[] m_SoundsList;

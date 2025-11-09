@@ -8,9 +8,13 @@ public class PlayerInteract : MonoBehaviour
     public bool isDebugging = false;
     StarterAssetsInputs _playerInput;
 
-    [SerializeField] Collider[] interactColliders = new Collider[3];
+    [SerializeField] Collider[] interactColliders = new Collider[10];
+    [SerializeField] Transform _nearbyInteractable;
 
     private bool interactIsPressed = false;
+    private bool m_HasAnyInteractableNearby = false;
+
+    private const int k_InteractableLayerMask = 1 << 10;
     void Start()
     {
 #if ENABLE_INPUT_SYSTEM 
@@ -37,53 +41,96 @@ public class PlayerInteract : MonoBehaviour
                 interactIsPressed = false;
         }
 
+        _nearbyInteractable = GetNearbyInteractable();
+        if (_nearbyInteractable == null) return;
+
+        if (!m_HasAnyInteractableNearby)
+        {
+            EventBus<OnInteractEnterEvent>.Raise(new OnInteractEnterEvent
+            {
+                InteractableName = _nearbyInteractable.name,
+                interactableType = _nearbyInteractable.GetComponent<Interactable>().GetInteractableType()
+            });
+        }
+        else
+        {
+            EventBus<OnInteractUpdateEvent>.Raise(new OnInteractUpdateEvent
+            {
+                InteractableName = _nearbyInteractable.name,
+                interactableType = _nearbyInteractable.GetComponent<Interactable>().GetInteractableType()
+            });
+        }
+
+
     }
+
+
+
 
     void CastInteract()
     {
         if (interactIsPressed) return;
 
         interactIsPressed = true;
-
-        interactColliders = new Collider[3];
-        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, interactRadius, interactColliders, 1 << 10);
-        if (hitCount == 0)
+        if (_nearbyInteractable == null)
+        {
+            m_HasAnyInteractableNearby = false;
             return;
+
+        }
+        _nearbyInteractable.GetComponent<Interactable>().Interact();
+
+        return;
+
+    }
+
+    // void OnTriggerEnter(Collider other)
+    // {
+    //     // Debug.Log(other.name);
+    //     if (other.CompareTag("Interactable"))
+    //     {
+    //         // Debug.Log("Enter");
+    //         EventBus<OnInteractEnterEvent>.Raise(new OnInteractEnterEvent
+    //         {
+    //             InteractableName = other.name,
+    //             interactableType = other.GetComponent<Interactable>().GetInteractableType()
+    //         });
+    //     }
+    // }
+
+    Transform GetNearbyInteractable()
+    {
+        Transform _nearbyInteractable = null;
+        float _nearbyDistance = Mathf.Infinity;
+
+        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, interactRadius, interactColliders, k_InteractableLayerMask);
+        if (hitCount == 0)
+        {
+            m_HasAnyInteractableNearby = false;
+            EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
+            return null;
+        }
+
+
         foreach (var obj in interactColliders)
         {
-            if (obj.TryGetComponent<Interactable>(out Interactable comp))
+            if (obj == null) continue;
+            if (Vector3.Distance(obj.transform.position, transform.position) < _nearbyDistance)
             {
-                if (!comp.CanInteract())
-                    continue;
-
-                comp.Interact();
-                break;
+                _nearbyDistance = Vector3.Distance(obj.transform.position, transform.position);
+                if (obj.TryGetComponent<Interactable>(out Interactable _comp))
+                {
+                    if (_comp.CanInteract())
+                    {
+                        _nearbyInteractable = obj.transform;
+                    }
+                }
             }
-        }
-    }
 
-    void OnTriggerEnter(Collider other)
-    {
-        // Debug.Log(other.name);
-        if (other.CompareTag("Interactable"))
-        {
-            // Debug.Log("Enter");
-            EventBus<OnInteractEnterEvent>.Raise(new OnInteractEnterEvent
-            {
-                InteractableName = other.name,
-                interactableType = other.GetComponent<Interactable>().GetInteractableType()
-            });
         }
-    }
-    void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Interactable"))
-        {
-            // Debug.Log("Leave");
-            EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
-        }
-    }
 
+        return _nearbyInteractable;
+    }
     void OnDrawGizmosSelected()
     {
         //Sphere Gizmos to Interact Radius

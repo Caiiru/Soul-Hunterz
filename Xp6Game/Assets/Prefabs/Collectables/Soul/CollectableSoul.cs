@@ -17,6 +17,7 @@ public class CollectableSoul : Collectable
     public override void Interact()
     {
         base.Interact();
+        m_CanInteract = false;
 
         // Raise Event
 

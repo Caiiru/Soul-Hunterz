@@ -51,6 +51,7 @@ public class PlayerHUD : MonoBehaviour
     EventBinding<GameReadyToStartEvent> m_OnGameReadyToStart;
 
     EventBinding<OnInteractEnterEvent> m_OnInteractEnterBinding;
+    EventBinding<OnInteractUpdateEvent> m_OnInteractUpdateBinding;
     EventBinding<OnInteractLeaveEvent> m_OnInteractLeaveBinding;
 
     EventBinding<OnInventoryInputEvent> m_OnInventoryInputBinding;
@@ -117,6 +118,8 @@ public class PlayerHUD : MonoBehaviour
         //Enter & Leave Interactable Zone
         m_OnInteractEnterBinding = new EventBinding<OnInteractEnterEvent>(OnInteractEnter);
         EventBus<OnInteractEnterEvent>.Register(m_OnInteractEnterBinding);
+        m_OnInteractUpdateBinding = new EventBinding<OnInteractUpdateEvent>(OnInteractUpdate);
+        EventBus<OnInteractUpdateEvent>.Register(m_OnInteractUpdateBinding);
 
         m_OnInteractLeaveBinding = new EventBinding<OnInteractLeaveEvent>(OnInteractLeave);
         EventBus<OnInteractLeaveEvent>.Register(m_OnInteractLeaveBinding);
@@ -150,8 +153,9 @@ public class PlayerHUD : MonoBehaviour
     {
         EventBus<GameReadyToStartEvent>.Unregister(m_OnGameReadyToStart);
         EventBus<OnInventoryInputEvent>.Unregister(m_OnInventoryInputBinding);
-        EventBus<OnInteractLeaveEvent>.Unregister(m_OnInteractLeaveBinding);
         EventBus<OnInteractEnterEvent>.Unregister(m_OnInteractEnterBinding);
+        EventBus<OnInteractUpdateEvent>.Unregister(m_OnInteractUpdateBinding);
+        EventBus<OnInteractLeaveEvent>.Unregister(m_OnInteractLeaveBinding);
         EventBus<OnPlayerTakeDamage>.Unregister(m_OnPlayerTakeDamage);
         EventBus<OnSetPlayerHealthEvent>.Unregister(m_OnSetHealthEvent);
         EventBus<OnUpdateSouls>.Unregister(m_OnUpdateSouls);
@@ -209,7 +213,7 @@ public class PlayerHUD : MonoBehaviour
 
     void OnInteractEnter(OnInteractEnterEvent eventData)
     {
-        if (_isHovering) return;
+        // if (_isHovering) return;
 
         string interactType = eventData.interactableType == InteractableType.Collectable ? "to collect " : "to interact with ";
         _isHovering = true;
@@ -218,6 +222,10 @@ public class PlayerHUD : MonoBehaviour
         ShowInteractText();
         PopupInteractText();
 
+    }
+    void OnInteractUpdate(OnInteractUpdateEvent eventData)
+    {
+        SetTextToInteract($"Press {_interactInput.GetBindingDisplayString(0)} to interact with {eventData.InteractableName}");
     }
 
     void OnInteractLeave()
