@@ -76,8 +76,8 @@ public class CollectableManager : MonoBehaviour
             );
 
             collectable.transform.position = m_dropPosition;
-            collectable.GetComponent<CollectableItem>().SetComponentData(eventData.data);
-            collectable.GetComponent<CollectableItem>().SpawnOnPosition(m_dropPosition, m_PlayerTransform.forward * k_DropForce);
+            collectable.GetComponent<CollectableComponent>().SetComponentData(eventData.data);
+            collectable.GetComponent<CollectableComponent>().SpawnOnPosition(m_dropPosition, m_PlayerTransform.forward * k_DropForce);
             collectable.SetActive(true);
         }
     }
