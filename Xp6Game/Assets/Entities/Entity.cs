@@ -61,7 +61,7 @@ public abstract class Entity<T> : MonoBehaviour where T : EntitySO
 
     protected async virtual UniTask Die()
     {
-        PlayOneShotAtPosition(EntitySoundType.Die);
+        //PlayOneShotAtPosition(EntitySoundType.Die);
         canBeDamaged = false;
         gameObject.SetActive(false);
 
