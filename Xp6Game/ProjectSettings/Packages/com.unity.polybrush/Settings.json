@@ -52,6 +52,11 @@
                 "value": "{\"m_Value\":true}"
             },
             {
+                "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+                "key": "SmoothBrush.IgnoreOpenEdges",
+                "value": "{\"m_Value\":true}"
+            },
+            {
                 "type": "UnityEngine.Polybrush.BrushMirror, Unity.Polybrush, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
                 "key": "Brush.MirrorAxis",
                 "value": "{\"m_Value\":0}"
@@ -64,7 +69,7 @@
             {
                 "type": "UnityEditor.Polybrush.PrefabLoadout, Unity.Polybrush.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
                 "key": "ScatteringEditor.userLoadout",
-                "value": "{\"m_Value\":{\"infos\":[{\"palette\":{\"fileID\":11400000,\"guid\":\"9c272fc293f849e49bd8756b2c08adce\",\"type\":2},\"prefab\":{\"fileID\":5770908797740693837,\"guid\":\"b0c5910c172aef946bb20ab3036fe5a8\",\"type\":3}},{\"palette\":{\"fileID\":11400000,\"guid\":\"9c272fc293f849e49bd8756b2c08adce\",\"type\":2},\"prefab\":{\"fileID\":2091136454753690191,\"guid\":\"60fd37c247dcb8e449be3f777cc94420\",\"type\":3}},{\"palette\":{\"fileID\":11400000,\"guid\":\"9c272fc293f849e49bd8756b2c08adce\",\"type\":2},\"prefab\":{\"fileID\":5438831680152735482,\"guid\":\"ab529fe61fd419244b46f1915fa70c19\",\"type\":3}},{\"palette\":{\"fileID\":11400000,\"guid\":\"9c272fc293f849e49bd8756b2c08adce\",\"type\":2},\"prefab\":{\"fileID\":3498213332545026242,\"guid\":\"06dc14f8414d3864ab5dbef7600ec611\",\"type\":3}},{\"palette\":{\"fileID\":11400000,\"guid\":\"9c272fc293f849e49bd8756b2c08adce\",\"type\":2},\"prefab\":{\"fileID\":2080634328372992420,\"guid\":\"8bd3e32463720794fa5046e14d54c3b5\",\"type\":3}},{\"palette\":{\"fileID\":11400000,\"guid\":\"9c272fc293f849e49bd8756b2c08adce\",\"type\":2},\"prefab\":{\"fileID\":4761278379805553207,\"guid\":\"1b0f87e7ea2047d49a4361edb791ce16\",\"type\":3}},{\"palette\":{\"fileID\":11400000,\"guid\":\"9c272fc293f849e49bd8756b2c08adce\",\"type\":2},\"prefab\":{\"fileID\":7612046287655056825,\"guid\":\"59156dad6a7a9e946a0e43d32537d615\",\"type\":3}},{\"palette\":{\"fileID\":11400000,\"guid\":\"9c272fc293f849e49bd8756b2c08adce\",\"type\":2},\"prefab\":{\"fileID\":5634138327541273451,\"guid\":\"46ff29a9bdd637c409b3c54f4a27dd5b\",\"type\":3}}]}}"
+                "value": "{\"m_Value\":{\"infos\":[{\"palette\":{\"fileID\":11400000,\"guid\":\"41001cc66db1ad544897f11e0b7b19ab\",\"type\":2},\"prefab\":{\"fileID\":5657158920211345207,\"guid\":\"0020d7be504fa724c9039e37d4be198a\",\"type\":3}},{\"palette\":{\"fileID\":11400000,\"guid\":\"41001cc66db1ad544897f11e0b7b19ab\",\"type\":2},\"prefab\":{\"fileID\":3127053156328633958,\"guid\":\"73054514077bcde4db1ac80f1603f0a9\",\"type\":3}},{\"palette\":{\"fileID\":11400000,\"guid\":\"41001cc66db1ad544897f11e0b7b19ab\",\"type\":2},\"prefab\":{\"fileID\":8863635428468695386,\"guid\":\"0f05429f7f8e7224cb44146565ee1a10\",\"type\":3}},{\"palette\":{\"fileID\":11400000,\"guid\":\"41001cc66db1ad544897f11e0b7b19ab\",\"type\":2},\"prefab\":{\"fileID\":2624343470247629398,\"guid\":\"04220533b286283448abac8b4197b4f9\",\"type\":3}},{\"palette\":{\"fileID\":11400000,\"guid\":\"41001cc66db1ad544897f11e0b7b19ab\",\"type\":2},\"prefab\":{\"fileID\":4308019815879049403,\"guid\":\"c9538cf1fe47a194eafbbf08835e2fec\",\"type\":3}}]}}"
             },
             {
                 "type": "System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
@@ -90,6 +95,11 @@
                 "type": "UnityEngine.Polybrush.PolyDirection, Unity.Polybrush, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
                 "key": "RaiseLowerBrush.Direction",
                 "value": "{\"m_Value\":0}"
+            },
+            {
+                "type": "UnityEngine.Polybrush.PolyDirection, Unity.Polybrush, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "key": "Brush.Direction",
+                "value": "{\"m_Value\":1}"
             },
             {
                 "type": "System.Single, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
