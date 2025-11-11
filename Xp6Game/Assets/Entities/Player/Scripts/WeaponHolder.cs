@@ -1,5 +1,5 @@
 using System;
-using Cysharp.Threading.Tasks; 
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class WeaponHolder : MonoBehaviour
@@ -12,6 +12,7 @@ public class WeaponHolder : MonoBehaviour
 
 
     //Events
+    EventBinding<OnGameStart> m_OnGameStartEventBinding;
     EventBinding<OnInventoryInputEvent> onInventoryToggleBinding;
 
     EventBinding<OnPlayerChangeState> m_OnPlayerChangeStateBinding;
@@ -28,6 +29,7 @@ public class WeaponHolder : MonoBehaviour
         BindObjects();
         BindAnims();
         BindEvents();
+        Initialize();
 
     }
 
@@ -39,10 +41,14 @@ public class WeaponHolder : MonoBehaviour
 
         m_OnPlayerChangeStateBinding = new EventBinding<OnPlayerChangeState>(HandlePlayerChangeState);
         EventBus<OnPlayerChangeState>.Register(m_OnPlayerChangeStateBinding);
+
+        m_OnGameStartEventBinding = new EventBinding<OnGameStart>(HandleGameStart);
+        EventBus<OnGameStart>.Register(m_OnGameStartEventBinding);
     }
 
+
     void BindObjects()
-    { 
+    {
         m_Animator = GetComponentInChildren<Animator>();
     }
 
@@ -50,6 +56,11 @@ public class WeaponHolder : MonoBehaviour
     {
         m_ShootingAnimID = Animator.StringToHash("Shooting");
         m_ShootingLayerIndex = m_Animator.GetLayerIndex("Shooting");
+    }
+
+    void Initialize()
+    {
+        _canFire = false;
     }
 
     async void Update()
@@ -120,6 +131,14 @@ public class WeaponHolder : MonoBehaviour
     {
         EventBus<OnInventoryInputEvent>.Unregister(onInventoryToggleBinding);
         EventBus<OnPlayerChangeState>.Unregister(m_OnPlayerChangeStateBinding);
+        EventBus<OnGameStart>.Unregister(m_OnGameStartEventBinding);
+    }
+
+    private void HandleGameStart()
+    {
+        _canFire = true;
+        // currentWeaponGO.SetActive(true);
+        
     }
 
 }

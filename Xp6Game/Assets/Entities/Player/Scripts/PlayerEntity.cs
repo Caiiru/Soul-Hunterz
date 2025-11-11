@@ -19,17 +19,15 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
     [SerializeField] int m_invencibilityTime;
 
-    //POST COMBAT
-
-    const float k_maxPostCombatTime = 10f;
-    [SerializeField] float m_PostCombatTime;
-
+    [Header("Visual")]
+    public Transform m_DirectionIndicator;
+    
     const int k_milliseconds = 1000;
 
     ThirdPersonController m_Controller;
 
     //Events
-
+    EventBinding<OnGameStart> m_OnGameReadyToStartBinding;
     EventBinding<OnPlayerAttack> m_OnPlayerAttackBinding;
     EventBinding<OnPlayerTakeDamage> m_OnPlayerTakeDamageBinding;
 
@@ -41,8 +39,21 @@ public class PlayerEntity : Entity<PlayerEntitySO>
     [Header("Debug")]
 
     [SerializeField] bool m_die = false;
+
+    #region Bind 
+
+    void Start()
+    {
+        // Initialize();
+    }
     void BindEvents()
     {
+
+        m_OnGameReadyToStartBinding = new EventBinding<OnGameStart>(HandleGameStart);
+        EventBus<OnGameStart>.Register(m_OnGameReadyToStartBinding);
+
+        Debug.Log("Binding Events player");
+
         m_OnPlayerAttackBinding = new EventBinding<OnPlayerAttack>(HandlePlayerAttack);
         EventBus<OnPlayerAttack>.Register(m_OnPlayerAttackBinding);
 
@@ -69,6 +80,9 @@ public class PlayerEntity : Entity<PlayerEntitySO>
         BindObjects();
         BindAnim();
 
+        m_DirectionIndicator.gameObject.SetActive(false);
+        m_Controller.enabled = false;
+
 
         m_invencibilityTime = (int)m_entityData.InvencibilityTime;
 
@@ -78,11 +92,34 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
     }
 
+    void BindAnim()
+    {
+        if (m_Animator == null) return;
+        m_TakeDamageIDAnim = Animator.StringToHash("TakeDamage");
+
+    }
+    #endregion
+    #region Update
+
     // Update is called once per frame
     void Update()
     {
         HandlePlayerState();
         DebugUpdateHandler();
+
+    }
+
+    #endregion
+    #region Events Handlers
+
+    private void HandleGameStart()
+    {
+
+        //Reset player position or any other stuff
+        m_Controller.enabled = true;
+        m_DirectionIndicator.gameObject.SetActive(true);
+        m_Animator.SetTrigger("StartGame");
+        SetPlayerState(PlayerStates.Exploring);
 
     }
 
@@ -99,20 +136,14 @@ public class PlayerEntity : Entity<PlayerEntitySO>
         canBeDamaged = true;
 
     }
+    #endregion
 
 
 
 
-    void BindAnim()
-    {
-        if (m_Animator == null) return;
-        m_TakeDamageIDAnim = Animator.StringToHash("TakeDamage");
-
-    }
 
 
-
-
+    #region Take Damage
     public override void TakeDamage(int damage)
     {
 
@@ -133,6 +164,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
         base.TakeDamage(damage);
     }
+    #endregion
 
     #region Die
     protected async override UniTask Die()
@@ -146,16 +178,16 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
         transform.DOMoveY(transform.position.y - 2f, 2).SetEase(Ease.Linear);
 
-        await UniTask.Delay((int)m_AnimationClipInfo * 1000); 
+        await UniTask.Delay((int)m_AnimationClipInfo * 1000);
         EventBus<OnPlayerDied>.Raise(new OnPlayerDied());
-        EventBus<GameOverEvent>.Raise(new GameOverEvent());
+        EventBus<OnGameOver>.Raise(new OnGameOver());
         UnbindEvents();
         gameObject.SetActive(false);
 
     }
-    
-    #endregion
 
+    #endregion
+    #region Player States
     private void HandlePlayerAttack(OnPlayerAttack arg0)
     {
         m_CombatTime = k_maxCombatTime;
@@ -218,6 +250,8 @@ public class PlayerEntity : Entity<PlayerEntitySO>
         }
 
     }
+    #endregion
+    #region Debug
     async void DebugUpdateHandler()
     {
         if (m_die)
@@ -226,11 +260,14 @@ public class PlayerEntity : Entity<PlayerEntitySO>
             await Die();
         }
     }
+    #endregion
+    #region Unbind
 
     void OnDestroy()
     {
         UnbindEvents();
     }
+    #endregion
 }
 
 public enum PlayerStates

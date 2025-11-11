@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class CameraManager : MonoBehaviour
 {
-    [SerializeField] Camera _mainCamera;
 
-    [SerializeField] CinemachineCamera _cinemachineCamera;
+    [SerializeField] CinemachineCamera m_CinemachineCamera;
+    [SerializeField] Transform m_DrivenCameraTransform;
 
     //Events
-    EventBinding<GameReadyToStartEvent> m_onGameReadyToStart;
+    EventBinding<OnGameStart> m_OnGameStart;
 
 
     public bool m_isDebug = false;
@@ -17,10 +17,9 @@ public class CameraManager : MonoBehaviour
     {
         if (m_isDebug)
         {
-            _mainCamera = this.GetComponentInChildren<Camera>();
-            _cinemachineCamera = this.GetComponentInChildren<CinemachineCamera>();
+            m_CinemachineCamera = this.GetComponentInChildren<CinemachineCamera>();
 
-            _cinemachineCamera.Target.TrackingTarget = GameObject.FindWithTag("Player").transform;
+            m_CinemachineCamera.Target.TrackingTarget = GameObject.FindWithTag("Player").transform;
         }
 
         BindEvents();
@@ -30,16 +29,23 @@ public class CameraManager : MonoBehaviour
 
     void BindEvents()
     {
-        m_onGameReadyToStart = new EventBinding<GameReadyToStartEvent>(HandleGameReadyToStart);
-        EventBus<GameReadyToStartEvent>.Register(m_onGameReadyToStart);
+        m_OnGameStart = new EventBinding<OnGameStart>(HandleGameReadyToStart);
+        EventBus<OnGameStart>.Register(m_OnGameStart);
     }
 
-    private void HandleGameReadyToStart(GameReadyToStartEvent arg0)
+    private void HandleGameReadyToStart(OnGameStart arg0)
     {
-        _mainCamera = this.GetComponentInChildren<Camera>();
-        _cinemachineCamera = this.GetComponentInChildren<CinemachineCamera>();
+        m_CinemachineCamera = this.GetComponentInChildren<CinemachineCamera>();
 
-        _cinemachineCamera.Target.TrackingTarget = GameObject.FindWithTag("Player").transform;
+        m_CinemachineCamera.Target.TrackingTarget = GameObject.FindWithTag("Player").transform;
+
+        for (int i = 0; i < m_DrivenCameraTransform.childCount; i++)
+        {
+            m_DrivenCameraTransform.GetChild(i).GetComponent<CinemachineCamera>().Target.TrackingTarget = m_CinemachineCamera.Target.TrackingTarget;
+
+
+        }
+
     }
 
     // Update is called once per frame

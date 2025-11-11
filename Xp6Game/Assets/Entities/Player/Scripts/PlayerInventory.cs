@@ -35,8 +35,9 @@ public class PlayerInventory : MonoBehaviour
 
 
     #region Events
- 
+
     EventBinding<OnCollectSouls> m_OnCollectSouls;
+    EventBinding<OnGameStart> m_OnGameStartBinding;
 
 
     public delegate void PlayerGetWeapon(AbstractWeapon weapon, int slot);
@@ -44,13 +45,13 @@ public class PlayerInventory : MonoBehaviour
 
     #endregion
     void Start()
-    { 
+    {
         BindEvents();
         Initialize();
 
 
     }
- 
+
     private void Initialize()
     {
         //Input
@@ -60,7 +61,6 @@ public class PlayerInventory : MonoBehaviour
         if (!_weaponHolder) Debug.LogWarning("Weapon Holder not find");
         weapons = new GameObject[weaponCount];
         components = new List<ComponentSO>();
-        StartCoroutine(AddDebugWeapon());
 
         // EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent{isOpen = false});
 
@@ -75,7 +75,13 @@ public class PlayerInventory : MonoBehaviour
         m_OnCollectSouls = new EventBinding<OnCollectSouls>(HandleCollectSoulsEvent);
         EventBus<OnCollectSouls>.Register(m_OnCollectSouls);
 
+        m_OnGameStartBinding = new EventBinding<OnGameStart>(HandleGameStartEvent);
+        EventBus<OnGameStart>.Register(m_OnGameStartBinding);
+
+
+
     }
+
     #endregion
     #region Events Handlers
     private void HandleCollectSoulsEvent(OnCollectSouls eventData)
@@ -92,8 +98,15 @@ public class PlayerInventory : MonoBehaviour
         }
         components.Add(arg0.data);
     }
+
+
+    private void HandleGameStartEvent(OnGameStart arg0)
+    {
+
+        StartCoroutine(AddDebugWeapon());
+    }
     #endregion
- 
+
 
     void ToggleInventory(bool newState)
     {
@@ -111,7 +124,7 @@ public class PlayerInventory : MonoBehaviour
         {
             if (weapons[i] == null)
             {
-                weapons[i] = weapon.gameObject; 
+                weapons[i] = weapon.gameObject;
                 OnPlayerGetWeapon?.Invoke(weapon, i);
                 return;
             }
@@ -138,8 +151,8 @@ public class PlayerInventory : MonoBehaviour
         _weaponHolder.currentWeapon = null;
         _weaponHolder.currentWeaponGO = null;
     }
-    #endregion 
-  
+    #endregion
+
 
     public IEnumerator AddDebugWeapon()
     {
@@ -184,7 +197,8 @@ public class PlayerInventory : MonoBehaviour
     void UnbindEvents()
     {
         StarterAssetsInputs.OnChangeWeapon -= ChangeWeapon;
-        EventBus<OnCollectSouls>.Unregister(m_OnCollectSouls); 
+        EventBus<OnCollectSouls>.Unregister(m_OnCollectSouls);
+        EventBus<OnGameStart>.Unregister(m_OnGameStartBinding);
     }
 
     internal void RemoveCurrency(int m_SoulsPerInteraction)

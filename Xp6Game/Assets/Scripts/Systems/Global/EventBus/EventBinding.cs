@@ -25,6 +25,7 @@ public interface IEventBinding<T>
 public class EventBinding<T> : IEventBinding<T> where T : IEvent
 {
     private object v;
+    private Action<OnGameReadyToStart> handleGameReadyToStart;
 
     public UnityAction<T> OnEvent { get; set; } = _ => { };
     public UnityAction OnEventNoArgs { get; set; } = () => { };
@@ -56,6 +57,11 @@ public class EventBinding<T> : IEventBinding<T> where T : IEvent
     public EventBinding(object v)
     {
         this.v = v;
+    }
+
+    public EventBinding(Action<OnGameReadyToStart> handleGameReadyToStart)
+    {
+        this.handleGameReadyToStart = handleGameReadyToStart;
     }
 
     /// <summary>

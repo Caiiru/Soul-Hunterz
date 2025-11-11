@@ -1,24 +1,24 @@
 using UnityEngine;
 
-public class GameReadyToStartEvent : IEvent
+public class OnGameReadyToStart : IEvent
 {
     
 }
-public class GameStartEvent : IEvent
+public class OnGameStart : IEvent
 {
 
 }
 
-public class GameWinEvent : IEvent
+public class OnGameWin : IEvent
 {
 
 }
-public class GameOverEvent : IEvent
+public class OnGameOver : IEvent
 {
 
 }
 
-public class EnemyDiedEvent : IEvent
+public class OnEnemyDied : IEvent
 {
 }
 public class SpawnSoulEvent : IEvent

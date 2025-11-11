@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Cysharp.Threading.Tasks;
-using Unity.Cinemachine;
+using System.Linq; 
+using Cysharp.Threading.Tasks; 
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -29,11 +26,11 @@ public class GameManager : MonoBehaviour
     public delegate void GameStateChangeHandler(GameState newState);
     public static event GameStateChangeHandler OnGameStateChange;
 
-    EventBinding<GameStartEvent> gameStartEventBinding;
+    EventBinding<OnGameStart> gameStartEventBinding;
     //INGAME
-    EventBinding<EnemyDiedEvent> enemyDiedEventBinding;
+    EventBinding<OnEnemyDied> enemyDiedEventBinding;
 
-    EventBinding<GameOverEvent> m_OnGameOverBinding;
+    EventBinding<OnGameOver> m_OnGameOverBinding;
 
     EventBinding<StartGameEvent> m_OnMainMenuPlayButtonClicked;
 
@@ -55,6 +52,9 @@ public class GameManager : MonoBehaviour
     public GameObject StartZonePrefab;
     public GameObject EndZonePrefab;
     public GameObject EnvironmentPrefab;
+
+    [Space]
+    [Header("Generic Manager")]
     public GameObject GenericManager;
 
 
@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
 
     [Space]
     [Header("Binded Objects")]
-    private GameObject _playerGO;
+    public GameObject _playerGO;
     private GameObject _popupManagerGO;
     private GameObject _environment;
     private GameObject _startZone;
@@ -87,6 +87,7 @@ public class GameManager : MonoBehaviour
     {
         BindEvents();
         BindEnemiesEvents();
+        // EventBus<OnGameReadyToStart>.Raise(new OnGameReadyToStart());
     }
 
     private async UniTask Initialize()
@@ -95,12 +96,11 @@ public class GameManager : MonoBehaviour
         await SpawnObjects();
         PrepareGame();
 
-        EventBus<GameReadyToStartEvent>.Raise(new GameReadyToStartEvent());
         ChangeGameState(GameState.StartingGame);
 
         await BeginGame(); 
 
-        EventBus<GameStartEvent>.Raise(new GameStartEvent());
+        EventBus<OnGameStart>.Raise(new OnGameStart());
         await UniTask.CompletedTask;
     }
 
@@ -110,11 +110,11 @@ public class GameManager : MonoBehaviour
         m_OnMainMenuPlayButtonClicked = new EventBinding<StartGameEvent>(StartGameHandler);
         EventBus<StartGameEvent>.Register(m_OnMainMenuPlayButtonClicked);
 
-        m_OnGameOverBinding = new EventBinding<GameOverEvent>(() =>
+        m_OnGameOverBinding = new EventBinding<OnGameOver>(() =>
         {
             LoseGame();
         });
-        EventBus<GameOverEvent>.Register(m_OnGameOverBinding);
+        EventBus<OnGameOver>.Register(m_OnGameOverBinding);
 
     }
 
@@ -133,26 +133,26 @@ public class GameManager : MonoBehaviour
     }
     private async UniTask SpawnObjects()
     {
-        _environment = Instantiate(EnvironmentPrefab);
+        // _environment = Instantiate(EnvironmentPrefab);
         altarSpawnPositions = GameObject.FindGameObjectsWithTag("AltarSpawnPos").ToList();
 
         SpawnStartAltar();
         await SpawnWinAltar();
-        SpawnPlayer();
+        // SpawnPlayer();
         await _enemyManager.Initialize();
         //Spawn enemies pool 
         await UniTask.CompletedTask;
     }
     private void PrepareGame()
     {
-        ActivateStartAltar();
-        ChangePlayerPosition(_startZone.transform.position + Vector3.up);
+        // ActivateStartAltar();
+        // ChangePlayerPosition(_startZone.transform.position + Vector3.up);
 
     }
     async UniTask BeginGame()
     {
         ChangeGameState(GameState.Playing);
-        _enemyManager.StartSpawning();
+        // _enemyManager.StartSpawning();
         await UniTask.CompletedTask;
     }
     #endregion
@@ -172,15 +172,15 @@ public class GameManager : MonoBehaviour
 
     void BindEnemiesEvents()
     {
-        enemyDiedEventBinding = new EventBinding<EnemyDiedEvent>(OnEnemyDied);
-        EventBus<EnemyDiedEvent>.Register(enemyDiedEventBinding);
+        enemyDiedEventBinding = new EventBinding<OnEnemyDied>(OnEnemyDied);
+        EventBus<OnEnemyDied>.Register(enemyDiedEventBinding);
     }
 
 
     #region Events Methods
 
 
-    private void OnEnemyDied(EnemyDiedEvent arg0)
+    private void OnEnemyDied(OnEnemyDied arg0)
     {
         enemiesDefeated++;
         if (!IsGameState(GameState.Playing)) return;
@@ -224,6 +224,7 @@ public class GameManager : MonoBehaviour
         {
             case GameState.MainMenu:
                 // Handle Main Menu logic
+
                 break;
             case GameState.Loading:
                 // Handle Loading logic
@@ -290,7 +291,7 @@ public class GameManager : MonoBehaviour
     public void WinGame()
     {
         ChangeGameState(GameState.Win);
-        EventBus<GameWinEvent>.Raise(new GameWinEvent());
+        EventBus<OnGameWin>.Raise(new OnGameWin());
     }
     public async void LoseGame()
     {

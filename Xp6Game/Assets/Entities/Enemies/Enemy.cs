@@ -36,8 +36,8 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     #endregion
 
     //Events
-    EventBinding<GameWinEvent> m_OnGameWinEventBinding;
-    EventBinding<GameOverEvent> m_OnGameOverBinding;
+    EventBinding<OnGameWin> m_OnGameWinEventBinding;
+    EventBinding<OnGameOver> m_OnGameOverBinding;
 
 
 
@@ -120,17 +120,17 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
             m_stateMachine.m_OnTakeDamage.AddListener(OnTakeDamageEventListener);
         }
         //Event Bus
-        m_OnGameOverBinding = new EventBinding<GameOverEvent>(() =>
+        m_OnGameOverBinding = new EventBinding<OnGameOver>(() =>
         {
             EndGame();
         });
-        EventBus<GameOverEvent>.Register(m_OnGameOverBinding);
+        EventBus<OnGameOver>.Register(m_OnGameOverBinding);
 
-        m_OnGameWinEventBinding = new EventBinding<GameWinEvent>(() =>
+        m_OnGameWinEventBinding = new EventBinding<OnGameWin>(() =>
         {
             EndGame();
         });
-        EventBus<GameWinEvent>.Register(m_OnGameWinEventBinding);
+        EventBus<OnGameWin>.Register(m_OnGameWinEventBinding);
     }
 
     private void OnTakeDamageEventListener(int v)
@@ -145,8 +145,8 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
     void UnbindEvents()
     {
-        EventBus<GameOverEvent>.Unregister(m_OnGameOverBinding);
-        EventBus<GameWinEvent>.Unregister(m_OnGameWinEventBinding);
+        EventBus<OnGameOver>.Unregister(m_OnGameOverBinding);
+        EventBus<OnGameWin>.Unregister(m_OnGameWinEventBinding);
 
 
         m_stateMachine.m_OnAttack.RemoveListener(OnAttackEventListener);

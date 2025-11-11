@@ -1,24 +1,42 @@
-using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class MainMenuManager : MonoBehaviour
 {
-    [SerializeField] private GameObject mainMenuUI; 
+    [SerializeField] private GameObject mainMenuUI;
     [SerializeField] private GameObject settingsUI;
     [SerializeField] private Camera menuCamera;
     [SerializeField] private EventSystem eventSystem;
+    [SerializeField] private GameObject blackPanel;
 
     #region Events 
 
-    #endregion 
-  
+    #endregion
+
     public void OnStartButtonPressed()
     {
         EventBus<StartGameEvent>.Raise(new StartGameEvent());
+
+    }
+
+    void Awake()
+    {
+        blackPanel.SetActive(true);
         
     }
-  
+    void Start()
+    {
+        blackPanel.GetComponent<Image>().DOFade(0, 5f).OnComplete(() =>
+        {
+            blackPanel.SetActive(false);
+        });
+    }
+    void Update()
+    {
+
+    }
     public void OpenSettings()
     {
         mainMenuUI.SetActive(false);
@@ -43,7 +61,7 @@ public class MainMenuManager : MonoBehaviour
         mainMenuUI.SetActive(true);
         menuCamera.transform.gameObject.SetActive(true);
         eventSystem.gameObject.SetActive(true);
-    } 
+    }
 
     public void QuitGame()
     {

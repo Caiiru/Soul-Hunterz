@@ -48,7 +48,9 @@ public class PlayerHUD : MonoBehaviour
 
     // Events
     #region Events
-    EventBinding<GameReadyToStartEvent> m_OnGameReadyToStart;
+    EventBinding<OnGameReadyToStart> m_OnGameReadyToStart;
+
+    EventBinding<OnGameStart> m_OnGameStartBinding;
 
     EventBinding<OnInteractEnterEvent> m_OnInteractEnterBinding;
     EventBinding<OnInteractUpdateEvent> m_OnInteractUpdateBinding;
@@ -112,8 +114,11 @@ public class PlayerHUD : MonoBehaviour
     void BindEvents()
     {
         //Game Start
-        m_OnGameReadyToStart = new EventBinding<GameReadyToStartEvent>(HandleGameReadyToStart);
-        EventBus<GameReadyToStartEvent>.Register(m_OnGameReadyToStart);
+        m_OnGameReadyToStart = new EventBinding<OnGameReadyToStart>(HandleGameReadyToStart);
+        EventBus<OnGameReadyToStart>.Register(m_OnGameReadyToStart);
+
+        m_OnGameStartBinding = new EventBinding<OnGameStart>(HandleGameStart);
+        EventBus<OnGameStart>.Register(m_OnGameStartBinding);
 
         //Enter & Leave Interactable Zone
         m_OnInteractEnterBinding = new EventBinding<OnInteractEnterEvent>(OnInteractEnter);
@@ -148,10 +153,14 @@ public class PlayerHUD : MonoBehaviour
 
     }
 
+    private void HandleGameStart(OnGameStart arg0)
+    {
+        GetComponent<Canvas>().enabled = true;
+    }
 
     void UnbindEvents()
     {
-        EventBus<GameReadyToStartEvent>.Unregister(m_OnGameReadyToStart);
+        EventBus<OnGameReadyToStart>.Unregister(m_OnGameReadyToStart);
         EventBus<OnInventoryInputEvent>.Unregister(m_OnInventoryInputBinding);
         EventBus<OnInteractEnterEvent>.Unregister(m_OnInteractEnterBinding);
         EventBus<OnInteractUpdateEvent>.Unregister(m_OnInteractUpdateBinding);
@@ -174,11 +183,12 @@ public class PlayerHUD : MonoBehaviour
     }
     #region Event Handlers
 
-    private void HandleGameReadyToStart(GameReadyToStartEvent arg0)
+    private void HandleGameReadyToStart()
     {
         BindObjects();
         Initialize();
         _interactTransform.gameObject.SetActive(false);
+        GetComponent<Canvas>().enabled = false;
 
 
     }
@@ -195,7 +205,7 @@ public class PlayerHUD : MonoBehaviour
 
 
     private void HandleUpdateCurrencyEvent(OnUpdateSouls eventData)
-    { 
+    {
         int currentCurrency = eventData.amount;
         m_playerCurrencyText.text = $"Souls: {currentCurrency.ToString()}";
     }

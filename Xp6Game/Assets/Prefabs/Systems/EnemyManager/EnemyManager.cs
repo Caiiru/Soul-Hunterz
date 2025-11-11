@@ -18,8 +18,8 @@ public class EnemyManager : MonoBehaviour
 
     //Events
 
-    EventBinding<GameWinEvent> m_OnGameWinEventBinding;
-    EventBinding<GameOverEvent> m_OnGameOverBinding;
+    EventBinding<OnGameWin> m_OnGameWinEventBinding;
+    EventBinding<OnGameOver> m_OnGameOverBinding;
 
     public async UniTask Initialize()
     {
@@ -47,17 +47,17 @@ public class EnemyManager : MonoBehaviour
 
     private void BindEvents()
     {
-        m_OnGameOverBinding = new EventBinding<GameOverEvent>(() =>
+        m_OnGameOverBinding = new EventBinding<OnGameOver>(() =>
         {
             EndGame();
         });
-        EventBus<GameOverEvent>.Register(m_OnGameOverBinding);
+        EventBus<OnGameOver>.Register(m_OnGameOverBinding);
 
-        m_OnGameWinEventBinding = new EventBinding<GameWinEvent>(() =>
+        m_OnGameWinEventBinding = new EventBinding<OnGameWin>(() =>
         {
             EndGame();
         });
-        EventBus<GameWinEvent>.Register(m_OnGameWinEventBinding);
+        EventBus<OnGameWin>.Register(m_OnGameWinEventBinding);
 
     }
 
@@ -70,8 +70,8 @@ public class EnemyManager : MonoBehaviour
 
     private void UnbindEvents()
     {
-        EventBus<GameOverEvent>.Unregister(m_OnGameOverBinding);
-        EventBus<GameWinEvent>.Unregister(m_OnGameWinEventBinding);
+        EventBus<OnGameOver>.Unregister(m_OnGameOverBinding);
+        EventBus<OnGameWin>.Unregister(m_OnGameWinEventBinding);
     }
 
     void OnDestroy()

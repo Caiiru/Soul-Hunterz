@@ -11,10 +11,10 @@ public class SceneLoader : MonoBehaviour
 
     EventBinding<StartGameEvent> playButtonBinding;
 
-    EventBinding<GameWinEvent> gameWinBinding;
+    EventBinding<OnGameWin> gameWinBinding;
 
     EventBinding<GameSceneLoaded> gameSceneLoadedBinding;
-    EventBinding<GameOverEvent> gameOverBinding;
+    EventBinding<OnGameOver> gameOverBinding;
 
 
 
@@ -43,7 +43,7 @@ public class SceneLoader : MonoBehaviour
         playButtonBinding = new EventBinding<StartGameEvent>(OnMainMenuPlayButtonClicked);
         EventBus<StartGameEvent>.Register(playButtonBinding);
 
-        gameWinBinding = new EventBinding<GameWinEvent>(OnGameWin); 
+        gameWinBinding = new EventBinding<OnGameWin>(OnGameWin); 
 
         gameSceneLoadedBinding = new EventBinding<GameSceneLoaded>(() =>
         {
@@ -53,8 +53,8 @@ public class SceneLoader : MonoBehaviour
 
 
 
-        gameOverBinding = new EventBinding<GameOverEvent>(OnGameOver);
-        EventBus<GameOverEvent>.Register(gameOverBinding);
+        gameOverBinding = new EventBinding<OnGameOver>(OnGameOver);
+        EventBus<OnGameOver>.Register(gameOverBinding);
 
 
 
@@ -62,7 +62,7 @@ public class SceneLoader : MonoBehaviour
         await UniTask.CompletedTask;
     }
 
-    private async void OnGameOver(GameOverEvent arg0)
+    private async void OnGameOver(OnGameOver arg0)
     {
         await CreateSceneByName("GameOver");
         ActivateSceneByName("GameOver");
@@ -72,7 +72,7 @@ public class SceneLoader : MonoBehaviour
         // UnloadSceneByName("LoadingScreen");
     }
 
-    private async void OnGameWin(GameWinEvent arg0)
+    private async void OnGameWin(OnGameWin arg0)
     {
         await CreateSceneByName("GameWin");
         ActivateSceneByName("GameWin");
