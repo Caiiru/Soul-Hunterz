@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -17,6 +18,7 @@ public class MainMenuManager : MonoBehaviour
 
     public void OnStartButtonPressed()
     {
+        // Debug.Log("Button CLicked");
         EventBus<StartGameEvent>.Raise(new StartGameEvent());
 
     }
@@ -24,17 +26,26 @@ public class MainMenuManager : MonoBehaviour
     void Awake()
     {
         blackPanel.SetActive(true);
-        
+
     }
-    void Start()
+    async void Start()
     {
-        blackPanel.GetComponent<Image>().DOFade(0, 5f).OnComplete(() =>
-        {
-            blackPanel.SetActive(false);
-        });
+        await HandleBlackPanel();
+
     }
     void Update()
     {
+
+    }
+
+    private async UniTask HandleBlackPanel()
+    {
+        blackPanel.SetActive(true);
+        await UniTask.Delay(1000);
+        blackPanel.GetComponent<Image>().DOFade(0, 1f).SetEase(Ease.InOutQuart).OnComplete(() =>
+       {
+           blackPanel.SetActive(false);
+       });
 
     }
     public void OpenSettings()
