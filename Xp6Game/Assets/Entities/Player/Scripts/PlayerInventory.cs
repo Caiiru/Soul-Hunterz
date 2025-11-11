@@ -186,6 +186,12 @@ public class PlayerInventory : MonoBehaviour
         StarterAssetsInputs.OnChangeWeapon -= ChangeWeapon;
         EventBus<OnCollectSouls>.Unregister(m_OnCollectSouls); 
     }
+
+    internal void RemoveCurrency(int m_SoulsPerInteraction)
+    {
+        m_currency -= m_SoulsPerInteraction;
+        EventBus<OnUpdateSouls>.Raise(new OnUpdateSouls { amount = m_currency });
+    }
     #endregion
 }
 
