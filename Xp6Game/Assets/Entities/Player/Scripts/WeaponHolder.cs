@@ -74,7 +74,7 @@ public class WeaponHolder : MonoBehaviour
 
     bool CanFire()
     {
-        return Input.GetButton("Fire1") && currentWeapon != null && _canFire;
+        return Input.GetButtonDown("Fire1") && currentWeapon != null && _canFire;
     }
 
     public async UniTask FireWeapon()
