@@ -18,8 +18,10 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     ComponentSlot currentSlot;
 
-    Vector3 normalScale;
-    Vector3 dragScale;
+    [Header("Component UI")]
+    public Vector3 normalScale;
+    public Vector3 dragScale; 
+
 
     public ComponentSO componentData;
 

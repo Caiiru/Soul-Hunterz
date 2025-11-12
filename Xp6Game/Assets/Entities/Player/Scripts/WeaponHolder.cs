@@ -10,6 +10,7 @@ public class WeaponHolder : MonoBehaviour
 
     private bool _canFire = true;
 
+    private PlayerEntity m_playerEntity;
 
     //Events
     EventBinding<OnGameStart> m_OnGameStartEventBinding;
@@ -21,6 +22,8 @@ public class WeaponHolder : MonoBehaviour
     //Animator
     [SerializeField] Animator m_Animator;
 
+
+
     int m_ShootingLayerIndex;
     int m_ShootingAnimID;
 
@@ -30,6 +33,8 @@ public class WeaponHolder : MonoBehaviour
         BindAnims();
         BindEvents();
         Initialize();
+
+       
 
     }
 

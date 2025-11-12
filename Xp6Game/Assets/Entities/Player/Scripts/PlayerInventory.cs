@@ -30,6 +30,8 @@ public class PlayerInventory : MonoBehaviour
     public GameObject simpleComponentPrefab;
     public GameObject simpleWeaponPrefab;
 
+    private PlayerEntity m_PlayerEntity;
+
     [Header("Currency")]
     public int m_currency = 0;
 
@@ -64,7 +66,14 @@ public class PlayerInventory : MonoBehaviour
 
         // EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent{isOpen = false});
 
+        m_PlayerEntity = GetComponent<PlayerEntity>();
 
+        if (m_PlayerEntity.m_debug)
+        {
+
+            StartCoroutine(AddDebugWeapon());
+
+        }
 
     }
     #region BindEvents

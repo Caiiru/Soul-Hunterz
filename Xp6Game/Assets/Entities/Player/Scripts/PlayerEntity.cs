@@ -40,6 +40,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
     [SerializeField] bool m_die = false;
 
+    public bool m_debug = false;
     #region Bind 
 
     void Start()
@@ -52,7 +53,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
         m_OnGameReadyToStartBinding = new EventBinding<OnGameStart>(HandleGameStart);
         EventBus<OnGameStart>.Register(m_OnGameReadyToStartBinding);
 
-        Debug.Log("Binding Events player");
+        
 
         m_OnPlayerAttackBinding = new EventBinding<OnPlayerAttack>(HandlePlayerAttack);
         EventBus<OnPlayerAttack>.Register(m_OnPlayerAttackBinding);
@@ -89,6 +90,10 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
         EventBus<OnSetPlayerHealthEvent>.Raise(new OnSetPlayerHealthEvent { maxHealth = m_entityData.m_MaxHealth, currentHealth = m_entityData.m_MaxHealth });
 
+        if(m_debug)
+        {
+            EventBus<OnGameStart>.Raise(new OnGameStart());
+        }
 
     }
 

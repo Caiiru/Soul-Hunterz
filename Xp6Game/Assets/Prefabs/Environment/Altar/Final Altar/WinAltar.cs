@@ -58,7 +58,7 @@ public class WinAltar : MonoBehaviour, Interactable
 
         m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
         m_soulsText.enabled = false;
-        
+            
 
     }
 
