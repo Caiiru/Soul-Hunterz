@@ -137,7 +137,7 @@ public class GameManager : MonoBehaviour
         altarSpawnPositions = GameObject.FindGameObjectsWithTag("AltarSpawnPos").ToList();
 
         SpawnStartAltar();
-        await SpawnWinAltar();
+        // await SpawnWinAltar();
         // SpawnPlayer();
         await _enemyManager.Initialize();
         //Spawn enemies pool 

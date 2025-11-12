@@ -25,7 +25,32 @@ public class WinAltar : MonoBehaviour, Interactable
 
     PlayerInventory m_playerInventory;
 
+    #region Events
+    EventBinding<OnGameStart> m_OnGameStartBinding;
+
+
+    #endregion
+
     void Start()
+    {
+        BindEvents();
+
+        Initialize();
+
+    }
+
+    void BindEvents()
+    {
+        m_OnGameStartBinding = new EventBinding<OnGameStart>(() =>
+        {
+            if (!m_soulsText.enabled)
+                m_soulsText.enabled = true;
+        });
+        EventBus<OnGameStart>.Register(m_OnGameStartBinding);
+
+    }
+
+    void Initialize()
     {
         transform.name = "???";
         _canInteract = true;
@@ -33,6 +58,8 @@ public class WinAltar : MonoBehaviour, Interactable
 
         m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
         m_soulsText.enabled = false;
+        
+
     }
 
     void OnTriggerExit(Collider collision)
