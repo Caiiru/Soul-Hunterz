@@ -8,27 +8,45 @@ public class CollectableSoul : Collectable
     [Header("Animation Settings")]
     [SerializeField] private float m_upOffset = 1f;
     [SerializeField] private float m_AnimDuration = 0.2f;
+ 
 
 
     void Start()
     {
-        this.name = soulValue > 1 ? $"Souls ({soulValue})": "Soul";       
+        this.name = soulValue > 1 ? $"Souls ({soulValue})" : "Soul";
     }
     public override void Interact()
-    {
-        base.Interact();
+    { 
+        // base.Interact();
         m_CanInteract = false;
 
         // Raise Event
 
-        EventBus<OnCollectSouls>.Raise(new OnCollectSouls { amount = soulValue });
-
-        // Destroy Soul Object
-        // transform.DOMoveY(transform.position.y + m_upOffset, m_AnimDuration);
-        transform.DOScale(Vector3.zero, m_AnimDuration + 0.1f).OnComplete(() => gameObject.SetActive(false));
+        
 
     }
+    void Collect()
+    {
+        EventBus<OnCollectSouls>.Raise(new OnCollectSouls { amount = soulValue });
+
+        gameObject.SetActive(false);
+    }
+
+    override public void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            transform.DOMove(other.transform.position, 0.1f).SetEase(Ease.InSine).OnComplete(() =>
+            {
+                Collect();
+            });
+            // Interact();
+        }
     
+    }
+
+    
+
     public void SetCanInteract(bool val)
     {
         m_CanInteract = val;

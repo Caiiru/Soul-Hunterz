@@ -220,7 +220,8 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
 
         // Debug.Log("Enemy died");
-        await base.Die();
+        // await base.Die();
+        Destroy(this.gameObject);
     }
 
     private void DropSoul()

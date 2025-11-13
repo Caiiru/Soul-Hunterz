@@ -15,7 +15,7 @@ public class CollectableManager : MonoBehaviour
     EventBinding<OnDropComponent> m_OnPlayerDropComponent;
     EventBinding<SpawnSoulEvent> m_OnEnemyDiedEvent;
 
-    EventBinding<OnGameReadyToStart> m_OnGameReadyToStart;
+    EventBinding<OnGameStart> m_OnGameStart;
 
 
     public bool m_isDebug = false;
@@ -42,11 +42,13 @@ public class CollectableManager : MonoBehaviour
         m_OnPlayerDropComponent = new EventBinding<OnDropComponent>(HandlePlayerDropComponent);
         EventBus<OnDropComponent>.Register(m_OnPlayerDropComponent);
 
-        m_OnGameReadyToStart = new EventBinding<OnGameReadyToStart>(HandleGameReadyToStart);
-        EventBus<OnGameReadyToStart>.Register(m_OnGameReadyToStart);
+        m_OnGameStart = new EventBinding<OnGameStart>(HandleGameStart);
+        EventBus<OnGameStart>.Register(m_OnGameStart);
 
         m_OnEnemyDiedEvent = new EventBinding<SpawnSoulEvent>(HandleEnemyDied);
         EventBus<SpawnSoulEvent>.Register(m_OnEnemyDiedEvent);
+
+        
 
 
     }
@@ -55,11 +57,11 @@ public class CollectableManager : MonoBehaviour
     private void UnbindEvents()
     {
         EventBus<OnDropComponent>.Unregister(m_OnPlayerDropComponent);
-        EventBus<OnGameReadyToStart>.Unregister(m_OnGameReadyToStart);
+        EventBus<OnGameStart>.Unregister(m_OnGameStart);
         EventBus<SpawnSoulEvent>.Unregister(m_OnEnemyDiedEvent);
     }
 
-    private void HandleGameReadyToStart()
+    private void HandleGameStart()
     {
         BindObjects();
 

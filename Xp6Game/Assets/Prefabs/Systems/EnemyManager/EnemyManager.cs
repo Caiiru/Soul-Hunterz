@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks; 
+using Cysharp.Threading.Tasks;
+using FMODUnity;
 using UnityEngine;
 
 
 public class EnemyManager : MonoBehaviour
 
 {
-    public EnemyData[] m_EnemiesToSpawn;
+
+    public WaveData[] m_Waves;
+
+
     [Header("Enemy Pool")]
     [SerializeField] private int maxEnemies = 25;
     [SerializeField] List<GameObject> rangedPool;
@@ -16,10 +20,16 @@ public class EnemyManager : MonoBehaviour
 
     Transform _enemyHolder;
 
+    public int m_currentWave = 0;
+
     //Events
 
     EventBinding<OnGameWin> m_OnGameWinEventBinding;
     EventBinding<OnGameOver> m_OnGameOverBinding;
+
+    [Header("Audio")]
+
+    public EventReference m_waveStartClip;
 
     public async UniTask Initialize()
     {
@@ -30,7 +40,7 @@ public class EnemyManager : MonoBehaviour
             _enemyHolder.transform.name = "EnemyHolder";
         }
 
-        await SpawnRangedEnemyPool();
+        // await SpawnRangedEnemyPool();
 
         if (TryGetComponent<EnemySpawner>(out EnemySpawner comp))
         {
@@ -59,13 +69,18 @@ public class EnemyManager : MonoBehaviour
         });
         EventBus<OnGameWin>.Register(m_OnGameWinEventBinding);
 
+        EventBus<OnAltarActivated>.Register(new EventBinding<OnAltarActivated>(StartNextWave));
+
+
+
+
     }
 
     void EndGame()
     {
         StopSpawning();
         UnbindEvents();
-        Destroy(this.gameObject);
+        // Destroy(this.gameObject);
     }
 
     private void UnbindEvents()
@@ -78,40 +93,40 @@ public class EnemyManager : MonoBehaviour
     {
         UnbindEvents();
     }
-    async UniTask SpawnRangedEnemyPool()
-    {
-        int m_enemyDataIndex = 0;
-        for (int i = 0; i < maxEnemies; i++)
-        {
-            GameObject enemy = Instantiate(m_EnemiesToSpawn[0].prefabs[m_enemyDataIndex], _enemyHolder);
-            rangedPool.Add(enemy);
-            enemy.SetActive(false);
+    // async UniTask SpawnRangedEnemyPool()
+    // {
+    //     int m_enemyDataIndex = 0;
+    //     for (int i = 0; i < maxEnemies; i++)
+    //     {
+    //         GameObject enemy = Instantiate(m_EnemiesToSpawn[0].prefabs[m_enemyDataIndex], _enemyHolder);
+    //         rangedPool.Add(enemy);
+    //         enemy.SetActive(false);
 
-            m_enemyDataIndex++;
-            if (m_enemyDataIndex >= m_EnemiesToSpawn[0].prefabs.Length)
-            {
-                m_enemyDataIndex = 0;
-            }
-        }
-        await UniTask.CompletedTask;
-    }
-    async UniTask SpawnMeeleEnemyPool()
-    {
-        int m_enemyDataIndex = 0;
-        for (int i = 0; i < maxEnemies; i++)
-        {
-            GameObject enemy = Instantiate(m_EnemiesToSpawn[1].prefabs[m_enemyDataIndex], _enemyHolder);
-            rangedPool.Add(enemy);
-            enemy.SetActive(false);
+    //         m_enemyDataIndex++;
+    //         if (m_enemyDataIndex >= m_EnemiesToSpawn[0].prefabs.Length)
+    //         {
+    //             m_enemyDataIndex = 0;
+    //         }
+    //     }
+    //     await UniTask.CompletedTask;
+    // }
+    // async UniTask SpawnMeeleEnemyPool()
+    // {
+    //     int m_enemyDataIndex = 0;
+    //     for (int i = 0; i < maxEnemies; i++)
+    //     {
+    //         GameObject enemy = Instantiate(m_EnemiesToSpawn[1].m_prefab[m_enemyDataIndex], _enemyHolder);
+    //         rangedPool.Add(enemy);
+    //         enemy.SetActive(false);
 
-            m_enemyDataIndex++;
-            if (m_enemyDataIndex >= m_EnemiesToSpawn[0].prefabs.Length)
-            {
-                m_enemyDataIndex = 0;
-            }   
-        }
-        await UniTask.CompletedTask;
-    }
+    //         m_enemyDataIndex++;
+    //         if (m_enemyDataIndex >= m_EnemiesToSpawn[0].m_prefab.Length)
+    //         {
+    //             m_enemyDataIndex = 0;
+    //         }
+    //     }
+    //     await UniTask.CompletedTask;
+    // }
     public GameObject GetRangedEnemy()
     {
         foreach (GameObject enemy in rangedPool)
@@ -123,9 +138,16 @@ public class EnemyManager : MonoBehaviour
         }
         return null;
     }
-    public void StartSpawning()
+    public void StartNextWave()
     {
-        _enemySpawner.StartSpawning();
+        // _enemySpawner.StartSpawning();
+        _enemySpawner.SetNewWave(m_Waves[m_currentWave]);
+        EventBus<WaveStartEvent>.Raise(new WaveStartEvent { waveIndex = m_currentWave });
+        m_currentWave++;
+
+        if (AudioManager.Instance == null) return;
+        AudioManager.Instance.PlayOneShotAtPosition(m_waveStartClip, Camera.main.transform.position);
+
     }
     public void StopSpawning()
     {
@@ -136,6 +158,14 @@ public class EnemyManager : MonoBehaviour
         return _enemySpawner;
     }
 
+    public int GetCurrentWave()
+    {
+        return m_currentWave;
+    }
+    public void SetCurrentWave(int val)
+    {
+        m_currentWave = val;
+    }
 
 
 }
@@ -144,6 +174,15 @@ public class EnemyManager : MonoBehaviour
 public struct EnemyData
 {
     public string name;
-    public GameObject[] prefabs;
+    public int amount;
+    public GameObject m_prefab;
+}
+
+[Serializable]
+public struct WaveData
+{
+    public int waveNumber;
+    public float m_spawnRate;
+    public EnemyData[] m_enemies;
 }
 

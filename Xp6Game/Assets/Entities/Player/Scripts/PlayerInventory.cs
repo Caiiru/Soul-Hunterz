@@ -113,6 +113,8 @@ public class PlayerInventory : MonoBehaviour
     {
 
         StartCoroutine(AddDebugWeapon());
+
+        EventBus<OnCollectSouls>.Raise(new OnCollectSouls { amount = 10 });
     }
     #endregion
 

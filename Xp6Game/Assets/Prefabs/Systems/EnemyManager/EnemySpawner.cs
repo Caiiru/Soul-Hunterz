@@ -1,4 +1,7 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -18,6 +21,8 @@ public class EnemySpawner : MonoBehaviour
     public GameObject[] enemySpawnPosition;
 
     private EnemyManager _enemyManager;
+
+    private Queue<GameObject> m_enemiesToSpawn = new Queue<GameObject>();
 
 
     void Start()
@@ -65,7 +70,7 @@ public class EnemySpawner : MonoBehaviour
         // is melee or ranged
         int randomIndex = _random.Next(10);
 
-        
+
         if (randomIndex < 5)
         {
             SpawnMeleeEnemy(SpawnPosition);
@@ -85,7 +90,7 @@ public class EnemySpawner : MonoBehaviour
         // EnemySO _enemyData = GetRandomRangedData();
 
         GameObject enemy = _enemyManager.GetRangedEnemy();
-
+        if (enemy == null) return;
         enemy.transform.position = spawnPosition;
         enemy.transform.rotation = Quaternion.identity;
 
@@ -110,14 +115,44 @@ public class EnemySpawner : MonoBehaviour
     }
 
 
+    public async void SetNewWave(WaveData data)
+    {
+
+        Debug.Log("Starting New Wave");
+        for (int i = 0; i < data.m_enemies.Length; i++)
+        {
+            foreach (var d in data.m_enemies)
+            {
+                for (int j = 0; j < d.amount; j++)
+                    m_enemiesToSpawn.Enqueue(d.m_prefab);
+
+                // Instantiate(d.m_prefab);
+            }
+        }
+        spawnInterval = data.m_spawnRate;
 
 
-}
-[Serializable]
-public struct SpawnerInfo
-{
-    public int rangedAmount;
-    public int meleeAmount;
-    public int bossAmount;
+        await SpawnNextInQueue();
+    }
+    public async UniTask SpawnNextInQueue()
+    {
+        if (m_enemiesToSpawn.Count == 0) await UniTask.CompletedTask;
+
+
+        await UniTask.Delay(TimeSpan.FromSeconds(1f * spawnInterval));
+        Debug.Log("Spawning Enemy from Queue");
+        GameObject enemyPrefab = m_enemiesToSpawn.Dequeue();
+        Vector3 spawnPosition = GetRandomSpawnPosition();
+
+        GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+        enemy.SetActive(true);
+        enemy.GetComponent<Enemy<EnemySO>>().Initialize();
+        if (m_enemiesToSpawn.Count != 0)
+            await SpawnNextInQueue();
+
+
+        await UniTask.CompletedTask;
+    }
+
 
 }

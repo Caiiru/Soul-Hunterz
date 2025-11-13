@@ -126,6 +126,7 @@ public class WinAltar : MonoBehaviour, Interactable
 
             _canInteract = false;
             EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
+            EventBus<OnAltarActivated>.Raise(new OnAltarActivated());
             Debug.Log("Win");
         }
     }

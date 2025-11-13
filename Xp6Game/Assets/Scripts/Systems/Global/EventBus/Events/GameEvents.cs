@@ -25,4 +25,18 @@ public class SpawnSoulEvent : IEvent
 {
     public Vector3 spawnPosition;
     public int soulAmount;
-}   
+}
+
+public class OnAltarActivated : IEvent
+{
+    
+}
+
+public class WaveStartEvent : IEvent
+{
+    public int waveIndex;
+}
+public class WaveEndEvent : IEvent
+{
+    public int waveIndex;
+}

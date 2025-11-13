@@ -121,10 +121,12 @@ public class PlayerInteract : MonoBehaviour
                 _nearbyDistance = Vector3.Distance(obj.transform.position, transform.position);
                 if (obj.TryGetComponent<CollectableSoul>(out CollectableSoul _soul))
                 {
+                    if (!_soul.CanInteract()) continue;
                     _soul.transform.DOMove(transform.position, 0.5f).OnComplete(() =>
                     {
                         _soul.Interact();
                         _soul.SetCanInteract(false);
+
                     });
                     return null;
                 }
