@@ -2,6 +2,7 @@ using System;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using StarterAssets;
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class PlayerEntity : Entity<PlayerEntitySO>
@@ -9,6 +10,9 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
     [Header("Player State")]
     [SerializeField] PlayerStates m_PlayerState = PlayerStates.Exploring;
+
+    private Vector3 m_StartPosition;
+    private Quaternion m_StartRotation;
 
     //Anim id hash bind
     int m_TakeDamageIDAnim;
@@ -19,17 +23,23 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
     [SerializeField] int m_invencibilityTime;
 
+    [SerializeField] float m_TakeDamageShakeImpulseForce;
+
     [Header("Visual")]
     public Transform m_DirectionIndicator;
-    
+
     const int k_milliseconds = 1000;
 
-    ThirdPersonController m_Controller;
+    [SerializeField] ThirdPersonController m_Controller;
 
     //Events
     EventBinding<OnGameStart> m_OnGameReadyToStartBinding;
     EventBinding<OnPlayerAttack> m_OnPlayerAttackBinding;
     EventBinding<OnPlayerTakeDamage> m_OnPlayerTakeDamageBinding;
+
+    EventBinding<OnGameWin> m_OnGameWinBinding;
+
+
 
 
 
@@ -39,6 +49,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
     [Header("Debug")]
 
     [SerializeField] bool m_die = false;
+    [SerializeField] bool m_win = false;
 
     public bool m_debug = false;
     #region Bind 
@@ -46,6 +57,9 @@ public class PlayerEntity : Entity<PlayerEntitySO>
     void Start()
     {
         // Initialize();
+        m_StartPosition = transform.position;
+        m_StartRotation = transform.rotation;
+
     }
     void BindEvents()
     {
@@ -53,16 +67,26 @@ public class PlayerEntity : Entity<PlayerEntitySO>
         m_OnGameReadyToStartBinding = new EventBinding<OnGameStart>(HandleGameStart);
         EventBus<OnGameStart>.Register(m_OnGameReadyToStartBinding);
 
-        
+
 
         m_OnPlayerAttackBinding = new EventBinding<OnPlayerAttack>(HandlePlayerAttack);
         EventBus<OnPlayerAttack>.Register(m_OnPlayerAttackBinding);
 
         ThirdPersonController.onPlayerDash += HandleDashEvent;
 
+        m_OnGameWinBinding = new EventBinding<OnGameWin>(() =>
+        {
+            ResetPlayer();
+        });
+        EventBus<OnGameWin>.Register(m_OnGameWinBinding);
+
+
+
+
     }
     void UnbindEvents()
     {
+        Debug.Log("Player Unbind");
         EventBus<OnPlayerAttack>.Unregister(m_OnPlayerAttackBinding);
         EventBus<OnPlayerTakeDamage>.Unregister(m_OnPlayerTakeDamageBinding);
         ThirdPersonController.onPlayerDash -= HandleDashEvent;
@@ -90,10 +114,11 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
         EventBus<OnSetPlayerHealthEvent>.Raise(new OnSetPlayerHealthEvent { maxHealth = m_entityData.m_MaxHealth, currentHealth = m_entityData.m_MaxHealth });
 
-        if(m_debug)
+        if (m_debug)
         {
             EventBus<OnGameStart>.Raise(new OnGameStart());
         }
+
 
     }
 
@@ -121,6 +146,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
     {
 
         //Reset player position or any other stuff
+        Debug.Log("Start Game Player entity");
         m_Controller.enabled = true;
         m_DirectionIndicator.gameObject.SetActive(true);
         m_Animator.SetTrigger("StartGame");
@@ -162,8 +188,6 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
         SetPlayerState(PlayerStates.Combat);
 
-
-
         if (m_Animator == null) return;
         m_Animator.SetTrigger(m_TakeDamageIDAnim);
 
@@ -184,10 +208,28 @@ public class PlayerEntity : Entity<PlayerEntitySO>
         transform.DOMoveY(transform.position.y - 2f, 2).SetEase(Ease.Linear);
 
         await UniTask.Delay((int)m_AnimationClipInfo * 1000);
-        EventBus<OnPlayerDied>.Raise(new OnPlayerDied());
-        EventBus<OnGameOver>.Raise(new OnGameOver());
-        UnbindEvents();
+
+        // UnbindEvents();
         gameObject.SetActive(false);
+
+        ResetPlayer();
+        // EventBus<OnGameOver>.Raise(new OnGameOver());
+        EventBus<OnPlayerDied>.Raise(new OnPlayerDied());
+
+    }
+
+    void ResetPlayer()
+    {
+        Debug.Log("Reset Player");
+        transform.position = m_StartPosition;
+        transform.rotation = m_StartRotation;
+        m_Controller.enabled = false;
+        SetPlayerState(PlayerStates.Exploring);
+        gameObject.SetActive(true);
+        GetComponentInChildren<Animator>().SetTrigger("ResetGame");
+        canBeDamaged = true;
+
+
 
     }
 
@@ -263,6 +305,13 @@ public class PlayerEntity : Entity<PlayerEntitySO>
         {
             m_die = false;
             await Die();
+        }
+
+        if (m_win)
+        {
+            m_win = false;
+            GameManager.Instance.WinGame();
+            // ResetPlayer();
         }
     }
     #endregion

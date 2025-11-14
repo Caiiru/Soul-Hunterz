@@ -9,14 +9,18 @@ public class WeaponHolder : MonoBehaviour
     public Transform firePoint; // Point from where the weapon fires
 
     private bool _canFire = true;
-
-    private PlayerEntity m_playerEntity;
+ 
 
     //Events
     EventBinding<OnGameStart> m_OnGameStartEventBinding;
     EventBinding<OnInventoryInputEvent> onInventoryToggleBinding;
 
     EventBinding<OnPlayerChangeState> m_OnPlayerChangeStateBinding;
+
+    EventBinding<OnPlayerDied> m_OnPlayerDiedBinding;
+    EventBinding<OnGameWin> m_OnGameWinBinding;
+
+
 
 
     //Animator
@@ -49,6 +53,18 @@ public class WeaponHolder : MonoBehaviour
 
         m_OnGameStartEventBinding = new EventBinding<OnGameStart>(HandleGameStart);
         EventBus<OnGameStart>.Register(m_OnGameStartEventBinding);
+
+        m_OnPlayerDiedBinding = new EventBinding<OnPlayerDied>(() =>
+        {
+            ResetGame();
+        });
+        EventBus<OnPlayerDied>.Register(m_OnPlayerDiedBinding);
+        
+        m_OnGameWinBinding = new EventBinding<OnGameWin>(() =>
+        {
+            ResetGame();
+        });
+        EventBus<OnGameWin>.Register(m_OnGameWinBinding);
     }
 
 
@@ -126,10 +142,18 @@ public class WeaponHolder : MonoBehaviour
         }
 
     }
+    UniTask ResetGame()
+    {
+        _canFire=false;
+        Destroy(currentWeaponGO);
+        currentWeapon = null;
+        currentWeaponGO = null;
+        return UniTask.CompletedTask;
+    }
 
     void OnDisable()
     {
-        UnbindEvents();
+        // UnbindEvents();
     }
 
     void UnbindEvents()

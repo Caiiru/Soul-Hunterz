@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using StarterAssets;
 using TMPro;
@@ -10,6 +11,7 @@ public class WinAltar : MonoBehaviour, Interactable
     public int m_RequiredSouls = 10;
     public int m_CurrentSouls = 0;
     public int m_SoulsPerInteraction = 5;
+    public int m_AltarIndex = 0;
 
     [Header("Text Settigs")]
     [SerializeField]
@@ -27,6 +29,9 @@ public class WinAltar : MonoBehaviour, Interactable
 
     #region Events
     EventBinding<OnGameStart> m_OnGameStartBinding;
+    EventBinding<OnPlayerDied> m_OnPlayerDiedBinding;
+    EventBinding<OnGameWin> m_OnGameWinBinding;
+
 
 
     #endregion
@@ -45,9 +50,31 @@ public class WinAltar : MonoBehaviour, Interactable
         {
             if (!m_soulsText.enabled)
                 m_soulsText.enabled = true;
+
+            _canInteract=true;
         });
         EventBus<OnGameStart>.Register(m_OnGameStartBinding);
+        
+        m_OnPlayerDiedBinding = new EventBinding<OnPlayerDied>(() =>
+        { 
+            ResetGame();
+        });
+        EventBus<OnPlayerDied>.Register(m_OnPlayerDiedBinding);
 
+        m_OnGameWinBinding = new EventBinding<OnGameWin>(() =>
+        {
+            ResetGame();
+        });
+        EventBus<OnGameWin>.Register(m_OnGameWinBinding);
+    }
+
+    UniTask UnbindEvents()
+    {
+        EventBus<OnGameStart>.Unregister(m_OnGameStartBinding);
+        EventBus<OnPlayerDied>.Unregister(m_OnPlayerDiedBinding);
+        EventBus<OnGameWin>.Unregister(m_OnGameWinBinding);
+    
+        return UniTask.CompletedTask;
     }
 
     void Initialize()
@@ -58,7 +85,7 @@ public class WinAltar : MonoBehaviour, Interactable
 
         m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
         m_soulsText.enabled = false;
-            
+
 
     }
 
@@ -126,9 +153,24 @@ public class WinAltar : MonoBehaviour, Interactable
 
             _canInteract = false;
             EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
-            EventBus<OnAltarActivated>.Raise(new OnAltarActivated());
-            Debug.Log("Win");
+            EventBus<OnAltarActivated>.Raise(
+                new OnAltarActivated { m_AltarActivatedIndex = m_AltarIndex });
+            // Debug.Log("Win");
         }
+    }
+
+    public async void ResetGame()
+    {
+        m_CurrentSouls = 0;
+        m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
+        _canInteract = false;
+        if(m_AltarIndex==0){return;}
+
+        await UnbindEvents();
+
+        Debug.Log($"Destroying Altar {m_AltarIndex}");
+        Destroy(gameObject);
+        
     }
     public InteractableType GetInteractableType()
     {

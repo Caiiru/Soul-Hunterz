@@ -35,7 +35,8 @@ public static class EventBus<T> where T : IEvent
     /// <param name="event">The event data to pass to the listeners.</param>
     public static void Raise(T @event)
     {
-        foreach (var binding in bindings)
+        var listenersCopy = new List<IEventBinding<T>>(bindings);
+        foreach (var binding in listenersCopy)
         { 
             binding.OnEvent.Invoke(@event);
             binding.OnEventNoArgs.Invoke();

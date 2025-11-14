@@ -120,7 +120,7 @@ public class MenuController : MonoBehaviour
                 // m_MenuCamera.gameObject.SetActive(true);
                 break;
             case MenuState.GameOver:
-                m_MenuCamera.gameObject.SetActive(true);
+                // m_MenuCamera.gameObject.SetActive(true);
                 m_GameOverMenu.SetActive(true);
                 break;
 
