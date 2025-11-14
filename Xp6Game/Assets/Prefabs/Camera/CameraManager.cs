@@ -88,7 +88,7 @@ public class CameraManager : MonoBehaviour
 
         for (int i = 0; i < m_DrivenCameraTransform.childCount; i++)
         {
-            m_DrivenCameraTransform.GetChild(i).GetComponent<CinemachineCamera>().Target.TrackingTarget = m_CinemachineCamera.Target.TrackingTarget;
+            // m_DrivenCameraTransform.GetChild(i).GetComponent<CinemachineCamera>().Target.TrackingTarget = m_CinemachineCamera.Target.TrackingTarget;
 
 
         }
