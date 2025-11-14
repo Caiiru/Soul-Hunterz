@@ -77,21 +77,7 @@ public class InventoryVisual : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            int index = 0;
-            foreach (var component in componentsArray)
-            {
-                if (component.GetComponent<ComponentSlot>().currentComponentUI == null)
-                {
-                    GameObject comp = Instantiate(componentUIPrefab);
-                    componentsArray[index].GetComponent<ComponentSlot>().OverrideComponent(comp.GetComponent<ComponentUI>());
-                    return;
-                }
-                index++;
-            }
 
-        }
     }
 
     void SpawnComponentsVisual()
@@ -100,6 +86,8 @@ public class InventoryVisual : MonoBehaviour
         {
             GameObject component = Instantiate(componentSlotPrefab, componentsPanel);
             componentsArray[i] = component;
+            component.GetComponent<ComponentSlot>().m_isInventory = true;
+            // component.transform.localScale = Vector3.one * 2f;
         }
     }
 
@@ -113,7 +101,7 @@ public class InventoryVisual : MonoBehaviour
         // _canvas.enabled = eventData.isOpen;
     }
     public void AddWeaponVisual(AbstractWeapon weapon, int slot)
-    { 
+    {
         GameObject visual = Instantiate(weaponVisualPrefab, weaponsPanel);
 
         visual.GetComponent<UIWeaponVisual>().UpdateVisual(weapon, componentUIPrefab);
