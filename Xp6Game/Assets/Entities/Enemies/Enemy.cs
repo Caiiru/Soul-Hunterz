@@ -132,7 +132,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
         });
         EventBus<OnGameWin>.Register(m_OnGameWinEventBinding);
 
-        Debug.Log($"{transform.name} binded events");
+        // Debug.Log($"{transform.name} binded events");
     }
 
     private void OnTakeDamageEventListener(int v)

@@ -1,5 +1,5 @@
 using DG.Tweening;
-using TMPro; 
+using TMPro;
 using UnityEngine;
 
 public class PopupText : MonoBehaviour
@@ -31,14 +31,17 @@ public class PopupText : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (gameObject.activeSelf)
+        {
+            transform.forward = Camera.main.transform.forward;
+        }
     }
 
     public void SetText(string text, Color color, Vector3 scale)
     {
         if (_textMeshPro == null) return;
 
-       // _textMeshPro.color = color;
+        // _textMeshPro.color = color;
         _textMeshPro.text = text;
         m_ScaleMax = scale;
 
