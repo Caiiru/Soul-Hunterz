@@ -12,20 +12,18 @@ public class EnemySpawner : MonoBehaviour
 
     System.Random _random;
 
-    int m_EnemiesActive = 0;
+    [SerializeField] int m_EnemiesActive = 0;
 
-
-    [Header("Enemy Data")]
-    public EnemySO[] RangedData;
-    public EnemySO[] MeleeData;
 
     [Header("Positions")]
     public GameObject[] enemySpawnPosition;
 
     private EnemyManager _enemyManager;
 
-    private Queue<GameObject> m_enemiesToSpawn = new Queue<GameObject>();
+    [SerializeField] private Queue<GameObject> m_enemiesToSpawn = new Queue<GameObject>();
 
+
+    //Events
     EventBinding<OnEnemyDied> m_OnEnemyDiedBinding;
 
 
@@ -61,7 +59,7 @@ public class EnemySpawner : MonoBehaviour
 
 
         timer += Time.deltaTime;
-        if (timer >= spawnInterval)
+        if (timer >= spawnInterval && m_enemiesToSpawn.Count > 0)
         {
             await SpawnNextInQueue();
             timer = 0;
@@ -123,12 +121,6 @@ public class EnemySpawner : MonoBehaviour
         return enemySpawnPosition[randomIndex].transform.position;
     }
 
-    private EnemySO GetRandomRangedData()
-    {
-        int randomIndex = _random.Next(RangedData.Length);
-        // Debug.Log(randomIndex);
-        return RangedData[randomIndex];
-    }
 
 
     public async void SetNewWave(WaveData data)
@@ -152,16 +144,21 @@ public class EnemySpawner : MonoBehaviour
     }
     public async UniTask SpawnNextInQueue()
     {
-        if (m_enemiesToSpawn.Count == 0) await UniTask.CompletedTask;
-        if (!canSpawn) await UniTask.CompletedTask; 
- 
+        if (m_enemiesToSpawn.Count == 0)
+        {
+
+            // EventBus<WaveEndEvent>.Raise(new WaveEndEvent());
+            await UniTask.CompletedTask;
+        }
+        if (!canSpawn) await UniTask.CompletedTask;
+
         GameObject enemyPrefab = m_enemiesToSpawn.Dequeue();
         Vector3 spawnPosition = GetRandomSpawnPosition();
 
         GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
         m_EnemiesActive++;
         enemy.SetActive(true);
-        enemy.GetComponent<Enemy<EnemySO>>().Initialize(); 
+        enemy.GetComponent<Enemy<EnemySO>>().Initialize();
 
         await UniTask.CompletedTask;
     }

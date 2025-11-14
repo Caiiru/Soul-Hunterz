@@ -162,7 +162,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     {
 
         await UnbindEvents(); 
-        Debug.Log("DEstroying ENEMY");
+        // Debug.Log("DEstroying ENEMY");
         Destroy(this.gameObject);
     }
 
