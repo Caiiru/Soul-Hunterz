@@ -3,7 +3,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ComponentSlot : MonoBehaviour 
+public class ComponentSlot : MonoBehaviour
 {
     private RectTransform _transform;
 
@@ -14,31 +14,38 @@ public class ComponentSlot : MonoBehaviour
 
     int slotPosition;
 
-    
+    public bool m_isInventory;
+
+
     void Start()
     {
         _transform = GetComponent<RectTransform>();
         Vector2 _compSize = new Vector2(transform.GetComponent<RectTransform>().rect.width, transform.GetComponent<RectTransform>().rect.height);
         transform.GetComponent<BoxCollider2D>().size = _compSize;
-    } 
+    }
 
     public void OverrideComponent(ComponentUI component)
     {
         // Debug.Log("Override Component");
         component.transform.position = this.transform.position;
         component.transform.SetParent(this.transform);
-        component.transform.DOScale(Vector3.one, 0.1f);
+        if (m_isInventory)
+            component.transform.DOScale(Vector3.one * 2, 0.1f);
+        else
+        {
+            component.transform.DOScale(Vector3.one, 0.1f);
 
+        }
         currentComponentUI = component;
         component.SetSlot(this);
 
 
 
         currentComponent = component.componentData;
-        if(weapon != null)
+        if (weapon != null)
             weapon.weaponComponents[slotPosition] = currentComponent;
     }
- 
+
 
 
     public void ClearSlot()

@@ -52,6 +52,9 @@ public class PlayerHUD : MonoBehaviour
     [Header("Currency")]
     public TextMeshProUGUI m_playerCurrencyText;
 
+    [Header("Backpack")]
+    public Transform m_backpackVisualHolder;
+
     // Events
     #region Events
     EventBinding<OnGameReadyToStart> m_OnGameReadyToStart;
@@ -210,7 +213,7 @@ public class PlayerHUD : MonoBehaviour
 
     private void HandleGameStart(OnGameStart arg0)
     {
-        GetComponent<Canvas>().enabled = true; 
+        GetComponent<Canvas>().enabled = true;
         ActivateAll();
     }
 
@@ -263,7 +266,7 @@ public class PlayerHUD : MonoBehaviour
     private void HandleUpdateCurrencyEvent(OnUpdateSouls eventData)
     {
         int currentCurrency = eventData.amount;
-        m_playerCurrencyText.text = $"Souls: {currentCurrency.ToString()}";
+        m_playerCurrencyText.text = $"{currentCurrency.ToString()}";
     }
 
 
@@ -334,11 +337,12 @@ public class PlayerHUD : MonoBehaviour
 
     void ShowInventory()
     {
-
+        m_backpackVisualHolder.gameObject.SetActive(false);
         _inventoryTransform.GetComponent<Canvas>().enabled = true;
     }
     void HideInventory()
     {
+        m_backpackVisualHolder.gameObject.SetActive(true);
         _inventoryTransform.GetComponent<Canvas>().enabled = false;
 
     }
