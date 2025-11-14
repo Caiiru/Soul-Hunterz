@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
-using System.Linq; 
-using Cysharp.Threading.Tasks; 
+using System.Linq;
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -16,23 +19,27 @@ public class GameManager : MonoBehaviour
         else
         {
             Instance = this;
-            DontDestroyOnLoad(this.gameObject);
+            // DontDestroyOnLoad(this.gameObject);
         }
     }
     #endregion
     public GameState CurrentGameState;
 
+    public int m_MaxAltars = 3;
+    public int m_AltarsActivated = 0;
+
     #region Events
     public delegate void GameStateChangeHandler(GameState newState);
     public static event GameStateChangeHandler OnGameStateChange;
 
-    EventBinding<OnGameStart> gameStartEventBinding;
     //INGAME
     EventBinding<OnEnemyDied> enemyDiedEventBinding;
 
-    EventBinding<OnGameOver> m_OnGameOverBinding;
+    EventBinding<OnPlayerDied> m_OnPlayerDiedBinding;
 
     EventBinding<StartGameEvent> m_OnMainMenuPlayButtonClicked;
+
+    EventBinding<OnAltarActivated> m_OnAltarActivatedBinding;
 
     #endregion
 
@@ -63,12 +70,12 @@ public class GameManager : MonoBehaviour
     [Space]
     [Header("Binded Objects")]
     public GameObject _playerGO;
-    private GameObject _popupManagerGO;
     private GameObject _environment;
     private GameObject _startZone;
     private GameObject _endZone;
     private EnemyManager _enemyManager;
     private GameObject m_GenericManager;
+
 
     [Space]
     [Header("Start Settings")]
@@ -80,6 +87,11 @@ public class GameManager : MonoBehaviour
     public Transform[] winAltarSpawnPositions;
     public int enemiesToDefeatToWin = 10;
     [SerializeField] private int enemiesDefeated = 0;
+
+    [Header("Game Scene")]
+    public Transform m_FOGHolder;
+    private Vector3 m_FOGStartScale;
+
 
 
     #region Begin Game
@@ -98,7 +110,7 @@ public class GameManager : MonoBehaviour
 
         ChangeGameState(GameState.StartingGame);
 
-        await BeginGame(); 
+        await BeginGame();
 
         EventBus<OnGameStart>.Raise(new OnGameStart());
         await UniTask.CompletedTask;
@@ -110,12 +122,21 @@ public class GameManager : MonoBehaviour
         m_OnMainMenuPlayButtonClicked = new EventBinding<StartGameEvent>(StartGameHandler);
         EventBus<StartGameEvent>.Register(m_OnMainMenuPlayButtonClicked);
 
-        m_OnGameOverBinding = new EventBinding<OnGameOver>(() =>
+        m_OnPlayerDiedBinding = new EventBinding<OnPlayerDied>(() =>
         {
             LoseGame();
         });
-        EventBus<OnGameOver>.Register(m_OnGameOverBinding);
+        EventBus<OnPlayerDied>.Register(m_OnPlayerDiedBinding);
+        m_OnAltarActivatedBinding = new EventBinding<OnAltarActivated>(HandleAltarActivated);
+        EventBus<OnAltarActivated>.Register(m_OnAltarActivatedBinding);
 
+    }
+    void UnbindEvents()
+    {
+        EventBus<StartGameEvent>.Unregister(m_OnMainMenuPlayButtonClicked);
+        EventBus<OnAltarActivated>.Unregister(m_OnAltarActivatedBinding);
+        EventBus<OnPlayerDied>.Unregister(m_OnPlayerDiedBinding);
+        EventBus<OnEnemyDied>.Unregister(enemyDiedEventBinding);
     }
 
 
@@ -130,13 +151,18 @@ public class GameManager : MonoBehaviour
             m_GenericManager = Instantiate(GenericManager);
             m_GenericManager.transform.parent = this.transform;
         }
+        if (m_FOGHolder != null)
+        {
+            m_FOGStartScale = m_FOGHolder.transform.localScale;
+        }
+
     }
     private async UniTask SpawnObjects()
     {
         // _environment = Instantiate(EnvironmentPrefab);
         altarSpawnPositions = GameObject.FindGameObjectsWithTag("AltarSpawnPos").ToList();
 
-        SpawnStartAltar();
+        // SpawnStartAltar();
         // await SpawnWinAltar();
         // SpawnPlayer();
         await _enemyManager.Initialize();
@@ -208,60 +234,43 @@ public class GameManager : MonoBehaviour
         if (CurrentGameState != newState)
         {
             CurrentGameState = newState;
-            OnGameStateChange?.Invoke(newState); 
+            OnGameStateChange?.Invoke(newState);
         }
 
-        HandleGameState();
     }
 
     public bool IsGameState(GameState state)
     {
         return CurrentGameState == state;
     }
-    public void HandleGameState()
-    {
-        switch (CurrentGameState)
-        {
-            case GameState.MainMenu:
-                // Handle Main Menu logic
 
-                break;
-            case GameState.Loading:
-                // Handle Loading logic
-                break;
-            case GameState.StartingGame:
-                break;
-            case GameState.Playing:
-                // Handle Playing logic
-                break;
-            case GameState.Paused:
-                // Handle Paused logic
-                break;
-            case GameState.GameOver:
-                // Handle Game Over logic
-                break;
-            case GameState.Win:
-                // Handle Win 
-
-                break;
-
-            default:
-                break;
-        }
-    }
 
     #region Altar Handling
 
-    async UniTask SpawnWinAltar()
+    async UniTask SpawnNewAltar()
     {
-        _endZone = Instantiate(EndZonePrefab, Vector3.zero, Quaternion.identity);
 
-        await UniTask.WaitForSeconds(0.1f); 
-        _endZone.SetActive(false);
+        Debug.Log("Spawning New Altar");
+
+        GameObject newAltar = Instantiate(EndZonePrefab, Vector3.zero, Quaternion.identity);
+        newAltar.SetActive(false);
+        newAltar.transform.position = GetRandomAltarSpawn().transform.position;
+        newAltar.transform.position = new Vector3(
+            newAltar.transform.position.x,
+            newAltar.transform.position.y - 5,
+            newAltar.transform.position.z);
+
+        newAltar.GetComponent<WinAltar>().m_AltarIndex = m_AltarsActivated;
+
+        await UniTask.WaitForSeconds(0.1f);
+        newAltar.SetActive(true);
+        newAltar.transform.DOMoveY(newAltar.transform.position.y + 4, 3f).SetEase(Ease.OutBounce);
+
+        // _endZone.SetActive(false);
     }
     void ActivateWinAltar()
     {
-        if (_endZone.activeSelf) return; 
+        if (_endZone.activeSelf) return;
         _endZone.SetActive(true);
         _endZone.transform.position = GetRandomAltarSpawn().transform.position;
     }
@@ -275,6 +284,26 @@ public class GameManager : MonoBehaviour
     {
         _startZone.transform.position = GetRandomAltarSpawn().transform.position;
         _startZone.SetActive(true);
+    }
+
+    private async void HandleAltarActivated(OnAltarActivated arg0)
+    {
+        m_AltarsActivated++;
+
+        if (m_AltarsActivated == m_MaxAltars)
+        {
+            WinGame();
+            return;
+        }
+        await SpawnNewAltar();
+
+        if (m_FOGHolder != null && m_FOGHolder.gameObject.activeSelf)
+            m_FOGHolder.DOScale(new Vector3(100, 100, 100), 5f).SetEase(Ease.InOutSine).OnComplete(() =>
+            {
+                m_FOGHolder.gameObject.SetActive(false);
+            });
+
+
     }
 
     GameObject GetRandomAltarSpawn()
@@ -291,13 +320,20 @@ public class GameManager : MonoBehaviour
     public void WinGame()
     {
         ChangeGameState(GameState.Win);
+        ResetGame();
         EventBus<OnGameWin>.Raise(new OnGameWin());
+
+
+
+        // EventBus<>.Raise(new OnGameWin());
     }
-    public async void LoseGame()
+    public void LoseGame()
     {
         ChangeGameState(GameState.GameOver);
-        await DestroyObjects();
+        ResetGame();
+        EventBus<OnGameOver>.Raise(new OnGameOver());
 
+        // UnbindEvents();
     }
 
     private async UniTask DestroyObjects()
@@ -306,11 +342,23 @@ public class GameManager : MonoBehaviour
         await UniTask.Delay(100);
         // Destroy(m_GenericManager);
         // Destroy(_popupManagerGO);
-        Destroy(_environment);
-        Destroy(_startZone);
-        Destroy(_endZone);
-        Destroy(_playerGO);
+        // Destroy(_environment);
+        // Destroy(_startZone);
+        // Destroy(_endZone);
+        // Destroy(_playerGO);
     }
+
+    private void ResetGame()
+    {
+        enemiesDefeated = 0;
+        m_AltarsActivated = 0;
+        _enemyManager.SetCurrentWave(0);
+        m_FOGHolder.gameObject.SetActive(true);
+        m_FOGHolder.transform.localScale = m_FOGStartScale;
+        // EventBus<OnGameOver>.Raise(new OnGameOver());
+
+    }
+
     #endregion
     #region Getters
     public GameObject GetPlayer()

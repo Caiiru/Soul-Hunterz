@@ -30,6 +30,12 @@ public class PlayerHUD : MonoBehaviour
     bool _isHovering = false;
     public TextMeshProUGUI _interactText;
 
+    [Header("Message")]
+    [SerializeField]
+    Transform _messageTransform;
+    bool _isShowingMessage = false;
+    public TextMeshProUGUI _messageText;
+
     [Header("Inventory")]
     [SerializeField]
     Transform _inventoryTransform;
@@ -108,6 +114,11 @@ public class PlayerHUD : MonoBehaviour
         }
         _interactInput = StarterAssetsInputs.Instance.GetInteractAction().action;
 
+        _messageTransform.gameObject.SetActive(false);
+        _messageText = _messageTransform.GetComponentInChildren<TextMeshProUGUI>();
+
+
+
 
     }
 
@@ -149,13 +160,58 @@ public class PlayerHUD : MonoBehaviour
         m_OnUpdateSouls = new EventBinding<OnUpdateSouls>(HandleUpdateCurrencyEvent);
         EventBus<OnUpdateSouls>.Register(m_OnUpdateSouls);
 
+        //Set Message 
+
+        EventBus<OnAltarActivated>.Register(new EventBinding<OnAltarActivated>(HandleMessageAltarActivated));
+
+
+        //Reset
+
+        EventBus<OnPlayerDied>.Register(new EventBinding<OnPlayerDied>(() =>
+        {
+            DesactivateAll();
+        }));
+        EventBus<OnGameWin>.Register(new EventBinding<OnGameWin>(() =>
+        {
+            DesactivateAll();
+
+        }));
 
 
     }
 
+    private void HandleMessageAltarActivated(OnAltarActivated arg0)
+    {
+        if (_isShowingMessage) return;
+        _isShowingMessage = true;
+        _messageTransform.transform.localScale = Vector3.zero;
+        _messageTransform.gameObject.SetActive(true);
+        _messageText.alpha = 0f;
+        // _messageText.transform.localScale = Vector3.zero;
+        _messageText.text = "Altar Activated!";
+        _messageTransform.DOScale(Vector3.one, 0.3f).SetEase(Ease.InSine).OnComplete(async () =>
+        {
+            // _messageText.DOText("The Altar has been activated!", 0.3f).SetEase(Ease.Linear);
+            // cameraShakeManager.instance.CameraShake(new Unity.Cinemachine.CinemachineImpulseSource());
+            _messageText.DOFade(1f, 0.3f).SetEase(Ease.Linear);
+            await UniTask.Delay(TimeSpan.FromSeconds(3f));
+            // _messageTransform.DOScale(Vector3.zero, 0.3f).SetEase(Ease.OutBack).OnComplete(() =>
+            // {
+            //     _messageTransform.gameObject.SetActive(false);
+            //     _isShowingMessage = false;
+            // });
+            _messageText.DOFade(0f, 0.3f).SetEase(Ease.Linear).OnComplete(() =>
+            {
+                _messageTransform.gameObject.SetActive(false);
+                _isShowingMessage = false;
+            });
+        });
+    }
+
     private void HandleGameStart(OnGameStart arg0)
     {
-        GetComponent<Canvas>().enabled = true;
+        GetComponent<Canvas>().enabled = true; 
+        ActivateAll();
     }
 
     void UnbindEvents()
@@ -291,17 +347,21 @@ public class PlayerHUD : MonoBehaviour
     void DesactivateAll()
     {
         _interactTransform.gameObject.SetActive(false);
-        _inventoryTransform.gameObject.SetActive(false);
+        _inventoryTransform.GetComponent<Canvas>().enabled = false;
         m_PlayerHealthCanvas.gameObject.SetActive(false);
+        m_playerCurrencyText.gameObject.SetActive(false);
+        _messageTransform.gameObject.SetActive(false);
 
     }
 
     void ActivateAll()
     {
 
+        _messageTransform.gameObject.SetActive(false);
         _interactTransform.gameObject.SetActive(true);
-        _inventoryTransform.gameObject.SetActive(true);
+        // _inventoryTransform.GetComponent<Canvas>().enabled = true;
         m_PlayerHealthCanvas.gameObject.SetActive(true);
+        m_playerCurrencyText.gameObject.SetActive(true);
     }
 
     void OnDisable()

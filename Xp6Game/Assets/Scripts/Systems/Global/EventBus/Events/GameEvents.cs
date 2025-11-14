@@ -29,7 +29,7 @@ public class SpawnSoulEvent : IEvent
 
 public class OnAltarActivated : IEvent
 {
-    
+    public int m_AltarActivatedIndex;
 }
 
 public class WaveStartEvent : IEvent

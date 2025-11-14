@@ -1,4 +1,6 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class EndMenuController : MonoBehaviour
 {
@@ -15,11 +17,24 @@ public class EndMenuController : MonoBehaviour
     }
     public void BackToMenu()
     {
-        EventBus<ChangeMenuStateEvent>.Raise(new ChangeMenuStateEvent { newState = MenuState.MainMenu });
+        // EventBus<ChangeMenuStateEvent>.Raise(new ChangeMenuStateEvent { newState = MenuState.MainMenu });//
+        // SceneManager.LoadScene("Game");
+        RetryGame();
     }
     public void RetryGame()
     {
-        EventBus<StartGameEvent>.Raise(new StartGameEvent());
+
+        // await LoadGameScene();
+
+        EventBus<ChangeMenuStateEvent>.Raise(new ChangeMenuStateEvent { newState = MenuState.MainMenu });//
+        // EventBus<StartGameEvent>.Raise(new StartGameEvent());
+    }
+
+    async UniTask LoadGameScene()
+    {
+
+        await SceneManager.LoadSceneAsync("Game");
+        await UniTask.CompletedTask;
     }
     public void QuitGame()
     {

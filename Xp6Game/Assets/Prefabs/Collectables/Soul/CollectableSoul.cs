@@ -5,9 +5,8 @@ public class CollectableSoul : Collectable
 {
     [Header("Soul Settings")]
     [SerializeField] private int soulValue = 1;
-    [Header("Animation Settings")]
-    [SerializeField] private float m_upOffset = 1f;
-    [SerializeField] private float m_AnimDuration = 0.2f;
+    [Header("Animation Settings")] 
+    [SerializeField] private float m_AnimDuration = 0.1f;
  
 
 
@@ -36,7 +35,7 @@ public class CollectableSoul : Collectable
     {
         if (other.CompareTag("Player"))
         {
-            transform.DOMove(other.transform.position, 0.1f).SetEase(Ease.InSine).OnComplete(() =>
+            transform.DOMove(other.transform.position, m_AnimDuration).SetEase(Ease.InSine).OnComplete(() =>
             {
                 Collect();
             });

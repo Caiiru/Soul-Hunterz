@@ -131,6 +131,8 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
             EndGame();
         });
         EventBus<OnGameWin>.Register(m_OnGameWinEventBinding);
+
+        Debug.Log($"{transform.name} binded events");
     }
 
     private void OnTakeDamageEventListener(int v)
@@ -143,7 +145,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
         Attack();
     }
 
-    void UnbindEvents()
+    UniTask UnbindEvents()
     {
         EventBus<OnGameOver>.Unregister(m_OnGameOverBinding);
         EventBus<OnGameWin>.Unregister(m_OnGameWinEventBinding);
@@ -151,12 +153,16 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         m_stateMachine.m_OnAttack.RemoveListener(OnAttackEventListener);
         m_stateMachine.m_OnTakeDamage.RemoveListener(OnTakeDamageEventListener);
+
+        return UniTask.CompletedTask;
     }
     #endregion
     #region End Game
-    void EndGame()
+    async void EndGame()
     {
-        UnbindEvents();
+
+        await UnbindEvents(); 
+        Debug.Log("DEstroying ENEMY");
         Destroy(this.gameObject);
     }
 
@@ -204,7 +210,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         DropSoul();
 
-        
+
         await UniTask.Delay(2 * k_Milliseconds);
         var m_AnimationClipInfo = m_animator.GetCurrentAnimatorClipInfo(0)[0].clip.length;
 
