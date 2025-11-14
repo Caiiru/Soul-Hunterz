@@ -69,7 +69,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     public override void Initialize()
     {
         base.Initialize();
-
+        transform.name = m_entityData.m_name;
         // Debug.Log($"Enemy Enabled: {gameObject.name} with Speed: {speed} and Attack Range: {attackRange}");
 
         m_attackRange = m_entityData.m_AttackRange;
@@ -161,7 +161,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     async void EndGame()
     {
 
-        await UnbindEvents(); 
+        await UnbindEvents();
         // Debug.Log("DEstroying ENEMY");
         Destroy(this.gameObject);
     }

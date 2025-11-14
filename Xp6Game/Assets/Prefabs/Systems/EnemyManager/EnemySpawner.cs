@@ -138,8 +138,7 @@ public class EnemySpawner : MonoBehaviour
             }
         }
         spawnInterval = data.m_spawnRate;
-
-
+ 
         await SpawnNextInQueue();
     }
     public async UniTask SpawnNextInQueue()

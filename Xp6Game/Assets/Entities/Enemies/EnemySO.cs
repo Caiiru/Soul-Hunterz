@@ -1,7 +1,8 @@
 using UnityEngine;
- 
+
 public class EnemySO : EntitySO
 {
+    public string m_name = "Enemy";
     [Header("Enemy Settings")]
     public float m_MoveSpeed = 3.5f;
     public float m_AttackRange = 1.5f;
@@ -10,10 +11,10 @@ public class EnemySO : EntitySO
     public Transform Target;
 
     [Header("VFX Settings")]
-    public GameObject m_takeDamageVFX; 
+    public GameObject m_takeDamageVFX;
 
     [Header("State Machine")]
-    public State m_InitialState; 
+    public State m_InitialState;
 
     [HideInInspector]
     public LayerMask playerMask = 1 << 7;
