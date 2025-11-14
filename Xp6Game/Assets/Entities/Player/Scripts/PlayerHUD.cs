@@ -263,7 +263,7 @@ public class PlayerHUD : MonoBehaviour
     private void HandleUpdateCurrencyEvent(OnUpdateSouls eventData)
     {
         int currentCurrency = eventData.amount;
-        m_playerCurrencyText.text = $"Souls: {currentCurrency.ToString()}";
+        m_playerCurrencyText.text = $"{currentCurrency.ToString()}";
     }
 
 
