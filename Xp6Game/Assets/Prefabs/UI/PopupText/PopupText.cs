@@ -38,7 +38,7 @@ public class PopupText : MonoBehaviour
     {
         if (_textMeshPro == null) return;
 
-        _textMeshPro.color = color;
+       // _textMeshPro.color = color;
         _textMeshPro.text = text;
         m_ScaleMax = scale;
 
