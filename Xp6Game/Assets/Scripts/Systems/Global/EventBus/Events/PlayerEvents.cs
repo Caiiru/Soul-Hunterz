@@ -30,7 +30,7 @@ public class OnCollectSouls : IEvent
 public class OnUpdateSouls : IEvent
 {
     public int amount;
-} 
+}
 
 
 public class OnPlayerTakeDamage : IEvent
@@ -47,6 +47,11 @@ public class OnPlayerAttack : IEvent
 
 }
 
+public class OnAmmoChanged : IEvent
+{
+    public int currentAmmo;
+    public int maxAmmo;
+}
 public class OnPlayerChangeState : IEvent
 {
     public PlayerStates newState;
@@ -59,6 +64,6 @@ public class OnPlayerDash : IEvent
 
 public class OnPlayerDied : IEvent
 {
-    
+
 }
 

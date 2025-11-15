@@ -6,10 +6,28 @@ public class SimpleWeapon : AbstractWeapon
     private float nextFire = 0.0f;
     public override void Attack()
     {
+        base.Attack();
+        if (!m_CanAttack) return;
         if (Time.time >= nextFire)
-        { 
+        {
+
             Shoot();
-            nextFire = Time.time + AttackRate;
+            nextFire = Time.time + m_AttackRate;
+            m_CurrentAmmo--;
+
+            EventBus<OnPlayerAttack>.Raise(new OnPlayerAttack());
+            EventBus<OnAmmoChanged>.Raise(new OnAmmoChanged
+            {
+                currentAmmo = m_CurrentAmmo,
+                maxAmmo = m_maxAmmo
+            });
+
+            if (m_CurrentAmmo <= 0)
+            {
+                m_CurrentReloadTime = m_ReloadTime;
+                m_CanAttack = false;
+                return;
+            }
         }
     }
 
@@ -19,10 +37,10 @@ public class SimpleWeapon : AbstractWeapon
         var payload = new BulletPayload();
 
         // 2. Passa o payload por todos os componentes para modificá-lo.
-        foreach (var component in weaponComponents)
+        foreach (var component in m_weaponComponents)
         {
             if (component == null) continue;
-            payload = component.Execute(payload, _firePoint, currentIndexSlot);
+            payload = component.Execute(payload, _firePoint, m_currentIndexSlot);
         }
 
         // 3. Dispara as balas com base no payload final.
@@ -36,11 +54,11 @@ public class SimpleWeapon : AbstractWeapon
         if (payload.BulletCount == 1)
         {
             // Disparo simples
-            var bulletGO = Instantiate(bulletPrefab, _firePoint.position, _firePoint.rotation);
+            var bulletGO = Instantiate(m_bulletPrefab, _firePoint.position, _firePoint.rotation);
             var bullet = bulletGO.GetComponent<Bullet>();
             bullet.Initialize(transform.forward, payload);
             return;
-        } 
+        }
         // Lógica para múltiplos disparos (movida de MultipleBulletComponentSO)
         float totalWidth = (payload.BulletCount - 1) * payload.SpreadDistance;
         float initialOffset = -totalWidth / 2f;
@@ -50,11 +68,11 @@ public class SimpleWeapon : AbstractWeapon
         {
             float currentOffset = initialOffset + (i * payload.SpreadDistance);
             Vector3 finalPosition = _firePoint.position + (spreadDirection * currentOffset);
-            
-            var bulletGO = Instantiate(bulletPrefab, finalPosition, _firePoint.rotation);
+
+            var bulletGO = Instantiate(m_bulletPrefab, finalPosition, _firePoint.rotation);
             var bullet = bulletGO.GetComponent<Bullet>();
 
-            bullet.Initialize(new Vector3(bullet.transform.forward.x,0,bullet.transform.forward.z), payload);
+            bullet.Initialize(new Vector3(bullet.transform.forward.x, 0, bullet.transform.forward.z), payload);
         }
     }
 }

@@ -173,7 +173,7 @@ public class PlayerInventory : MonoBehaviour
         if (!hasWeaponSlot())
             yield break;
 
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.1f); ;
         GameObject weapon = Instantiate(simpleWeaponPrefab, this.transform);
         weapon.GetComponent<AbstractWeapon>().InitializeWeapon();
         AddWeapon(weapon.GetComponent<AbstractWeapon>());

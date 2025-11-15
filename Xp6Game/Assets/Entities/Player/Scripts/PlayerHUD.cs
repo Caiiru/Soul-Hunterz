@@ -6,6 +6,7 @@ using StarterAssets;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class PlayerHUD : MonoBehaviour
 {
@@ -48,12 +49,21 @@ public class PlayerHUD : MonoBehaviour
     private int m_maxHealth;
     public TextMeshProUGUI m_playerHealthText;
 
+    [Header("Ammo")]
+    public GameObject m_ammoVisualHolder;
+    public TextMeshProUGUI m_ammoText;
+    private int m_currentAmmo;
+    private int m_maxAmmo;
+
+    [Header("Current Weapon")]
+    public Image m_currentWeaponImage;
 
     [Header("Currency")]
     public TextMeshProUGUI m_playerCurrencyText;
 
     [Header("Backpack")]
     public Transform m_backpackVisualHolder;
+
 
     // Events
     #region Events
@@ -69,6 +79,7 @@ public class PlayerHUD : MonoBehaviour
 
     EventBinding<OnSetPlayerHealthEvent> m_OnSetHealthEvent;
     EventBinding<OnPlayerTakeDamage> m_OnPlayerTakeDamage;
+    EventBinding<OnAmmoChanged> m_OnAmmoChangedBinding;
 
     EventBinding<OnUpdateSouls> m_OnUpdateSouls;
     #endregion
@@ -179,43 +190,12 @@ public class PlayerHUD : MonoBehaviour
             DesactivateAll();
 
         }));
+        m_OnAmmoChangedBinding = new EventBinding<OnAmmoChanged>(HandleAmmoChanged);
+        EventBus<OnAmmoChanged>.Register(m_OnAmmoChangedBinding);
 
 
     }
 
-    private void HandleMessageAltarActivated(OnAltarActivated arg0)
-    {
-        if (_isShowingMessage) return;
-        _isShowingMessage = true;
-        _messageTransform.transform.localScale = Vector3.zero;
-        _messageTransform.gameObject.SetActive(true);
-        _messageText.alpha = 0f;
-        // _messageText.transform.localScale = Vector3.zero;
-        _messageText.text = "Altar Activated!";
-        _messageTransform.DOScale(Vector3.one, 0.3f).SetEase(Ease.InSine).OnComplete(async () =>
-        {
-            // _messageText.DOText("The Altar has been activated!", 0.3f).SetEase(Ease.Linear);
-            // cameraShakeManager.instance.CameraShake(new Unity.Cinemachine.CinemachineImpulseSource());
-            _messageText.DOFade(1f, 0.3f).SetEase(Ease.Linear);
-            await UniTask.Delay(TimeSpan.FromSeconds(3f));
-            // _messageTransform.DOScale(Vector3.zero, 0.3f).SetEase(Ease.OutBack).OnComplete(() =>
-            // {
-            //     _messageTransform.gameObject.SetActive(false);
-            //     _isShowingMessage = false;
-            // });
-            _messageText.DOFade(0f, 0.3f).SetEase(Ease.Linear).OnComplete(() =>
-            {
-                _messageTransform.gameObject.SetActive(false);
-                _isShowingMessage = false;
-            });
-        });
-    }
-
-    private void HandleGameStart(OnGameStart arg0)
-    {
-        GetComponent<Canvas>().enabled = true;
-        ActivateAll();
-    }
 
     void UnbindEvents()
     {
@@ -227,6 +207,7 @@ public class PlayerHUD : MonoBehaviour
         EventBus<OnPlayerTakeDamage>.Unregister(m_OnPlayerTakeDamage);
         EventBus<OnSetPlayerHealthEvent>.Unregister(m_OnSetHealthEvent);
         EventBus<OnUpdateSouls>.Unregister(m_OnUpdateSouls);
+        EventBus<OnAmmoChanged>.Unregister(m_OnAmmoChangedBinding);
     }
 
     void Initialize()
@@ -304,6 +285,60 @@ public class PlayerHUD : MonoBehaviour
         HideInteractText();
 
     }
+
+
+    private void HandleAmmoChanged(OnAmmoChanged arg0)
+    {
+
+        m_currentAmmo = arg0.currentAmmo;
+        m_maxAmmo = arg0.maxAmmo;
+        UpdateAmmoText();
+
+    }
+
+    private void HandleMessageAltarActivated(OnAltarActivated arg0)
+    {
+        if (_isShowingMessage) return;
+        _isShowingMessage = true;
+        _messageTransform.transform.localScale = Vector3.zero;
+        _messageTransform.gameObject.SetActive(true);
+        _messageText.alpha = 0f;
+        // _messageText.transform.localScale = Vector3.zero;
+        _messageText.text = "Altar Activated!";
+        _messageTransform.DOScale(Vector3.one, 0.3f).SetEase(Ease.InSine).OnComplete(async () =>
+        {
+            // _messageText.DOText("The Altar has been activated!", 0.3f).SetEase(Ease.Linear);
+            // cameraShakeManager.instance.CameraShake(new Unity.Cinemachine.CinemachineImpulseSource());
+            _messageText.DOFade(1f, 0.3f).SetEase(Ease.Linear);
+            await UniTask.Delay(TimeSpan.FromSeconds(3f));
+            // _messageTransform.DOScale(Vector3.zero, 0.3f).SetEase(Ease.OutBack).OnComplete(() =>
+            // {
+            //     _messageTransform.gameObject.SetActive(false);
+            //     _isShowingMessage = false;
+            // });
+            _messageText.DOFade(0f, 0.3f).SetEase(Ease.Linear).OnComplete(() =>
+            {
+                _messageTransform.gameObject.SetActive(false);
+                _isShowingMessage = false;
+            });
+        });
+    }
+
+    private void HandleGameStart(OnGameStart arg0)
+    {
+        GetComponent<Canvas>().enabled = true;
+        ActivateAll();
+    }
+
+    #endregion
+
+    #region Ammo Methods
+    void UpdateAmmoText()
+    {
+        m_ammoText.text = $"{m_currentAmmo}/{m_maxAmmo}";
+    }
+
+
     #endregion
     #region Interact Methods
     void ShowInteractText()
@@ -348,6 +383,10 @@ public class PlayerHUD : MonoBehaviour
     }
     #endregion
 
+
+    #region Desactivate & Activate
+
+
     void DesactivateAll()
     {
         _interactTransform.gameObject.SetActive(false);
@@ -355,18 +394,22 @@ public class PlayerHUD : MonoBehaviour
         m_PlayerHealthCanvas.gameObject.SetActive(false);
         m_playerCurrencyText.gameObject.SetActive(false);
         _messageTransform.gameObject.SetActive(false);
+        m_ammoVisualHolder.SetActive(false);
 
     }
 
     void ActivateAll()
     {
 
+        m_ammoVisualHolder.SetActive(true);
         _messageTransform.gameObject.SetActive(false);
         _interactTransform.gameObject.SetActive(true);
         // _inventoryTransform.GetComponent<Canvas>().enabled = true;
         m_PlayerHealthCanvas.gameObject.SetActive(true);
         m_playerCurrencyText.gameObject.SetActive(true);
     }
+
+    #endregion
 
     void OnDisable()
     {
