@@ -1,4 +1,4 @@
-using System; 
+using System;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -15,6 +15,7 @@ namespace StarterAssets
 		public bool sprint;
 		public bool interact;
 		public bool inventory;
+		public bool attack;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -88,6 +89,12 @@ namespace StarterAssets
 
 		}
 
+		public void OnAttack(InputValue value)
+		{
+			AttackInput(value.isPressed);
+		}
+
+
 
 #endif
 
@@ -127,6 +134,12 @@ namespace StarterAssets
 		{
 			OnChangeWeapon?.Invoke(slot);
 		}
+		public void AttackInput(bool newAttackState)
+		{
+			attack = newAttackState;
+		}
+
+
 
 
 		private void OnApplicationFocus(bool hasFocus)
@@ -153,6 +166,7 @@ namespace StarterAssets
 			Instance = this;
 
 		}
+
 		#endregion
 
 
