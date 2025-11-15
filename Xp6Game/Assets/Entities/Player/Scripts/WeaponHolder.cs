@@ -1,15 +1,21 @@
 using System;
 using Cysharp.Threading.Tasks;
+using StarterAssets;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class WeaponHolder : MonoBehaviour
 {
+    [Header("Attack Input")]
+    public InputActionReference attackActionReference;
+    StarterAssetsInputs m_StarterAssetsInputs;
+
+    [Header("Weapons")]
     public AbstractWeapon currentWeapon;
     public GameObject currentWeaponGO;
     public Transform firePoint; // Point from where the weapon fires
 
-    private bool _canFire = true;
- 
+    private bool _inventoryIsOpen = true;
 
     //Events
     EventBinding<OnGameStart> m_OnGameStartEventBinding;
@@ -38,7 +44,7 @@ public class WeaponHolder : MonoBehaviour
         BindEvents();
         Initialize();
 
-       
+
 
     }
 
@@ -59,7 +65,7 @@ public class WeaponHolder : MonoBehaviour
             ResetGame();
         });
         EventBus<OnPlayerDied>.Register(m_OnPlayerDiedBinding);
-        
+
         m_OnGameWinBinding = new EventBinding<OnGameWin>(() =>
         {
             ResetGame();
@@ -71,6 +77,9 @@ public class WeaponHolder : MonoBehaviour
     void BindObjects()
     {
         m_Animator = GetComponentInChildren<Animator>();
+
+        m_StarterAssetsInputs = StarterAssetsInputs.Instance;
+
     }
 
     void BindAnims()
@@ -81,7 +90,7 @@ public class WeaponHolder : MonoBehaviour
 
     void Initialize()
     {
-        _canFire = false;
+        _inventoryIsOpen = false;
     }
 
     async void Update()
@@ -91,24 +100,28 @@ public class WeaponHolder : MonoBehaviour
             await FireWeapon();
         }
 
+
     }
 
     bool CanFire()
     {
-        return Input.GetButtonDown("Fire1") && currentWeapon != null && _canFire;
+        // return Input.GetButtonDown("Fire1") && currentWeapon != null && _canFire;
+
+        return m_StarterAssetsInputs.attack && currentWeapon != null && _inventoryIsOpen;
     }
 
     public async UniTask FireWeapon()
     {
-        if (m_Animator != null)
+        if (currentWeapon.m_CanAttack)
         {
-            m_Animator.SetLayerWeight(m_ShootingLayerIndex, 1);
-            m_Animator.SetTrigger(m_ShootingAnimID);
+            if (m_Animator != null)
+            {
+                m_Animator.SetLayerWeight(m_ShootingLayerIndex, 1);
+                m_Animator.SetTrigger(m_ShootingAnimID);
+            }
+            await UniTask.Delay(1);
+            currentWeapon.Attack();
         }
-        await UniTask.Delay(1);
-
-        currentWeapon.Attack();
-
         await UniTask.CompletedTask;
     }
 
@@ -132,7 +145,7 @@ public class WeaponHolder : MonoBehaviour
     }
     private void HandleInventoryToggle(OnInventoryInputEvent eventdata)
     {
-        _canFire = !eventdata.isOpen;
+        _inventoryIsOpen = !eventdata.isOpen;
     }
 
 
@@ -150,7 +163,7 @@ public class WeaponHolder : MonoBehaviour
     }
     UniTask ResetGame()
     {
-        _canFire=false;
+        _inventoryIsOpen = false;
         Destroy(currentWeaponGO);
         currentWeapon = null;
         currentWeaponGO = null;
@@ -171,9 +184,9 @@ public class WeaponHolder : MonoBehaviour
 
     private void HandleGameStart()
     {
-        _canFire = true;
+        _inventoryIsOpen = true;
         // currentWeaponGO.SetActive(true);
-        
+
     }
 
 }

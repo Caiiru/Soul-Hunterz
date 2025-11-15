@@ -31,10 +31,7 @@ public class PopupText : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (gameObject.activeSelf)
-        {
-            transform.forward = Camera.main.transform.forward;
-        }
+       
     }
 
     public void SetText(string text, Color color, Vector3 scale)

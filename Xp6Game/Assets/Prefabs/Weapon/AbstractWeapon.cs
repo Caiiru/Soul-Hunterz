@@ -10,18 +10,20 @@ public abstract class AbstractWeapon : MonoBehaviour
     public ComponentSO[] m_weaponComponents;
     [Space]
     [Header("Stats")]
-
-    public float m_AttackRange;
-    public float m_AttackRate;
     public float m_AttackDamage;
     public bool m_CanAttack = true;
 
     [Header("Ammo")]
     public int m_CurrentAmmo;
     public int m_maxAmmo;
+    [Header("Fire Delay")]
+    public float m_CurrentFireDelay;
+    public float m_FireDelay;
 
-    public float m_CurrentReloadTime;
-    public float m_ReloadTime;
+    [Header("Reload Time")]
+
+    public float m_CurrentRechargeTime;
+    public float m_RechargeTime;
 
     [Header("FirePoint")]
     public Transform _firePoint;
@@ -32,7 +34,9 @@ public abstract class AbstractWeapon : MonoBehaviour
     public string Description;
     public int Rarity;
     public Color RarityColor;
-    public GameObject meshPrefab;
+
+    [Header("VFX")]
+    public GameObject m_MuzzleGO;
 
     public virtual void Start()
     {
@@ -48,8 +52,7 @@ public abstract class AbstractWeapon : MonoBehaviour
             Debug.Log("Weapon Data Null");
             return;
         }
-        m_AttackRange = m_WeaponData.AttackRange;
-        m_AttackRate = m_WeaponData.AttackRate;
+        m_FireDelay = m_WeaponData.AttackDelay;
         m_AttackDamage = m_WeaponData.AttackDamage;
 
 
@@ -60,19 +63,13 @@ public abstract class AbstractWeapon : MonoBehaviour
         RarityColor = m_WeaponData.RarityColor;
 
         m_weaponComponents = m_WeaponData.components.ToArray();
-        meshPrefab = m_WeaponData.meshPrefab;
 
         //Ammo
-        m_ReloadTime = m_WeaponData.ReloadTime;
-        m_CurrentReloadTime = 0;
+        m_RechargeTime = m_WeaponData.ReloadTime;
+        m_CurrentRechargeTime = m_RechargeTime;
         m_CurrentAmmo = m_WeaponData.MaxAmmo;
         m_maxAmmo = m_WeaponData.MaxAmmo;
 
-        if (meshPrefab == null)
-        {
-            Debug.LogError("Weaponn without mesh");
-            return;
-        }
         GameObject mesh = Instantiate(m_WeaponData.meshPrefab, transform);
         _firePoint = mesh.transform.Find("FirePoint");
 
@@ -82,7 +79,7 @@ public abstract class AbstractWeapon : MonoBehaviour
         m_bulletPrefab = m_WeaponData.BulletPrefab;
         m_CanAttack = true;
 
-        Debug.Log("Weapon initialized");
+        m_MuzzleGO = m_WeaponData.m_MuzzleVFX;
 
     }
 
@@ -93,10 +90,41 @@ public abstract class AbstractWeapon : MonoBehaviour
 
     public virtual void Update()
     {
-        if (m_CurrentReloadTime > 0)
+        HandleFireRateTimer();
+        HandleRechargeTimer();
+    }
+
+    public virtual void HandleFireRateTimer()
+    {
+        if (m_CurrentFireDelay < m_FireDelay)
         {
-            m_CurrentReloadTime -= Time.deltaTime;
-            if (m_CurrentReloadTime <= 0)
+            m_CurrentFireDelay += Time.deltaTime;
+
+
+
+
+            if (m_CurrentFireDelay > m_FireDelay && m_CurrentAmmo > 0)
+            {
+
+                m_CanAttack = true;
+
+            }
+        }
+
+    }
+    public virtual void HandleRechargeTimer()
+    {
+        if (m_CurrentRechargeTime < m_RechargeTime)
+        {
+            m_CurrentRechargeTime += Time.deltaTime;
+
+            EventBus<OnUpdatedRechargeTime>.Raise(new OnUpdatedRechargeTime
+            {
+                time = m_CurrentRechargeTime,
+                maxTime = m_RechargeTime
+            });
+
+            if (m_CurrentRechargeTime >= m_RechargeTime)
             {
                 m_CurrentAmmo = m_WeaponData.MaxAmmo;
 
@@ -107,13 +135,16 @@ public abstract class AbstractWeapon : MonoBehaviour
                     maxAmmo = m_maxAmmo
                 });
 
+                EventBus<OnEndedRechargeTime>.Raise(new OnEndedRechargeTime());
                 m_CanAttack = true;
             }
         }
     }
     public virtual void Attack()
     {
-
+        if (!m_CanAttack) return;
+        GameObject _muzzle = Instantiate(m_MuzzleGO, _firePoint.position, _firePoint.rotation);
+        Destroy(_muzzle, 5f);
 
     }
 }

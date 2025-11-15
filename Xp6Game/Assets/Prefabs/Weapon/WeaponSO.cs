@@ -16,14 +16,17 @@ public class WeaponSO : ScriptableObject
     [Header("Attack Params")]
     public GameObject BulletPrefab;
     public BulletSO bullet;
-    public int MaxAmmo;
+    public int MaxAmmo; 
     public float ReloadTime;
-    public float AttackRange;
-    public float AttackRate;
+    public float AttackDelay; 
     public float AttackDamage;
 
     [Header("Components Params")]
     public List<ComponentSO> components;
+
+    [Header("VFX")]
+    public GameObject m_MuzzleVFX; 
+    
 
 
 }
