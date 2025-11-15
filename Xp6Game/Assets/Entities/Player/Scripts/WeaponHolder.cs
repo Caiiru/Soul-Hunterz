@@ -100,13 +100,12 @@ public class WeaponHolder : MonoBehaviour
 
     public async UniTask FireWeapon()
     {
-        EventBus<OnPlayerAttack>.Raise(new OnPlayerAttack());
         if (m_Animator != null)
         {
             m_Animator.SetLayerWeight(m_ShootingLayerIndex, 1);
             m_Animator.SetTrigger(m_ShootingAnimID);
         }
-        await UniTask.Delay(10);
+        await UniTask.Delay(1);
 
         currentWeapon.Attack();
 
@@ -122,6 +121,13 @@ public class WeaponHolder : MonoBehaviour
         currentWeaponGO.transform.SetParent(firePoint.transform);
         currentWeaponGO.transform.localPosition = Vector3.zero;
         currentWeaponGO.transform.localRotation = Quaternion.identity;
+
+        //When player equip the weapon, update the ui
+        EventBus<OnAmmoChanged>.Raise(new OnAmmoChanged
+        {
+            currentAmmo = currentWeapon.m_CurrentAmmo,
+            maxAmmo = currentWeapon.m_maxAmmo
+        });
 
     }
     private void HandleInventoryToggle(OnInventoryInputEvent eventdata)

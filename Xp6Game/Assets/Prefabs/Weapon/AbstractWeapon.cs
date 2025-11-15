@@ -18,6 +18,7 @@ public abstract class AbstractWeapon : MonoBehaviour
 
     [Header("Ammo")]
     public int m_CurrentAmmo;
+    public int m_maxAmmo;
 
     public float m_CurrentReloadTime;
     public float m_ReloadTime;
@@ -65,6 +66,7 @@ public abstract class AbstractWeapon : MonoBehaviour
         m_ReloadTime = m_WeaponData.ReloadTime;
         m_CurrentReloadTime = 0;
         m_CurrentAmmo = m_WeaponData.MaxAmmo;
+        m_maxAmmo = m_WeaponData.MaxAmmo;
 
         if (meshPrefab == null)
         {
@@ -97,6 +99,14 @@ public abstract class AbstractWeapon : MonoBehaviour
             if (m_CurrentReloadTime <= 0)
             {
                 m_CurrentAmmo = m_WeaponData.MaxAmmo;
+
+
+                EventBus<OnAmmoChanged>.Raise(new OnAmmoChanged
+                {
+                    currentAmmo = m_CurrentAmmo,
+                    maxAmmo = m_maxAmmo
+                });
+
                 m_CanAttack = true;
             }
         }

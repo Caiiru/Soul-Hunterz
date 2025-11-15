@@ -248,15 +248,15 @@ public class PlayerEntity : Entity<PlayerEntitySO>
         EventBus<OnPlayerChangeState>.Raise(new OnPlayerChangeState { newState = newState });
 
 
-        if (PopupTextManager.instance != null && m_PlayerState != newState)
-        {
-            PopupTextManager.instance.ShowPopupText(
-                $"New State: {newState.ToString()}",
-                new Vector3(transform.position.x, transform.position.y + transform.localScale.y + 1, transform.position.z),
-                Color.white,
-                new Vector3(0.1f, 0.1f, 0.1f));
+        // if (PopupTextManager.instance != null && m_PlayerState != newState)
+        // {
+        //     PopupTextManager.instance.ShowPopupText(
+        //         $"New State: {newState.ToString()}",
+        //         new Vector3(transform.position.x, transform.position.y + transform.localScale.y + 1, transform.position.z),
+        //         Color.white,
+        //         new Vector3(0.1f, 0.1f, 0.1f));
 
-        }
+        // }
 
         m_PlayerState = newState;
         switch (newState)

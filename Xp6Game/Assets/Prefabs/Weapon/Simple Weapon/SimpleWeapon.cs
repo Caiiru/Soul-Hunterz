@@ -10,9 +10,18 @@ public class SimpleWeapon : AbstractWeapon
         if (!m_CanAttack) return;
         if (Time.time >= nextFire)
         {
+
             Shoot();
             nextFire = Time.time + m_AttackRate;
             m_CurrentAmmo--;
+
+            EventBus<OnPlayerAttack>.Raise(new OnPlayerAttack());
+            EventBus<OnAmmoChanged>.Raise(new OnAmmoChanged
+            {
+                currentAmmo = m_CurrentAmmo,
+                maxAmmo = m_maxAmmo
+            });
+
             if (m_CurrentAmmo <= 0)
             {
                 m_CurrentReloadTime = m_ReloadTime;
