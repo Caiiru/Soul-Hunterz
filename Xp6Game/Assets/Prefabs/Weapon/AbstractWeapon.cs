@@ -10,18 +10,20 @@ public abstract class AbstractWeapon : MonoBehaviour
     public ComponentSO[] m_weaponComponents;
     [Space]
     [Header("Stats")]
-
-    public float m_AttackRange;
-    public float m_AttackRate;
     public float m_AttackDamage;
     public bool m_CanAttack = true;
 
     [Header("Ammo")]
     public int m_CurrentAmmo;
     public int m_maxAmmo;
+    [Header("Fire Delay")]
+    public float m_CurrentFireDelay;
+    public float m_FireDelay;
 
-    public float m_CurrentReloadTime;
-    public float m_ReloadTime;
+    [Header("Reload Time")]
+
+    public float m_CurrentRechargeTime;
+    public float m_RechargeTime;
 
     [Header("FirePoint")]
     public Transform _firePoint;
@@ -48,8 +50,7 @@ public abstract class AbstractWeapon : MonoBehaviour
             Debug.Log("Weapon Data Null");
             return;
         }
-        m_AttackRange = m_WeaponData.AttackRange;
-        m_AttackRate = m_WeaponData.AttackRate;
+        m_FireDelay = m_WeaponData.AttackDelay;
         m_AttackDamage = m_WeaponData.AttackDamage;
 
 
@@ -63,8 +64,8 @@ public abstract class AbstractWeapon : MonoBehaviour
         meshPrefab = m_WeaponData.meshPrefab;
 
         //Ammo
-        m_ReloadTime = m_WeaponData.ReloadTime;
-        m_CurrentReloadTime = 0;
+        m_RechargeTime = m_WeaponData.ReloadTime;
+        m_CurrentRechargeTime = 0;
         m_CurrentAmmo = m_WeaponData.MaxAmmo;
         m_maxAmmo = m_WeaponData.MaxAmmo;
 
@@ -93,10 +94,41 @@ public abstract class AbstractWeapon : MonoBehaviour
 
     public virtual void Update()
     {
-        if (m_CurrentReloadTime > 0)
+        HandleFireRateTimer();
+        HandleRechargeTimer();
+    }
+
+    public virtual void HandleFireRateTimer()
+    {
+        if (m_CurrentFireDelay < m_FireDelay)
         {
-            m_CurrentReloadTime -= Time.deltaTime;
-            if (m_CurrentReloadTime <= 0)
+            m_CurrentFireDelay += Time.deltaTime;
+
+
+
+
+            if (m_CurrentFireDelay > m_FireDelay && m_CurrentAmmo > 0)
+            {
+
+                m_CanAttack = true;
+
+            }
+        }
+
+    }
+    public virtual void HandleRechargeTimer()
+    {
+        if (m_CurrentRechargeTime < m_RechargeTime)
+        {
+            m_CurrentRechargeTime += Time.deltaTime;
+
+            EventBus<OnUpdatedRechargeTime>.Raise(new OnUpdatedRechargeTime
+            {
+                time = m_CurrentRechargeTime,
+                maxTime = m_RechargeTime
+            });
+
+            if (m_CurrentRechargeTime >= m_RechargeTime)
             {
                 m_CurrentAmmo = m_WeaponData.MaxAmmo;
 
@@ -107,6 +139,7 @@ public abstract class AbstractWeapon : MonoBehaviour
                     maxAmmo = m_maxAmmo
                 });
 
+                EventBus<OnEndedRechargeTime>.Raise(new OnEndedRechargeTime());
                 m_CanAttack = true;
             }
         }

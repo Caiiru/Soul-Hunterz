@@ -2,34 +2,33 @@ using UnityEngine;
 
 public class SimpleWeapon : AbstractWeapon
 {
-    [Header("Bullet Settings")]
-    private float nextFire = 0.0f;
     public override void Attack()
     {
         base.Attack();
+
         if (!m_CanAttack) return;
-        if (Time.time >= nextFire)
+        m_CanAttack = false;
+
+        Shoot();
+
+
+        m_CurrentFireDelay = 0;
+        m_CurrentAmmo--;
+
+
+        EventBus<OnPlayerAttack>.Raise(new OnPlayerAttack());
+        EventBus<OnAmmoChanged>.Raise(new OnAmmoChanged
         {
+            currentAmmo = m_CurrentAmmo,
+            maxAmmo = m_maxAmmo
+        });
 
-            Shoot();
-            nextFire = Time.time + m_AttackRate;
-            m_CurrentAmmo--;
-
-            EventBus<OnPlayerAttack>.Raise(new OnPlayerAttack());
-            EventBus<OnAmmoChanged>.Raise(new OnAmmoChanged
-            {
-                currentAmmo = m_CurrentAmmo,
-                maxAmmo = m_maxAmmo
-            });
-
-            if (m_CurrentAmmo <= 0)
-            {
-                m_CurrentReloadTime = m_ReloadTime;
-                m_CanAttack = false;
-                return;
-            }
+        if (m_CurrentAmmo <= 0)
+        {
+            m_CurrentRechargeTime = 0;
         }
     }
+
 
     public void Shoot()
     {

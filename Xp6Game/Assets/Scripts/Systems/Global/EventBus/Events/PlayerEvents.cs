@@ -52,6 +52,17 @@ public class OnAmmoChanged : IEvent
     public int currentAmmo;
     public int maxAmmo;
 }
+
+public class OnUpdatedRechargeTime:IEvent
+{
+    public float time;
+    public float maxTime;
+}
+public class OnEndedRechargeTime : IEvent
+{
+    
+}
+
 public class OnPlayerChangeState : IEvent
 {
     public PlayerStates newState;
