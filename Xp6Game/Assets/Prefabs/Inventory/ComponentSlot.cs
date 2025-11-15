@@ -43,7 +43,7 @@ public class ComponentSlot : MonoBehaviour
 
         currentComponent = component.componentData;
         if (weapon != null)
-            weapon.weaponComponents[slotPosition] = currentComponent;
+            weapon.m_weaponComponents[slotPosition] = currentComponent;
     }
 
 
@@ -55,7 +55,7 @@ public class ComponentSlot : MonoBehaviour
         this.currentComponentUI = null;
         if (weapon == null) return;
 
-        weapon.weaponComponents[slotPosition] = null;
+        weapon.m_weaponComponents[slotPosition] = null;
     }
 
     public bool isEmpty()
