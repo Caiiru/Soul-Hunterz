@@ -24,5 +24,9 @@ public class WeaponSO : ScriptableObject
     [Header("Components Params")]
     public List<ComponentSO> components;
 
+    [Header("VFX")]
+    public GameObject m_MuzzleVFX; 
+    
+
 
 }

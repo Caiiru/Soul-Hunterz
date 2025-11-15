@@ -34,7 +34,9 @@ public abstract class AbstractWeapon : MonoBehaviour
     public string Description;
     public int Rarity;
     public Color RarityColor;
-    public GameObject meshPrefab;
+
+    [Header("VFX")]
+    public GameObject m_MuzzleGO;
 
     public virtual void Start()
     {
@@ -61,19 +63,13 @@ public abstract class AbstractWeapon : MonoBehaviour
         RarityColor = m_WeaponData.RarityColor;
 
         m_weaponComponents = m_WeaponData.components.ToArray();
-        meshPrefab = m_WeaponData.meshPrefab;
 
         //Ammo
         m_RechargeTime = m_WeaponData.ReloadTime;
-        m_CurrentRechargeTime = 0;
+        m_CurrentRechargeTime = m_RechargeTime;
         m_CurrentAmmo = m_WeaponData.MaxAmmo;
         m_maxAmmo = m_WeaponData.MaxAmmo;
 
-        if (meshPrefab == null)
-        {
-            Debug.LogError("Weaponn without mesh");
-            return;
-        }
         GameObject mesh = Instantiate(m_WeaponData.meshPrefab, transform);
         _firePoint = mesh.transform.Find("FirePoint");
 
@@ -83,7 +79,7 @@ public abstract class AbstractWeapon : MonoBehaviour
         m_bulletPrefab = m_WeaponData.BulletPrefab;
         m_CanAttack = true;
 
-        Debug.Log("Weapon initialized");
+        m_MuzzleGO = m_WeaponData.m_MuzzleVFX;
 
     }
 
@@ -146,7 +142,9 @@ public abstract class AbstractWeapon : MonoBehaviour
     }
     public virtual void Attack()
     {
-
+        if (!m_CanAttack) return;
+        GameObject _muzzle = Instantiate(m_MuzzleGO, _firePoint.position, _firePoint.rotation);
+        Destroy(_muzzle, 5f);
 
     }
 }
