@@ -187,8 +187,8 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
 
 
-        if (cameraShakeManager.instance != null && m_impulseSource != null)
-            cameraShakeManager.instance.CameraShake(m_impulseSource);
+       // if (cameraShakeManager.instance != null && m_impulseSource != null)
+        //    cameraShakeManager.instance.CameraShake(m_impulseSource);
 
 
     }
