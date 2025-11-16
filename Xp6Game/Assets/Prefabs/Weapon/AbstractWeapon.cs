@@ -38,12 +38,25 @@ public abstract class AbstractWeapon : MonoBehaviour
     [Header("VFX")]
     public GameObject m_MuzzleGO;
 
+
+    //Events
+
+    EventBinding<OnComponentUpdate> m_OnComponentUpdateBinding;
+
     public virtual void Start()
     {
+        BindEvents();
     }
     void OnEnable()
     {
         // InitializeWeapon();
+    }
+
+    protected void BindEvents()
+    {
+        m_OnComponentUpdateBinding = new EventBinding<OnComponentUpdate>(ReadComponents);
+        EventBus<OnComponentUpdate>.Register(m_OnComponentUpdateBinding);
+
     }
     public virtual void InitializeWeapon()
     {
@@ -67,8 +80,6 @@ public abstract class AbstractWeapon : MonoBehaviour
         //Ammo
         m_RechargeTime = m_WeaponData.ReloadTime;
         m_CurrentRechargeTime = m_RechargeTime;
-        m_CurrentAmmo = m_WeaponData.MaxAmmo;
-        m_maxAmmo = m_WeaponData.MaxAmmo;
 
         GameObject mesh = Instantiate(m_WeaponData.meshPrefab, transform);
         _firePoint = mesh.transform.Find("FirePoint");
@@ -80,6 +91,21 @@ public abstract class AbstractWeapon : MonoBehaviour
         m_CanAttack = true;
 
         m_MuzzleGO = m_WeaponData.m_MuzzleVFX;
+
+        var payload = new BulletPayload();
+        //Load weapon payload
+
+        ReadComponents();
+
+        // m_maxAmmo = m_WeaponData.MaxAmmo;
+        // m_maxAmmo += payload.MaxAmmo;
+
+
+        m_CurrentAmmo = m_WeaponData.MaxAmmo;
+
+
+        UpdateAmmoVisual();
+
 
     }
 
@@ -126,20 +152,67 @@ public abstract class AbstractWeapon : MonoBehaviour
 
             if (m_CurrentRechargeTime >= m_RechargeTime)
             {
-                m_CurrentAmmo = m_WeaponData.MaxAmmo;
+                m_CurrentAmmo = m_maxAmmo;
 
-
-                EventBus<OnAmmoChanged>.Raise(new OnAmmoChanged
-                {
-                    currentAmmo = m_CurrentAmmo,
-                    maxAmmo = m_maxAmmo
-                });
+                UpdateAmmoVisual();
 
                 EventBus<OnEndedRechargeTime>.Raise(new OnEndedRechargeTime());
                 m_CanAttack = true;
             }
         }
     }
+
+    public BulletPayload EncodeWeaponStatsOnPayload()
+    {
+        var payload = new BulletPayload();
+        //Load weapon payload
+        BulletSO bulletData = GetBullet();
+
+        payload.AttackDelay = m_FireDelay;
+        payload.SpeedFlat = bulletData.Speed;
+        payload.SpeedMultiplier = 1;
+        payload.FlatLifeTime = bulletData.LifeTime;
+        payload.LifetimeMultiplier = 1;
+        payload.BonusDamage = 0;
+        payload.RechargeTime = m_RechargeTime;
+        payload.MaxAmmo = m_WeaponData.MaxAmmo;
+
+        return payload;
+    }
+    /// <summary>
+    /// when player put a new component, update the weapon payload & stats
+    /// </summary>
+    public void ReadComponents()
+    {
+
+        var payload = EncodeWeaponStatsOnPayload();
+        foreach (var component in m_weaponComponents)
+        {
+            if (component == null) continue;
+            payload = component.InitializeOnWeapon(payload);
+        }
+
+        //Weapon Stats
+        m_maxAmmo = payload.MaxAmmo;
+        m_CurrentAmmo = m_CurrentAmmo > m_maxAmmo ? m_maxAmmo : m_CurrentAmmo;
+
+        m_FireDelay = payload.AttackDelay;
+        m_RechargeTime = payload.RechargeTime;
+
+        UpdateAmmoVisual();
+
+
+    }
+
+    private void UpdateAmmoVisual()
+    {
+        EventBus<OnAmmoChanged>.Raise(new OnAmmoChanged
+        {
+            currentAmmo = m_CurrentAmmo,
+            maxAmmo = m_maxAmmo
+        });
+    }
+
     public virtual void Attack()
     {
         if (!m_CanAttack) return;

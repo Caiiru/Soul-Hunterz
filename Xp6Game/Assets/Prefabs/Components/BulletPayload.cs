@@ -14,9 +14,13 @@ public class BulletPayload
     public float SpreadDistance { get; set; } = 0f;
 
     // Modificadores de Atributos da Bala
+    public float SpeedFlat { get; set; } = 0f;
     public float SpeedMultiplier { get; set; } = 1.0f;
     public float LifetimeMultiplier { get; set; } = 1.0f;
     public float FlatLifeTime { get; set; } = 0f;
+    public float AttackDelay { get; set; } = 0f;
+    public float RechargeTime { get; set; } = 0f;
+    public int MaxAmmo { get; set; } = 0;
 
 
     public List<ComponentSO> UpdatePayload = new List<ComponentSO>();

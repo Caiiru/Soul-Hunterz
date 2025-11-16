@@ -44,6 +44,8 @@ public abstract class Bullet : MonoBehaviour
         // Aplica modificadores do payload
         this.Direction = direction;
         this.BonusDamage = (int)payload.BonusDamage;
+
+        this.Speed += payload.SpeedFlat;
         this.Speed *= payload.SpeedMultiplier;
 
         this.LifeTime += payload.FlatLifeTime;

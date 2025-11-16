@@ -14,12 +14,10 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     protected float m_speed = 3.5f;
     protected float m_attackRange = 1.5f;
     protected float m_attackCooldown = 2f;
-
-    [SerializeField]
     private float m_attackTimer = 0;
 
     [Tooltip("Does this enemy use a NavMeshAgent for movement?")]
-    [SerializeField] bool m_hasNavMesh;
+    bool m_hasNavMesh;
     protected NavMeshAgent m_navMesh;
     protected StateMachine m_stateMachine;
 
@@ -55,11 +53,9 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         // entityData = enemyData;
         // base.OnEnable();
-        if (m_DebugMode)
-        {
-            // SetData(entityData as EnemySO);
-            Initialize();
-        }
+        // SetData(entityData as EnemySO);
+        Initialize();
+        m_hasNavMesh = true;
         m_animator = GetComponentInChildren<Animator>();
 
 
