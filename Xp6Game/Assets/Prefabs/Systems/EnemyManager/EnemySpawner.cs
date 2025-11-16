@@ -157,7 +157,7 @@ public class EnemySpawner : MonoBehaviour
         GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
         m_EnemiesActive++;
         enemy.SetActive(true);
-        enemy.GetComponent<Enemy<EnemySO>>().Initialize();
+        // enemy.GetComponent<Enemy<EnemySO>>().Initialize();
 
         await UniTask.CompletedTask;
     }

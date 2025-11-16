@@ -20,7 +20,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
     [Header("Component UI")]
     public Vector3 normalScale;
-    public Vector3 dragScale; 
+    public Vector3 dragScale;
 
 
     public ComponentSO componentData;
@@ -88,6 +88,8 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
         currentSlot.ClearSlot();
 
+        EventBus<OnComponentUpdate>.Raise(new OnComponentUpdate());
+
         // this.transform.SetParent(canvasParent);
     }
     public void OnEndDrag(PointerEventData eventData)
@@ -97,8 +99,8 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 
         Collider2D hitCollider = Physics2D.OverlapPoint(transform.position);
         var overlap = Physics2D.OverlapCircleAll(transform.position, 1f);
-        
-      
+
+
 
         if (hitCollider.TryGetComponent(out ComponentSlot componentSlot))
         {
@@ -119,7 +121,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
             });
 
             Destroy(this.gameObject);
-            return; 
+            return;
         }
         if (hitCollider != null)
         {
@@ -133,6 +135,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
             _oldParent.GetComponent<ComponentSlot>().OverrideComponent(this);
 
         });
+
 
 
     }

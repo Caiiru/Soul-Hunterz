@@ -28,6 +28,7 @@ public class SimpleWeapon : AbstractWeapon
             m_CurrentRechargeTime = 0;
         }
     }
+    
 
 
     public void Shoot()
@@ -41,7 +42,7 @@ public class SimpleWeapon : AbstractWeapon
             if (component == null) continue;
             payload = component.Execute(payload, _firePoint, m_currentIndexSlot);
         }
-
+        m_maxAmmo += payload.MaxAmmo;
         // 3. Dispara as balas com base no payload final.
         FireBullets(payload);
     }

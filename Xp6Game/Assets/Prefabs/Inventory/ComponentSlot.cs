@@ -42,8 +42,13 @@ public class ComponentSlot : MonoBehaviour
 
 
         currentComponent = component.componentData;
-        if (weapon != null)
-            weapon.m_weaponComponents[slotPosition] = currentComponent;
+        if (weapon == null) return;
+
+
+        weapon.m_weaponComponents[slotPosition] = currentComponent;
+
+        EventBus<OnComponentUpdate>.Raise(new OnComponentUpdate());
+        // weapon.ReadComponents();
     }
 
 
