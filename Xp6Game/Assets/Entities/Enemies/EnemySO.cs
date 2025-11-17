@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class EnemySO : EntitySO
 {
-    public string m_name = "Enemy";
     [Header("Enemy Settings")]
     public float m_MoveSpeed = 3.5f;
     public float m_AttackRange = 1.5f;

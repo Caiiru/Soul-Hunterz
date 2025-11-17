@@ -17,9 +17,9 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     private float m_attackTimer = 0;
 
     [Tooltip("Does this enemy use a NavMeshAgent for movement?")]
-    bool m_hasNavMesh;
-    protected NavMeshAgent m_navMesh;
-    protected StateMachine m_stateMachine;
+    [SerializeField] bool m_hasNavMesh = true;
+    [SerializeField] protected NavMeshAgent m_navMesh;
+    [SerializeField] protected StateMachine m_stateMachine;
 
 
     [SerializeField] private Transform m_targetTransform;
@@ -73,18 +73,20 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
         m_attackCooldown = m_entityData.m_AttackCooldown;
 
 
-        if (m_hasNavMesh)
+        if (TryGetComponent<NavMeshAgent>(out m_navMesh))
         {
-            if (TryGetComponent<NavMeshAgent>(out m_navMesh))
-            {
-                // Debug.Log("Im have navmesh");
-                m_navMesh.enabled = true;
-            }
-
-            m_navMesh.speed = m_speed;
-            m_navMesh.stoppingDistance = m_attackRange;
-
+            // Debug.Log("Im have navmesh");
+            m_navMesh.enabled = true;
         }
+        else
+        {
+            Debug.LogError($"Enemy without navmesh:{transform.name} ");
+        }
+
+        m_navMesh.speed = m_speed;
+        m_navMesh.stoppingDistance = m_attackRange;
+
+
 
         if (TryGetComponent(out StateMachine comp))
         {
@@ -183,7 +185,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
 
 
-       // if (cameraShakeManager.instance != null && m_impulseSource != null)
+        // if (cameraShakeManager.instance != null && m_impulseSource != null)
         //    cameraShakeManager.instance.CameraShake(m_impulseSource);
 
 
@@ -206,6 +208,11 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         DropSoul();
 
+        EventBus<OnEnemyDied>.Raise(new OnEnemyDied
+        {
+            enemyID = m_entityData.m_name,
+            deathPosition = transform.position
+        });
 
         await UniTask.Delay(2 * k_Milliseconds);
         var m_AnimationClipInfo = m_animator.GetCurrentAnimatorClipInfo(0)[0].clip.length;
@@ -221,6 +228,8 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
         await UniTask.Delay(3 * k_Milliseconds);
 
 
+
+
         // Debug.Log("Enemy died");
         // await base.Die();
         Destroy(this.gameObject);
@@ -231,6 +240,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         var m_DeathEvent = new SpawnSoulEvent { spawnPosition = this.transform.position, soulAmount = GetSoulValue() };
         EventBus<SpawnSoulEvent>.Raise(m_DeathEvent);
+
     }
     protected virtual void SpawnHitVFX()
     {
