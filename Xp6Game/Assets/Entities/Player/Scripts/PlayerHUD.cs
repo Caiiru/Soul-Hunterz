@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -44,10 +45,18 @@ public class PlayerHUD : MonoBehaviour
 
     [Header("Player Health")]
     //Player Health
+    public bool m_isHealthTextActivated = false;
     public Transform m_PlayerHealthCanvas;
     private int m_currentHealth;
     private int m_maxHealth;
     public TextMeshProUGUI m_playerHealthText;
+
+    //Player Health Image
+    public bool m_isHealthImageActivated = false;
+    public Image m_playerHealthImage;
+    public Transform m_PlayerHealthImageTransform;
+
+
 
     [Header("Ammo")]
     public GameObject m_ammoVisualHolder;
@@ -166,6 +175,7 @@ public class PlayerHUD : MonoBehaviour
             m_currentHealth = eventData.currentHealth;
             m_maxHealth = eventData.maxHealth;
             UpdatePlayerHealthText();
+            UpdatePlayerHealthImage();
 
         });
         EventBus<OnSetPlayerHealthEvent>.Register(m_OnSetHealthEvent);
@@ -236,11 +246,16 @@ public class PlayerHUD : MonoBehaviour
     {
         m_currentHealth -= arg0.value;
         UpdatePlayerHealthText();
+        UpdatePlayerHealthImage();
 
     }
     private void UpdatePlayerHealthText()
     {
         m_playerHealthText.text = $"Health: {m_currentHealth}/{m_maxHealth}";
+    }
+    private void UpdatePlayerHealthImage()
+    {
+        m_playerHealthImage.fillAmount = (float)m_currentHealth / (float)m_maxHealth;
     }
 
 
@@ -405,7 +420,13 @@ public class PlayerHUD : MonoBehaviour
         _messageTransform.gameObject.SetActive(false);
         _interactTransform.gameObject.SetActive(true);
         // _inventoryTransform.GetComponent<Canvas>().enabled = true;
-        m_PlayerHealthCanvas.gameObject.SetActive(true);
+        if (m_isHealthTextActivated)
+            m_PlayerHealthCanvas.gameObject.SetActive(true);
+
+        if (m_isHealthImageActivated)
+            m_PlayerHealthImageTransform.gameObject.SetActive(true);
+
+
         m_playerCurrencyText.gameObject.SetActive(true);
     }
 
