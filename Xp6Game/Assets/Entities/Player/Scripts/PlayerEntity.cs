@@ -50,6 +50,8 @@ public class PlayerEntity : Entity<PlayerEntitySO>
 
     [SerializeField] bool m_die = false;
     [SerializeField] bool m_win = false;
+    [SerializeField] bool m_takeDamage = false;
+    [SerializeField] int m_damage = 10;
 
     public bool m_debug = false;
     #region Bind 
@@ -312,6 +314,12 @@ public class PlayerEntity : Entity<PlayerEntitySO>
             m_win = false;
             GameManager.Instance.WinGame();
             // ResetPlayer();
+        }
+
+        if (m_takeDamage)
+        {
+            m_takeDamage = false;
+            TakeDamage(m_damage);
         }
     }
     #endregion
