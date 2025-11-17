@@ -118,7 +118,13 @@ public class EnemySpawner : MonoBehaviour
     private Vector3 GetRandomSpawnPosition()
     {
         int randomIndex = _random.Next(enemySpawnPosition.Length);
-        return enemySpawnPosition[randomIndex].transform.position;
+
+        //Spread out the enemies
+        Vector3 randomOffset = new Vector3(_random.Next(-5, 5), 0, _random.Next(-5, 5));
+        return enemySpawnPosition[randomIndex].transform.position + randomOffset;
+
+
+        // return enemySpawnPosition[randomIndex].transform.position;
     }
 
 
@@ -138,7 +144,7 @@ public class EnemySpawner : MonoBehaviour
             }
         }
         spawnInterval = data.m_spawnRate;
- 
+
         await SpawnNextInQueue();
     }
     public async UniTask SpawnNextInQueue()
@@ -161,6 +167,8 @@ public class EnemySpawner : MonoBehaviour
 
         await UniTask.CompletedTask;
     }
+
+
 
     public int GetActiveEnemies()
     {

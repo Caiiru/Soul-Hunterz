@@ -73,18 +73,20 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
         m_attackCooldown = m_entityData.m_AttackCooldown;
 
 
-        if (m_hasNavMesh)
+        if (TryGetComponent<NavMeshAgent>(out m_navMesh))
         {
-            if (TryGetComponent<NavMeshAgent>(out m_navMesh))
-            {
-                // Debug.Log("Im have navmesh");
-                m_navMesh.enabled = true;
-            }
-
-            m_navMesh.speed = m_speed;
-            m_navMesh.stoppingDistance = m_attackRange;
-
+            // Debug.Log("Im have navmesh");
+            m_navMesh.enabled = true;
         }
+        else
+        {
+            Debug.LogError($"Enemy without navmesh:{transform.name} ");
+        }
+
+        m_navMesh.speed = m_speed;
+        m_navMesh.stoppingDistance = m_attackRange;
+
+
 
         if (TryGetComponent(out StateMachine comp))
         {
@@ -220,6 +222,9 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         await UniTask.Delay(3 * k_Milliseconds);
 
+        EventBus<OnEnemyDied>.Raise(new OnEnemyDied());
+
+
 
         // Debug.Log("Enemy died");
         // await base.Die();
@@ -231,6 +236,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         var m_DeathEvent = new SpawnSoulEvent { spawnPosition = this.transform.position, soulAmount = GetSoulValue() };
         EventBus<SpawnSoulEvent>.Raise(m_DeathEvent);
+
     }
     protected virtual void SpawnHitVFX()
     {

@@ -19,7 +19,7 @@ public class StateMachine : MonoBehaviour
 
 
     //Events
-
+    [Space]
     public UnityEvent m_OnAttack;
     public UnityEvent<int> m_OnTakeDamage;
 
@@ -39,6 +39,10 @@ public class StateMachine : MonoBehaviour
         m_OnAttack = new UnityEvent();
         m_OnTakeDamage = new UnityEvent<int>();
 
+        Debug.Log("StateMachine Initialized");
+
+        currentState.BeginState(this);
+
 
 
         return UniTask.CompletedTask;
@@ -48,6 +52,8 @@ public class StateMachine : MonoBehaviour
     void Update()
     {
         if (!isActive) return;
+
+        Debug.Log("Update State Machine");
         currentState.UpdateState(this);
     }
     public void TransitionToState(State trueState)

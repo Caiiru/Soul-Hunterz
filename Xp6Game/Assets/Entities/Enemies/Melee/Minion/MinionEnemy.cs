@@ -22,6 +22,7 @@ public class MinionEnemy : Enemy<EnemySO>
         base.Initialize();
         m_PlayerLayerMask = 1 << 7;
         m_HitCollider = new Collider[5];
+        
 
     }
 
