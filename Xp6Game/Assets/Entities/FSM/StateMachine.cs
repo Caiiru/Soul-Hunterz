@@ -53,7 +53,7 @@ public class StateMachine : MonoBehaviour
     {
         if (!isActive) return;
 
-        Debug.Log("Update State Machine");
+        // Debug.Log("Update State Machine");
         currentState.UpdateState(this);
     }
     public void TransitionToState(State trueState)
