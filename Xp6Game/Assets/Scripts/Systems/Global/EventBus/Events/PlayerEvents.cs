@@ -1,3 +1,6 @@
+
+using UnityEngine;
+
 public class OnInteractEnterEvent : IEvent
 {
     public string InteractableName;
@@ -16,7 +19,9 @@ public class OnInteractLeaveEvent : IEvent
 
 public class OnDropComponent : IEvent
 {
+    public bool isFromPlayer; 
     public ComponentSO data;
+    public Vector3 position;
 }
 
 public class OnCollectComponent : IEvent
