@@ -20,6 +20,8 @@ public class OnGameOver : IEvent
 
 public class OnEnemyDied : IEvent
 {
+    public string enemyID;
+    public Vector3 deathPosition;
 }
 public class SpawnSoulEvent : IEvent
 {

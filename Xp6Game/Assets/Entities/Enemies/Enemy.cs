@@ -208,6 +208,11 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         DropSoul();
 
+        EventBus<OnEnemyDied>.Raise(new OnEnemyDied
+        {
+            enemyID = m_entityData.m_name,
+            deathPosition = transform.position
+        });
 
         await UniTask.Delay(2 * k_Milliseconds);
         var m_AnimationClipInfo = m_animator.GetCurrentAnimatorClipInfo(0)[0].clip.length;
@@ -222,7 +227,6 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         await UniTask.Delay(3 * k_Milliseconds);
 
-        EventBus<OnEnemyDied>.Raise(new OnEnemyDied());
 
 
 
