@@ -59,8 +59,8 @@ public class CollectableComponent : Collectable, Interactable
 
     void Update()
     {
-        if (transform.gameObject.activeSelf)
-            LookAtCamera();
+        // if (transform.gameObject.activeSelf)
+            // LookAtCamera();
     }
 
     void LookAtCamera()
