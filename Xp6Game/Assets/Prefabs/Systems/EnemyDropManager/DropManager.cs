@@ -8,8 +8,8 @@ public class DropManager : MonoBehaviour
 
 
     private Dictionary<string, DropTable> m_EnemyTables;
+    //Component Prefab 
 
-    //Random 
 
 
 
@@ -25,8 +25,7 @@ public class DropManager : MonoBehaviour
     }
     void BindObjects()
     {
-        //Make all tables a dictionary for fast read
-        m_EnemyTables.Clear();
+        //Make all tables a dictionary for fast read 
         m_EnemyTables = new Dictionary<string, DropTable>();
         foreach (var table in m_MinionTables)
         {
@@ -56,6 +55,22 @@ public class DropManager : MonoBehaviour
         DropTable _enemyTable = DecodeEnemy(arg0.enemyID);
         if (_enemyTable == null) return;
 
+        if (!CanDrop(_enemyTable))
+            return;
+
+        ComponentSO _componentToDrop = GetComponentToDrop(_enemyTable);
+        if (_componentToDrop == null) return;
+
+        Debug.Log($"Dropping {_componentToDrop.ComponentName} for {arg0.enemyID} on {arg0.deathPosition}");
+        EventBus<OnDropComponent>.Raise(new OnDropComponent
+        {
+            isFromPlayer = false,
+            data = _componentToDrop,
+            position = arg0.deathPosition
+        });
+
+
+
 
     }
 
@@ -72,8 +87,21 @@ public class DropManager : MonoBehaviour
         // roll if can drop anything
 
         float _chance = Random.Range(0, 100);
-        
+
         return _chance < _baseChance;
+    }
+
+    ComponentSO GetComponentToDrop(DropTable dropTable)
+    {
+        float _chance = Random.Range(0, 100);
+        foreach (var entry in dropTable.m_PossibleDrops)
+        {
+            if (_chance < entry.m_DropChance)
+            {
+                return entry.m_ComponentToDrop;
+            }
+        }
+        return null;
     }
 
 

@@ -15,8 +15,12 @@ public abstract class ComponentSO : ScriptableObject
 
     public virtual BulletPayload InitializeOnWeapon(BulletPayload payload)
     {
+        if (weaponStats == null)
+            return payload;
+
         foreach (WeaponStats stats in weaponStats)
         {
+            // Debug.Log(stats);
             payload = InitializeFromEnum(payload, stats);
         }
         return payload;

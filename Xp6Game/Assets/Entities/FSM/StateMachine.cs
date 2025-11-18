@@ -39,7 +39,7 @@ public class StateMachine : MonoBehaviour
         m_OnAttack = new UnityEvent();
         m_OnTakeDamage = new UnityEvent<int>();
 
-        Debug.Log("StateMachine Initialized");
+        // Debug.Log("StateMachine Initialized");
 
         currentState.BeginState(this);
 

@@ -21,7 +21,7 @@ public class CollectableComponent : Collectable, Interactable
     [SerializeField] float offsetY = 10f;
     Vector3 _startSize;
 
- 
+
 
 
     public async void Start()
@@ -59,8 +59,8 @@ public class CollectableComponent : Collectable, Interactable
 
     void Update()
     {
-        if (transform.gameObject.activeSelf)
-            LookAtCamera();
+        // if (transform.gameObject.activeSelf)
+        // LookAtCamera();
     }
 
     void LookAtCamera()
@@ -72,6 +72,9 @@ public class CollectableComponent : Collectable, Interactable
     {
         _itemIcon.sprite = componentData.Icon;
         _itemIcon.color = new Color(255, 255, 255, 255);
+        
+
+        transform.name = componentData.ComponentName;
 
     }
 
@@ -134,7 +137,7 @@ public class CollectableComponent : Collectable, Interactable
             _itemIcon.color = new Color(255, 255, 255, 0);
 
         return UniTask.CompletedTask;
-    } 
+    }
 
     public override void Interact()
     {
@@ -175,8 +178,11 @@ public class CollectableComponent : Collectable, Interactable
         transform.position = position;
         m_Rigidbody.AddForce(force, ForceMode.Impulse);
         m_Rigidbody.useGravity = true;
+
+
+        OverrideItem();
     }
- 
+
 
     public void SetComponentData(ComponentSO data)
     {

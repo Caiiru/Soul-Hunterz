@@ -216,6 +216,8 @@ public abstract class AbstractWeapon : MonoBehaviour
     public virtual void Attack()
     {
         if (!m_CanAttack) return;
+        if (m_MuzzleGO == null) return;
+        
         GameObject _muzzle = Instantiate(m_MuzzleGO, _firePoint.position, _firePoint.rotation);
         Destroy(_muzzle, 5f);
 

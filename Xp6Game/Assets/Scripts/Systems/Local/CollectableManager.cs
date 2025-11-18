@@ -1,4 +1,4 @@
-using System;
+ 
 using UnityEngine;
 
 [RequireComponent(typeof(CollectablePool))]
@@ -14,7 +14,6 @@ public class CollectableManager : MonoBehaviour
     //Events
     EventBinding<OnDropComponent> m_OnPlayerDropComponent;
     EventBinding<SpawnSoulEvent> m_OnEnemyDiedEvent;
-
     EventBinding<OnGameStart> m_OnGameStart;
 
 
@@ -39,7 +38,7 @@ public class CollectableManager : MonoBehaviour
 
     public void BindEvents()
     {
-        m_OnPlayerDropComponent = new EventBinding<OnDropComponent>(HandlePlayerDropComponent);
+        m_OnPlayerDropComponent = new EventBinding<OnDropComponent>(HandleComponentDrop);
         EventBus<OnDropComponent>.Register(m_OnPlayerDropComponent);
 
         m_OnGameStart = new EventBinding<OnGameStart>(HandleGameStart);
@@ -48,7 +47,7 @@ public class CollectableManager : MonoBehaviour
         m_OnEnemyDiedEvent = new EventBinding<SpawnSoulEvent>(HandleEnemyDied);
         EventBus<SpawnSoulEvent>.Register(m_OnEnemyDiedEvent);
 
-        
+
 
 
     }
@@ -86,7 +85,34 @@ public class CollectableManager : MonoBehaviour
         return;
     }
 
+    void HandleComponentDrop(OnDropComponent eventData)
+    {
+        if (eventData.isFromPlayer)
+        {
+            HandlePlayerDropComponent(eventData);
+            return;
+        }
+        HandleEnemyDropComponent(eventData);
+    }
 
+    void HandleEnemyDropComponent(OnDropComponent eventData)
+    {
+        GameObject collectable = _collectablePool.GetComponentCollectable();
+        if (collectable != null)
+        {
+            Vector3 m_dropPosition = new Vector3(
+                eventData.position.x,
+                eventData.position.y + 0.5f,
+                eventData.position.z
+
+            );
+
+            collectable.transform.position = m_dropPosition;
+            collectable.GetComponent<CollectableComponent>().SetComponentData(eventData.data);
+            collectable.GetComponent<CollectableComponent>().SpawnOnPosition(m_dropPosition,Vector3.zero);
+            collectable.SetActive(true);
+        }
+    }
     void HandlePlayerDropComponent(OnDropComponent eventData)
     {
         GameObject collectable = _collectablePool.GetComponentCollectable();

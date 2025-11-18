@@ -116,6 +116,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         {
             EventBus<OnDropComponent>.Raise(new OnDropComponent
             {
+                isFromPlayer=true,
                 data = this.componentData,
 
             });

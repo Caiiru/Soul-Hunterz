@@ -212,7 +212,7 @@ public class GameManager : MonoBehaviour
         if (!IsGameState(GameState.Playing)) return;
         if (enemiesDefeated >= enemiesToDefeatToWin)
         {
-            ActivateWinAltar();
+            // ActivateWinAltar();
         }
     }
     #endregion
