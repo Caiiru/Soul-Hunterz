@@ -79,6 +79,8 @@ public class PlayerHUD : MonoBehaviour
     EventBinding<OnGameReadyToStart> m_OnGameReadyToStart;
 
     EventBinding<OnGameStart> m_OnGameStartBinding;
+    EventBinding<OnGameWin> m_OnGameWinBinding;
+    EventBinding<OnPlayerDied> m_OnPlayerDiedBinding;
 
     EventBinding<OnInteractEnterEvent> m_OnInteractEnterBinding;
     EventBinding<OnInteractUpdateEvent> m_OnInteractUpdateBinding;
@@ -112,6 +114,7 @@ public class PlayerHUD : MonoBehaviour
             this.m_currentHealth = 100;
             this.m_maxHealth = 100;
             UpdatePlayerHealthText();
+            DesactivateAll();
             return;
         }
         BindEvents();
@@ -150,9 +153,21 @@ public class PlayerHUD : MonoBehaviour
         //Game Start
         m_OnGameReadyToStart = new EventBinding<OnGameReadyToStart>(HandleGameReadyToStart);
         EventBus<OnGameReadyToStart>.Register(m_OnGameReadyToStart);
-
         m_OnGameStartBinding = new EventBinding<OnGameStart>(HandleGameStart);
         EventBus<OnGameStart>.Register(m_OnGameStartBinding);
+        //Game Win
+        m_OnGameWinBinding = new EventBinding<OnGameWin>(() =>
+        {
+            DesactivateAll();
+        });
+        EventBus<OnGameWin>.Register(m_OnGameWinBinding);
+        //Game Lose
+        m_OnPlayerDiedBinding = new EventBinding<OnPlayerDied>(() =>
+        {
+            DesactivateAll();
+        });
+        EventBus<OnPlayerDied>.Register(m_OnPlayerDiedBinding);
+
 
         //Enter & Leave Interactable Zone
         m_OnInteractEnterBinding = new EventBinding<OnInteractEnterEvent>(OnInteractEnter);
@@ -404,18 +419,25 @@ public class PlayerHUD : MonoBehaviour
 
     void DesactivateAll()
     {
+        Debug.Log("Desactivating all");
         _interactTransform.gameObject.SetActive(false);
         _inventoryTransform.GetComponent<Canvas>().enabled = false;
-        m_PlayerHealthCanvas.gameObject.SetActive(false);
         m_playerCurrencyText.gameObject.SetActive(false);
         _messageTransform.gameObject.SetActive(false);
         m_ammoVisualHolder.SetActive(false);
 
+        m_PlayerHealthCanvas.gameObject.SetActive(false);
+        m_PlayerHealthImageTransform.gameObject.SetActive(false);
+
+        m_playerCurrencyText.transform.parent.gameObject.SetActive(false);
+
+
+        m_backpackVisualHolder.gameObject.SetActive(false);
     }
 
     void ActivateAll()
     {
-
+        Debug.Log("Activating All");
         m_ammoVisualHolder.SetActive(true);
         _messageTransform.gameObject.SetActive(false);
         _interactTransform.gameObject.SetActive(true);
@@ -428,6 +450,11 @@ public class PlayerHUD : MonoBehaviour
 
 
         m_playerCurrencyText.gameObject.SetActive(true);
+        m_PlayerHealthImageTransform.gameObject.SetActive(true);
+
+        m_playerCurrencyText.transform.parent.gameObject.SetActive(true);
+
+        m_backpackVisualHolder.gameObject.SetActive(true);
     }
 
     #endregion

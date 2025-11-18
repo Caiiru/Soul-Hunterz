@@ -57,11 +57,11 @@ public class CameraManager : MonoBehaviour
         m_OnGameStart = new EventBinding<OnGameStart>(HandleGameReadyToStart);
         EventBus<OnGameStart>.Register(m_OnGameStart);
 
-        m_OnGameOver = new EventBinding<OnGameOver>(HandleGameOver);
-        EventBus<OnGameOver>.Register(m_OnGameOver);
+        // m_OnGameOver = new EventBinding<OnGameOver>(HandleGameOver);
+        // EventBus<OnGameOver>.Register(m_OnGameOver);
 
-        m_OnGameWin = new EventBinding<OnGameWin>(HandleGameOver);
-        EventBus<OnGameWin>.Register(m_OnGameWin);
+        // m_OnGameWin = new EventBinding<OnGameWin>(HandleGameOver);
+        // EventBus<OnGameWin>.Register(m_OnGameWin);
     }
 
     private void HandleGameOver()
