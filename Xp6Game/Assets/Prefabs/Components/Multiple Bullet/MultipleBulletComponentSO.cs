@@ -17,7 +17,7 @@ public class MultipleBulletComponentSO : ComponentSO
         // Este componente agora apenas informa o payload sobre o comportamento de múltiplos projéteis.
         base.Execute(payload, firePoint, slotIndex);
         
-        payload.BulletCount = bulletCount;
+        payload.BulletCount += bulletCount;
         payload.SpreadDistance = distanceOffset;
         return payload;
     }
