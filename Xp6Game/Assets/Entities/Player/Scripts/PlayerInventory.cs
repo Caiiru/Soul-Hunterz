@@ -56,8 +56,7 @@ public class PlayerInventory : MonoBehaviour
 
     private void Initialize()
     {
-        //Input
-        StarterAssetsInputs.OnPlayerInventoryToggle += ToggleInventory;
+
 
         _weaponHolder = GetComponent<WeaponHolder>();
         if (!_weaponHolder) Debug.LogWarning("Weapon Holder not find");
@@ -78,7 +77,8 @@ public class PlayerInventory : MonoBehaviour
     }
     #region BindEvents
     private void BindEvents()
-    {
+    { //Input
+        StarterAssetsInputs.OnPlayerInventoryToggle += ToggleInventory;
         StarterAssetsInputs.OnChangeWeapon += ChangeWeapon;
 
         m_OnCollectSouls = new EventBinding<OnCollectSouls>(HandleCollectSoulsEvent);
@@ -114,8 +114,8 @@ public class PlayerInventory : MonoBehaviour
 
         StartCoroutine(AddDebugWeapon());
 
-        m_currency=0;
-        
+        m_currency = 0;
+
 
         EventBus<OnCollectSouls>.Raise(new OnCollectSouls { amount = 10 });
     }

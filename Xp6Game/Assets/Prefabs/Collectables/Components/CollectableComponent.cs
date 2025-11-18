@@ -72,6 +72,7 @@ public class CollectableComponent : Collectable, Interactable
     {
         _itemIcon.sprite = componentData.Icon;
         _itemIcon.color = new Color(255, 255, 255, 255);
+        
 
         transform.name = componentData.ComponentName;
 

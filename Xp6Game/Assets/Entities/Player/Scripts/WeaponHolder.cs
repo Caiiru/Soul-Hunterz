@@ -15,7 +15,7 @@ public class WeaponHolder : MonoBehaviour
     public GameObject currentWeaponGO;
     public Transform firePoint; // Point from where the weapon fires
 
-    private bool _inventoryIsOpen = true;
+    private bool _IsInventoryOpen = true;
 
     //Events
     EventBinding<OnGameStart> m_OnGameStartEventBinding;
@@ -90,7 +90,7 @@ public class WeaponHolder : MonoBehaviour
 
     void Initialize()
     {
-        _inventoryIsOpen = false;
+        _IsInventoryOpen = false;
     }
 
     async void Update()
@@ -107,7 +107,7 @@ public class WeaponHolder : MonoBehaviour
     {
         // return Input.GetButtonDown("Fire1") && currentWeapon != null && _canFire;
 
-        return m_StarterAssetsInputs.attack && currentWeapon != null && _inventoryIsOpen;
+        return m_StarterAssetsInputs.attack && currentWeapon != null && _IsInventoryOpen;
     }
 
     public async UniTask FireWeapon()
@@ -145,7 +145,7 @@ public class WeaponHolder : MonoBehaviour
     }
     private void HandleInventoryToggle(OnInventoryInputEvent eventdata)
     {
-        _inventoryIsOpen = !eventdata.isOpen;
+        _IsInventoryOpen = !eventdata.isOpen;
     }
 
 
@@ -163,7 +163,7 @@ public class WeaponHolder : MonoBehaviour
     }
     UniTask ResetGame()
     {
-        _inventoryIsOpen = false;
+        _IsInventoryOpen = false;
         Destroy(currentWeaponGO);
         currentWeapon = null;
         currentWeaponGO = null;
@@ -184,7 +184,7 @@ public class WeaponHolder : MonoBehaviour
 
     private void HandleGameStart()
     {
-        _inventoryIsOpen = true;
+        _IsInventoryOpen = true;
         // currentWeaponGO.SetActive(true);
 
     }
