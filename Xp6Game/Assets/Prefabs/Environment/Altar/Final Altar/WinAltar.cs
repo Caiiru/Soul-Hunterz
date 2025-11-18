@@ -4,6 +4,7 @@ using StarterAssets;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.VFX;
 
 public class WinAltar : MonoBehaviour, Interactable
 {
@@ -27,6 +28,8 @@ public class WinAltar : MonoBehaviour, Interactable
 
     PlayerInventory m_playerInventory;
 
+
+    public VisualEffect m_ActivatedEffect;
     #region Events
     EventBinding<OnGameStart> m_OnGameStartBinding;
     EventBinding<OnPlayerDied> m_OnPlayerDiedBinding;
@@ -51,12 +54,12 @@ public class WinAltar : MonoBehaviour, Interactable
             if (!m_soulsText.enabled)
                 m_soulsText.enabled = true;
 
-            _canInteract=true;
+            _canInteract = true;
         });
         EventBus<OnGameStart>.Register(m_OnGameStartBinding);
-        
+
         m_OnPlayerDiedBinding = new EventBinding<OnPlayerDied>(() =>
-        { 
+        {
             ResetGame();
         });
         EventBus<OnPlayerDied>.Register(m_OnPlayerDiedBinding);
@@ -73,7 +76,7 @@ public class WinAltar : MonoBehaviour, Interactable
         EventBus<OnGameStart>.Unregister(m_OnGameStartBinding);
         EventBus<OnPlayerDied>.Unregister(m_OnPlayerDiedBinding);
         EventBus<OnGameWin>.Unregister(m_OnGameWinBinding);
-    
+
         return UniTask.CompletedTask;
     }
 
@@ -85,6 +88,8 @@ public class WinAltar : MonoBehaviour, Interactable
 
         m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
         m_soulsText.enabled = false;
+
+        m_ActivatedEffect.SetBool("Active", false);
 
 
     }
@@ -151,6 +156,7 @@ public class WinAltar : MonoBehaviour, Interactable
         if (m_CurrentSouls >= m_RequiredSouls)
         {
 
+            m_ActivatedEffect.SetBool("Active", true);
             _canInteract = false;
             EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
             EventBus<OnAltarActivated>.Raise(
@@ -164,13 +170,13 @@ public class WinAltar : MonoBehaviour, Interactable
         m_CurrentSouls = 0;
         m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
         _canInteract = false;
-        if(m_AltarIndex==0){return;}
+        if (m_AltarIndex == 0) { return; }
 
         await UnbindEvents();
 
         Debug.Log($"Destroying Altar {m_AltarIndex}");
         Destroy(gameObject);
-        
+
     }
     public InteractableType GetInteractableType()
     {
