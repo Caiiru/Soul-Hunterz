@@ -36,6 +36,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     //Events
     EventBinding<OnGameWin> m_OnGameWinEventBinding;
     EventBinding<OnGameOver> m_OnGameOverBinding;
+    EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
 
 
 
@@ -131,6 +132,12 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
         EventBus<OnGameWin>.Register(m_OnGameWinEventBinding);
 
         // Debug.Log($"{transform.name} binded events");
+
+        m_OnFinalAltarActivatedBinding = new EventBinding<OnFinalAltarActivated>(() =>
+        {
+            EndGame();
+        });
+        EventBus<OnFinalAltarActivated>.Register(m_OnFinalAltarActivatedBinding);
     }
 
     private void OnTakeDamageEventListener(int v)

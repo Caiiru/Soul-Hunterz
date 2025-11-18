@@ -10,6 +10,7 @@ public class EnemyManager : MonoBehaviour
 {
 
     public WaveData[] m_Waves;
+    public WaveData m_FinalWave;
 
 
     [Header("Enemy Pool")]
@@ -27,7 +28,7 @@ public class EnemyManager : MonoBehaviour
     EventBinding<OnGameWin> m_OnGameWinEventBinding;
     EventBinding<OnGameOver> m_OnGameOverBinding;
     EventBinding<OnEnemyDied> m_OnEnemyDiedBinding;
-
+    EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
 
     [Header("Audio")]
 
@@ -81,6 +82,13 @@ public class EnemyManager : MonoBehaviour
 
             }
         }));
+
+        m_OnFinalAltarActivatedBinding = new EventBinding<OnFinalAltarActivated>(() =>
+        {
+            _enemySpawner.SetNewWave(m_FinalWave);
+            _enemySpawner.StartSpawning();
+        });
+        EventBus<OnFinalAltarActivated>.Register(m_OnFinalAltarActivatedBinding);
 
 
         m_OnEnemyDiedBinding = new EventBinding<OnEnemyDied>(OnEnemyDiedHandler);

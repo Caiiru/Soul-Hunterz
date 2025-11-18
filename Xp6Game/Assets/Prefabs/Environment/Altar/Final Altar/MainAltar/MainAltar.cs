@@ -35,6 +35,10 @@ public class MainAltar : MonoBehaviour, Interactable
 
     PlayerInventory m_playerInventory;
 
+
+    private bool m_isFinalForm = false;
+
+
     #region Events
     EventBinding<OnGameStart> m_OnGameStartBinding;
     EventBinding<OnPlayerDied> m_OnPlayerDiedBinding;
@@ -113,6 +117,8 @@ public class MainAltar : MonoBehaviour, Interactable
 
         m_MainAltar.SetBool("Active", false);
 
+        m_isFinalForm = false;
+
         //Find player inventory
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         m_playerInventory = player.GetComponent<PlayerInventory>();
@@ -148,6 +154,17 @@ public class MainAltar : MonoBehaviour, Interactable
     private void HandleNewAltarActivation(OnAltarActivated arg0)
     {
         ActivateMiniAltar(arg0.m_AltarActivatedIndex);
+
+
+        if (arg0.m_AltarActivatedIndex == 3)
+        {
+            _canInteract = true;
+            m_soulsText.gameObject.SetActive(true);
+            m_soulsText.enabled = true;
+            m_soulsText.alpha = 1f;
+            m_isFinalForm = true;
+            m_soulsText.text = "...";
+        }
     }
     void ActivatePopup()
     {
@@ -179,6 +196,18 @@ public class MainAltar : MonoBehaviour, Interactable
     {
         // Debug.Log("Player Interacted with Win Altar");
         // _canInteract = false;
+        if (m_isFinalForm)
+        {
+            EventBus<OnFinalAltarActivated>.Raise(new OnFinalAltarActivated());
+            EventBus<OnDisplayMessage>.Raise(new OnDisplayMessage { m_Message = "!" });
+
+            m_MainAltar.SetBool("Active", true);
+            EventBus<OnGameWin>.Raise(new OnGameWin());
+            return;
+            _canInteract = false;
+            m_soulsText.gameObject.SetActive(false);
+            return;
+        }
         if (m_playerInventory.GetCurrency() >= m_SoulsPerInteraction)
             m_playerInventory.RemoveCurrency(m_SoulsPerInteraction);
         else
@@ -227,6 +256,8 @@ public class MainAltar : MonoBehaviour, Interactable
         _canInteract = false;
 
         m_soulsText.gameObject.SetActive(false);
+
+        m_isFinalForm = false;
 
 
 

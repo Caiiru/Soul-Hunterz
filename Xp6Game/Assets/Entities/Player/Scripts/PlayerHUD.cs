@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
@@ -74,6 +75,10 @@ public class PlayerHUD : MonoBehaviour
     public Transform m_backpackVisualHolder;
 
 
+    //Message Queue
+    Queue<String> m_messageQueue = new Queue<String>();
+
+
     // Events
     #region Events
     EventBinding<OnGameReadyToStart> m_OnGameReadyToStart;
@@ -91,8 +96,11 @@ public class PlayerHUD : MonoBehaviour
     EventBinding<OnSetPlayerHealthEvent> m_OnSetHealthEvent;
     EventBinding<OnPlayerTakeDamage> m_OnPlayerTakeDamage;
     EventBinding<OnAmmoChanged> m_OnAmmoChangedBinding;
-
     EventBinding<OnUpdateSouls> m_OnUpdateSouls;
+    //Message HUD
+    EventBinding<OnDisplayMessage> m_OnDisplayMessageBinding;
+
+
     #endregion
 
 
@@ -203,6 +211,8 @@ public class PlayerHUD : MonoBehaviour
 
         EventBus<OnAltarActivated>.Register(new EventBinding<OnAltarActivated>(HandleMessageAltarActivated));
 
+        m_OnDisplayMessageBinding = new EventBinding<OnDisplayMessage>(HandleDisplayMessage);
+        EventBus<OnDisplayMessage>.Register(m_OnDisplayMessageBinding);
 
         //Reset
 
@@ -233,6 +243,7 @@ public class PlayerHUD : MonoBehaviour
         EventBus<OnSetPlayerHealthEvent>.Unregister(m_OnSetHealthEvent);
         EventBus<OnUpdateSouls>.Unregister(m_OnUpdateSouls);
         EventBus<OnAmmoChanged>.Unregister(m_OnAmmoChangedBinding);
+        EventBus<OnDisplayMessage>.Unregister(m_OnDisplayMessageBinding);
     }
 
     void Initialize()
@@ -328,13 +339,29 @@ public class PlayerHUD : MonoBehaviour
 
     private void HandleMessageAltarActivated(OnAltarActivated arg0)
     {
-        if (_isShowingMessage) return;
+        DisplayMessage("Altar has been activated!");
+    }
+
+    private void HandleDisplayMessage(OnDisplayMessage arg0)
+    {
+        DisplayMessage(arg0.m_Message);
+    }
+
+    void DisplayMessage(string m_text)
+    {
+        if (_isShowingMessage)
+        {
+            Debug.Log($"Enqueuing..{m_text}");
+            m_messageQueue.Enqueue(m_text);
+            return;
+        }
+
         _isShowingMessage = true;
         _messageTransform.transform.localScale = Vector3.zero;
         _messageTransform.gameObject.SetActive(true);
         _messageText.alpha = 0f;
         // _messageText.transform.localScale = Vector3.zero;
-        _messageText.text = "Altar Activated!";
+        _messageText.text = $"{m_text}";
         _messageTransform.DOScale(Vector3.one, 0.3f).SetEase(Ease.InSine).OnComplete(async () =>
         {
             // _messageText.DOText("The Altar has been activated!", 0.3f).SetEase(Ease.Linear);
@@ -352,6 +379,9 @@ public class PlayerHUD : MonoBehaviour
                 _isShowingMessage = false;
             });
         });
+
+        if (m_messageQueue.Count > 0)
+            DisplayMessage(m_messageQueue.Dequeue());
     }
 
     private void HandleGameStart(OnGameStart arg0)

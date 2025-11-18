@@ -19,7 +19,7 @@ public class OnInteractLeaveEvent : IEvent
 
 public class OnDropComponent : IEvent
 {
-    public bool isFromPlayer; 
+    public bool isFromPlayer;
     public ComponentSO data;
     public Vector3 position;
 }
@@ -58,14 +58,14 @@ public class OnAmmoChanged : IEvent
     public int maxAmmo;
 }
 
-public class OnUpdatedRechargeTime:IEvent
+public class OnUpdatedRechargeTime : IEvent
 {
     public float time;
     public float maxTime;
 }
 public class OnEndedRechargeTime : IEvent
 {
-    
+
 }
 
 public class OnPlayerChangeState : IEvent
@@ -83,3 +83,8 @@ public class OnPlayerDied : IEvent
 
 }
 
+
+public class OnDisplayMessage : IEvent
+{
+    public string m_Message;
+}

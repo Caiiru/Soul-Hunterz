@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class OnGameReadyToStart : IEvent
 {
-    
+
 }
 public class OnGameStart : IEvent
 {
@@ -42,3 +42,8 @@ public class WaveEndEvent : IEvent
 {
     public int waveIndex;
 }
+public class OnFinalAltarActivated : IEvent
+{
+
+}
+

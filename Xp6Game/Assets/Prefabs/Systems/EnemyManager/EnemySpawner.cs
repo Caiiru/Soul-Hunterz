@@ -17,20 +17,25 @@ public class EnemySpawner : MonoBehaviour
 
     [Header("Positions")]
     public GameObject[] enemySpawnPosition;
+    public GameObject[] m_EnemyFinalSpawnPositions;
 
     private EnemyManager _enemyManager;
 
     [SerializeField] private Queue<GameObject> m_enemiesToSpawn = new Queue<GameObject>();
 
 
+    bool m_isFinalForm;
+
     //Events
     EventBinding<OnEnemyDied> m_OnEnemyDiedBinding;
+    EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
 
 
     void Start()
     {
         _enemyManager = GameManager.Instance.GetEnemyManager();
         enemySpawnPosition = GameObject.FindGameObjectsWithTag("EnemySpawnPos");
+        m_EnemyFinalSpawnPositions = GameObject.FindGameObjectsWithTag("EnemyFinalPos");
 
         if (enemySpawnPosition.Length == 0)
         {
@@ -45,6 +50,17 @@ public class EnemySpawner : MonoBehaviour
     private void BindEvents()
     {
         m_OnEnemyDiedBinding = new EventBinding<OnEnemyDied>(OnEnemyDiedHandler);
+
+        m_OnFinalAltarActivatedBinding = new EventBinding<OnFinalAltarActivated>(HandlerFinalAltar);
+        EventBus<OnFinalAltarActivated>.Register(m_OnFinalAltarActivatedBinding);
+
+    }
+
+    private void HandlerFinalAltar(OnFinalAltarActivated arg0)
+    {
+        m_enemiesToSpawn.Clear();
+        m_isFinalForm = true;
+
 
     }
 
@@ -117,12 +133,20 @@ public class EnemySpawner : MonoBehaviour
 
     private Vector3 GetRandomSpawnPosition()
     {
-        int randomIndex = _random.Next(enemySpawnPosition.Length);
+
 
         //Spread out the enemies
         Vector3 randomOffset = new Vector3(_random.Next(-5, 5), 0, _random.Next(-5, 5));
-        return enemySpawnPosition[randomIndex].transform.position + randomOffset;
-
+        if (!m_isFinalForm)
+        {
+            int randomIndex = _random.Next(enemySpawnPosition.Length);
+            return enemySpawnPosition[randomIndex].transform.position + randomOffset;
+        }
+        else
+        {
+            int randomIndex = _random.Next(m_EnemyFinalSpawnPositions.Length);
+            return m_EnemyFinalSpawnPositions[randomIndex].transform.position + randomOffset;
+        }
 
         // return enemySpawnPosition[randomIndex].transform.position;
     }

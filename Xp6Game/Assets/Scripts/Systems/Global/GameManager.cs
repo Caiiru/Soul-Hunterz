@@ -41,6 +41,9 @@ public class GameManager : MonoBehaviour
 
     EventBinding<OnAltarActivated> m_OnAltarActivatedBinding;
 
+    EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
+
+
     #endregion
 
 
@@ -94,6 +97,7 @@ public class GameManager : MonoBehaviour
 
 
 
+
     #region Begin Game
     private void Start()
     {
@@ -130,13 +134,20 @@ public class GameManager : MonoBehaviour
         m_OnAltarActivatedBinding = new EventBinding<OnAltarActivated>(HandleAltarActivated);
         EventBus<OnAltarActivated>.Register(m_OnAltarActivatedBinding);
 
+
+        m_OnFinalAltarActivatedBinding = new EventBinding<OnFinalAltarActivated>(HandleFinalAltarActivated);
+        EventBus<OnFinalAltarActivated>.Register(m_OnFinalAltarActivatedBinding);
+
     }
+
+
     void UnbindEvents()
     {
         EventBus<StartGameEvent>.Unregister(m_OnMainMenuPlayButtonClicked);
         EventBus<OnAltarActivated>.Unregister(m_OnAltarActivatedBinding);
         EventBus<OnPlayerDied>.Unregister(m_OnPlayerDiedBinding);
         EventBus<OnEnemyDied>.Unregister(enemyDiedEventBinding);
+        EventBus<OnFinalAltarActivated>.Unregister(m_OnFinalAltarActivatedBinding);
     }
 
 
@@ -215,6 +226,13 @@ public class GameManager : MonoBehaviour
             // ActivateWinAltar();
         }
     }
+
+    private void HandleFinalAltarActivated(OnFinalAltarActivated arg0)
+    {
+        m_FOGHolder.gameObject.SetActive(true);
+        m_FOGHolder.transform.DOScale(m_FOGStartScale, 0.5f);
+    }
+
     #endregion
 
     void SpawnPlayer()
@@ -292,7 +310,8 @@ public class GameManager : MonoBehaviour
 
         if (m_AltarsActivated == m_MaxAltars)
         {
-            WinGame();
+            // WinGame();
+            EventBus<OnDisplayMessage>.Raise(new OnDisplayMessage { m_Message = "Return to activate the final altar" });
             return;
         }
         await SpawnNewAltar();
