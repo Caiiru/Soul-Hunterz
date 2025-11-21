@@ -29,6 +29,10 @@ public class SpawnSoulEvent : IEvent
     public int soulAmount;
 }
 
+public class OnStartAltarActivation : IEvent
+{
+
+}
 public class OnAltarActivated : IEvent
 {
     public int m_AltarActivatedIndex;

@@ -28,6 +28,12 @@ public class WinAltar : MonoBehaviour, Interactable
 
     PlayerInventory m_playerInventory;
 
+    private bool m_isActivated = false;
+
+    [Header("Timer")]
+
+    public float m_timerBetweenInteraction = 1f;
+    public float m_timer = 1f;
 
     public VisualEffect m_ActivatedEffect;
     #region Events
@@ -79,7 +85,7 @@ public class WinAltar : MonoBehaviour, Interactable
 
         return UniTask.CompletedTask;
     }
-
+    #region Initialize
     void Initialize()
     {
         transform.name = "???";
@@ -93,7 +99,9 @@ public class WinAltar : MonoBehaviour, Interactable
 
 
     }
+    #endregion
 
+    #region Trigger Events
     void OnTriggerExit(Collider collision)
     {
 
@@ -112,6 +120,8 @@ public class WinAltar : MonoBehaviour, Interactable
         }
     }
 
+    #endregion
+    #region Popup
     void ActivatePopup()
     {
 
@@ -131,6 +141,9 @@ public class WinAltar : MonoBehaviour, Interactable
         m_soulsText.transform.DOMoveY(m_soulsText.transform.position.y - m_DistanceOffsetY, interactTimeTween).SetEase(Ease.InOutSine);
         m_soulsText.DOFade(0f, interactTimeTween).OnComplete(() => m_soulsText.enabled = false);
     }
+
+    #endregion
+    #region Interact
     public bool CanInteract()
     {
         return _canInteract;
@@ -140,14 +153,49 @@ public class WinAltar : MonoBehaviour, Interactable
     {
         // Debug.Log("Player Interacted with Win Altar");
         // _canInteract = false;
+        m_isActivated = true;
+        _canInteract = false;
+        EventBus<OnStartAltarActivation>.Raise(new OnStartAltarActivation());
+
+
+        // GameManager.Instance.WinGame();
+    }
+
+
+    #endregion
+    #region Update
+
+    void Update()
+    {
+        if (!m_isActivated)
+            return;
+
+        HandleTimer();
+        if (m_timer >= m_timerBetweenInteraction)
+        {
+            GetSouls();
+            m_timer = 0;
+        }
+
+    }
+
+    private void HandleTimer()
+    {
+        m_timer += Time.deltaTime;
+
+
+    }
+    #endregion
+    #region Souls
+
+    private void GetSouls()
+    {
         if (m_playerInventory.GetCurrency() >= m_SoulsPerInteraction)
             m_playerInventory.RemoveCurrency(m_SoulsPerInteraction);
         else
             return;
         AddSouls(m_SoulsPerInteraction);
-        // GameManager.Instance.WinGame();
     }
-
 
     void AddSouls(int amount)
     {
@@ -155,7 +203,7 @@ public class WinAltar : MonoBehaviour, Interactable
         m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
         if (m_CurrentSouls >= m_RequiredSouls)
         {
-
+            m_isActivated = false;
             m_ActivatedEffect.SetBool("Active", true);
             _canInteract = false;
             EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
@@ -164,6 +212,8 @@ public class WinAltar : MonoBehaviour, Interactable
             // Debug.Log("Win");
         }
     }
+    #endregion
+    #region Reset Game
 
     public async void ResetGame()
     {
@@ -178,6 +228,7 @@ public class WinAltar : MonoBehaviour, Interactable
         Destroy(gameObject);
 
     }
+    #endregion
     public InteractableType GetInteractableType()
     {
         return InteractableType.Interactable;
