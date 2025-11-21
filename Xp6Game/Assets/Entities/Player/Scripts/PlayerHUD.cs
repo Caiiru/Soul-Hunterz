@@ -412,7 +412,9 @@ public class PlayerHUD : MonoBehaviour
     }
     void PopupInteractText()
     {
-        _interactText.transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.InBounce).OnComplete(() =>
+        if (!_interactTransform.gameObject.activeSelf)
+            _interactTransform.gameObject.SetActive(true);
+        _interactText.transform.DOScale(Vector3.one, 0.2f).SetEase(Ease.Linear).OnComplete(() =>
        {
            // _interactTransform.DOScale(Vector3.one - new Vector3(0.1f, 0.1f, 0.1f), 0.5f).SetEase(Ease.InSine).Flip();
            // _interactTransform.transform.localScale = Vector3.one;
@@ -470,7 +472,6 @@ public class PlayerHUD : MonoBehaviour
         Debug.Log("Activating All");
         m_ammoVisualHolder.SetActive(true);
         _messageTransform.gameObject.SetActive(false);
-        _interactTransform.gameObject.SetActive(true);
         // _inventoryTransform.GetComponent<Canvas>().enabled = true;
         if (m_isHealthTextActivated)
             m_PlayerHealthCanvas.gameObject.SetActive(true);
