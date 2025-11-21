@@ -41,6 +41,9 @@ public class PlayerInventory : MonoBehaviour
     EventBinding<OnCollectSouls> m_OnCollectSouls;
     EventBinding<OnGameStart> m_OnGameStartBinding;
 
+    EventBinding<OnGameWin>m_OnGameWinBinding;
+    EventBinding<OnGameOver>m_OnGameOverBinding;
+
 
     public delegate void PlayerGetWeapon(AbstractWeapon weapon, int slot);
     public static event PlayerGetWeapon OnPlayerGetWeapon;
@@ -86,6 +89,19 @@ public class PlayerInventory : MonoBehaviour
 
         m_OnGameStartBinding = new EventBinding<OnGameStart>(HandleGameStartEvent);
         EventBus<OnGameStart>.Register(m_OnGameStartBinding);
+
+        m_OnGameWinBinding = new EventBinding<OnGameWin>(() =>
+        {
+            ToggleInventory(false);
+        });
+        EventBus<OnGameWin>.Register(m_OnGameWinBinding);
+
+        m_OnGameOverBinding = new EventBinding<OnGameOver>(() =>
+        {
+            ToggleInventory(false);
+        }); 
+        EventBus<OnGameOver>.Register(m_OnGameOverBinding);
+    
 
 
 
