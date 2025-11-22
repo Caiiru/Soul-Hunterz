@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using StarterAssets;
 using UnityEngine;
@@ -41,6 +42,11 @@ public class PlayerInteract : MonoBehaviour
 		Debug.LogError( "Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
 
+
+
+        m_PlayerSouls.enabled = false;
+
+
         BindEvents();
     }
     #region Events
@@ -49,16 +55,20 @@ public class PlayerInteract : MonoBehaviour
         m_OnAltarActivated = new EventBinding<OnStartAltarActivation>(HandleAltarActivated);
         EventBus<OnStartAltarActivation>.Register(m_OnAltarActivated);
 
-        m_OnAltarEndedActivation = new EventBinding<OnAltarActivated>(HandleAltarEndedActivation);
+        m_OnAltarEndedActivation = new EventBinding<OnAltarActivated>(async (data) =>
+        {
+            await HandleAltarEndedActivation(data);
+        });
         EventBus<OnAltarActivated>.Register(m_OnAltarEndedActivation);
 
 
     }
 
-    private void HandleAltarEndedActivation(OnAltarActivated arg0)
+    private async UniTask HandleAltarEndedActivation(OnAltarActivated arg0)
     {
-        m_PlayerSouls.SetBool("Active", false);
-        m_PlayerSouls.SetVector3("TargetPoint", Vector3.zero);
+        // m_PlayerSouls.enabled = false;
+        await UniTask.Delay(3000);
+        // m_PlayerSouls.SetVector3("TargetPoint", Vector3.zero);
     }
 
 
@@ -132,20 +142,13 @@ public class PlayerInteract : MonoBehaviour
 
         if (_nearbyInteractable.TryGetComponent<WinAltar>(out WinAltar _winAltar))
         {
-            m_PlayerSouls.SetBool("Active", true);
-            Vector3 _position = _nearbyInteractable.position;
-            _position.y = 1f;
-            m_PlayerSouls.SetVector3("TargetPoint", _position);
-        }
-        else
-        {
-            m_PlayerSouls.SetBool("Active", false);
-            m_PlayerSouls.SetVector3("TargetPoint", Vector3.zero);
-
+            m_PlayerSouls.enabled = true;
+            Vector3 _position = _nearbyInteractable.GetChild(0).transform.position;
+ 
+            m_PlayerSouls.SetVector3("Target Position", _position);
         }
 
 
-        return;
 
     }
 
