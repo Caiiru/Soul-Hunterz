@@ -224,7 +224,7 @@ public class PlayerHUD : MonoBehaviour
         //Update Currency
         m_OnUpdateSouls = new EventBinding<OnUpdateSouls>(async (data) =>
         {
-            Debug.Log("Update Souls Event Called");
+            // Debug.Log("Update Souls Event Called");
             await HandleUpdateCurrencyEvent(data);
         });
         EventBus<OnUpdateSouls>.Register(m_OnUpdateSouls);

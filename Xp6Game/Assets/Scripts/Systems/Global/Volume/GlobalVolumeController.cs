@@ -121,7 +121,7 @@ public class GlobalVolumeController : MonoBehaviour
         {
             float _timeProgress = elapsed / duration;
 
-            Debug.Log(_timeProgress);
+            // Debug.Log(_timeProgress);
 
             targetVolume.weight += _timeProgress;
 
