@@ -41,6 +41,7 @@ public class OnUpdateSouls : IEvent
 public class OnPlayerTakeDamage : IEvent
 {
     public int value;
+    public int currentHealth; 
 }
 public class OnSetPlayerHealthEvent : IEvent
 {
