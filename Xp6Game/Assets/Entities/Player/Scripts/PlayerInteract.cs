@@ -32,7 +32,7 @@ public class PlayerInteract : MonoBehaviour
 
     void Start()
     {
-#if ENABLE_INPUT_SYSTEM 
+#if ENABLE_INPUT_SYSTEM
         _playerInput = GetComponent<StarterAssetsInputs>();
 
         GetComponent<BoxCollider>().size = new Vector3(interactRadius, interactRadius, interactRadius);
@@ -138,14 +138,18 @@ public class PlayerInteract : MonoBehaviour
             return;
 
         }
-        _nearbyInteractable.GetComponent<Interactable>().Interact();
 
         if (_nearbyInteractable.TryGetComponent<WinAltar>(out WinAltar _winAltar))
         {
+            if(!_winAltar.CanInteract()) return;
             m_PlayerSouls.enabled = true;
             Vector3 _position = _nearbyInteractable.GetChild(0).transform.position;
- 
+
             m_PlayerSouls.SetVector3("Target Position", _position);
+            _winAltar.Interact();
+        }
+        else{
+            _nearbyInteractable.GetComponent<Interactable>().Interact();
         }
 
 

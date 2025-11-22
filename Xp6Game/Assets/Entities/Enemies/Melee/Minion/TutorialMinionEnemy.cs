@@ -49,7 +49,7 @@ public class TutorialMinionEnemy : Enemy<EnemySO>
             m_animator.SetTrigger("Attack");
 
             // var m_hitPlayer = Physics.CheckBox(transform.position + Vector3.forward, Vector3.one, Quaternion.identity, m_PlayerLayerMask);
-            // Debug.DrawLine(transform.position, transform.position + Vector3.forward, Color.green); 
+            // Debug.DrawLine(transform.position, transform.position + Vector3.forward, Color.green);
 
             int m_hitCount = Physics.OverlapSphereNonAlloc(transform.position + Vector3.forward, m_entityData.m_AttackRange, m_HitCollider, m_PlayerLayerMask);
 
@@ -97,10 +97,10 @@ public class TutorialMinionEnemy : Enemy<EnemySO>
 
 
         transform.DOMoveY(transform.position.y - 2f, 2).SetEase(Ease.Linear);
+        Instantiate(m_DropMap, transform.position, Quaternion.identity);
 
 
         await UniTask.Delay(2 * k_Milliseconds);
-        Instantiate(m_DropMap, transform.position, Quaternion.identity);
 
 
 
