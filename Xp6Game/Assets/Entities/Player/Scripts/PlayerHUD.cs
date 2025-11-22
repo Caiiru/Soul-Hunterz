@@ -216,6 +216,7 @@ public class PlayerHUD : MonoBehaviour
         //Update Currency
         m_OnUpdateSouls = new EventBinding<OnUpdateSouls>(async (data) =>
         {
+            Debug.Log("Update Souls Event Called");
             await HandleUpdateCurrencyEvent(data);
         });
         EventBus<OnUpdateSouls>.Register(m_OnUpdateSouls);
@@ -328,7 +329,7 @@ public class PlayerHUD : MonoBehaviour
         }
         catch (OperationCanceledException e)
         {
-            Debug.LogError(e.Message);
+
         }
         finally
         {
@@ -438,7 +439,7 @@ public class PlayerHUD : MonoBehaviour
 
     private void HandleMapCollected()
     {
-        // m_isTutorial=false;
+        m_isTutorial = false;
         m_backpackVisualHolder.transform.localScale = Vector3.zero;
         m_backpackVisualHolder.gameObject.SetActive(true);
         m_backpackVisualHolder.transform.DOScale(1f, 1.5f).SetEase(Ease.OutBounce);

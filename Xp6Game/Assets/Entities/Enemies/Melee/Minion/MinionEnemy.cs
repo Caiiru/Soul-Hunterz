@@ -68,8 +68,7 @@ public class MinionEnemy : Enemy<EnemySO>
     }
     protected override UniTask Die()
     {
-        // return base.Die();
-        return UniTask.CompletedTask;
+        return base.Die(); 
 
     }
 

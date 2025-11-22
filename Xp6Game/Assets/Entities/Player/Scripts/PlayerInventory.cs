@@ -11,7 +11,7 @@ public class PlayerInventory : MonoBehaviour
 {
     [Header("Inventory")]
     bool m_canOpenInventory;
-    [SerializeField] bool isInventoryOpen = false; 
+    [SerializeField] bool isInventoryOpen = false;
 
 
     [Header("Weapons and Components")]
@@ -112,8 +112,8 @@ public class PlayerInventory : MonoBehaviour
         EventBus<OnGameOver>.Register(m_OnGameOverBinding);
 
         m_OnTutorialMapCollected = new EventBinding<OnMapCollected>(() =>
-        { 
-            m_canOpenInventory=true;
+        {
+            m_canOpenInventory = true;
 
         });
         EventBus<OnMapCollected>.Register(m_OnTutorialMapCollected);
@@ -150,14 +150,14 @@ public class PlayerInventory : MonoBehaviour
         m_currency = 0;
 
 
-        EventBus<OnCollectSouls>.Raise(new OnCollectSouls { amount = 550 });
+        // EventBus<OnCollectSouls>.Raise(new OnCollectSouls { amount = 550 });
     }
     #endregion
 
 
     void ToggleInventory(bool newState)
     {
-        if(!m_canOpenInventory)return;
+        if (!m_canOpenInventory) return;
 
 
         isInventoryOpen = newState;

@@ -21,7 +21,7 @@ public class EnemyManager : MonoBehaviour
     Transform _enemyHolder;
 
     public int m_currentWave = 0;
- 
+
 
     //Events
 
@@ -29,6 +29,8 @@ public class EnemyManager : MonoBehaviour
     EventBinding<OnGameOver> m_OnGameOverBinding;
     EventBinding<OnEnemyDied> m_OnEnemyDiedBinding;
     EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
+
+    EventBinding<OnMapCollected> m_OnTutorialFinished;
 
     [Header("Audio")]
 
@@ -72,13 +74,19 @@ public class EnemyManager : MonoBehaviour
         });
         EventBus<OnGameWin>.Register(m_OnGameWinEventBinding);
 
+        m_OnTutorialFinished = new EventBinding<OnMapCollected>(() =>
+        {
+            _enemySpawner.StartSpawning();
+            StartNextWave();
+        });
+        EventBus<OnMapCollected>.Register(m_OnTutorialFinished);
+
         EventBus<OnAltarActivated>.Register(new EventBinding<OnAltarActivated>((OnAltarActivated data) =>
         {
             if (data.m_AltarActivatedIndex == 0)
             {
                 //Start First Wave
-                _enemySpawner.StartSpawning();
-                StartNextWave();
+
 
             }
         }));
@@ -99,7 +107,7 @@ public class EnemyManager : MonoBehaviour
 
     private void OnEnemyDiedHandler(OnEnemyDied arg0)
     {
-        if(_enemySpawner.GetActiveEnemies() <= 7)
+        if (_enemySpawner.GetActiveEnemies() <= 7)
         {
             Debug.Log("NEXT WAVE");
             EventBus<WaveEndEvent>.Raise(new WaveEndEvent());
@@ -175,11 +183,11 @@ public class EnemyManager : MonoBehaviour
     {
         // _enemySpawner.StartSpawning(); 
 
-        
+
 
         _enemySpawner.SetNewWave(m_Waves[m_currentWave]);
         EventBus<WaveStartEvent>.Raise(new WaveStartEvent { waveIndex = m_currentWave });
-        m_currentWave= m_Waves.Length<m_currentWave-1 ? m_currentWave++:m_currentWave;
+        m_currentWave = m_Waves.Length < m_currentWave - 1 ? m_currentWave++ : m_currentWave;
 
         if (AudioManager.Instance == null) return;
         AudioManager.Instance.PlayOneShotAtPosition(m_waveStartClip, Camera.main.transform.position);
