@@ -78,28 +78,19 @@ public class GlobalVolumeController : MonoBehaviour
 
     }
 
-    async UniTask HandleWaveCleared()
+    IEnumerator HandleWaveCleared()
     {
         DesactivateAllWeights();
 
-        int delay = 1;
-        if (AltarActivatedVolume.weight != 0)
-        {
-            StartCoroutine(DoLerpToZero(AltarActivatedVolume, delay));
-        }
-        await UniTask.Delay(delay * 1000);
-
-
         if (WaveClearedVolume.weight == 0)
         {
-            StartCoroutine(DoLerpToOne(WaveClearedVolume, volumeSettings.LerpDuration));
+            StartCoroutine(DoLerpToOne(WaveClearedVolume, volumeSettings.waveClearedLerpDuration));
         }
 
-        await UniTask.Delay(delay * 1000);
+        yield return new WaitForSeconds(volumeSettings.waveClearedDelay);
 
-        StartCoroutine(DoLerpToZero(WaveClearedVolume, volumeSettings.LerpDuration));
 
-        await UniTask.Delay(delay * 1000);
+        DesactivateAllWeights();
 
         if (m_PlayerCurrentHealth <= m_PlayerHealthLimit)
         {
