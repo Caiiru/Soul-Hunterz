@@ -28,6 +28,9 @@ public class PlayerHUD : MonoBehaviour
 
     #endregion
 
+    [Header("Settings")]
+    public const float k_FadeDelay = 2.5f;
+
     [Header("Interact")]
     [SerializeField]
     Transform _interactTransform;
@@ -85,6 +88,8 @@ public class PlayerHUD : MonoBehaviour
 
     CancellationTokenSource m_HideCurrencyTk;
 
+    CancellationTokenSource m_HideHealthTk;
+
 
     // Events
     #region Events
@@ -108,6 +113,9 @@ public class PlayerHUD : MonoBehaviour
     EventBinding<OnMapCollected> m_OnMapCollectedBinding;
     //Message HUD
     EventBinding<OnDisplayMessage> m_OnDisplayMessageBinding;
+
+    //Player State
+    EventBinding<OnPlayerChangeState> m_OnPlayerStateChangedBinding;
 
 
     #endregion
@@ -221,7 +229,7 @@ public class PlayerHUD : MonoBehaviour
         });
         EventBus<OnUpdateSouls>.Register(m_OnUpdateSouls);
 
-        //Set Message 
+        //Set Message
 
         EventBus<OnAltarActivated>.Register(new EventBinding<OnAltarActivated>(HandleMessageAltarActivated));
 
@@ -246,6 +254,11 @@ public class PlayerHUD : MonoBehaviour
 
         m_OnMapCollectedBinding = new EventBinding<OnMapCollected>(HandleMapCollected);
         EventBus<OnMapCollected>.Register(m_OnMapCollectedBinding);
+
+        //Change State
+        //
+        m_OnPlayerStateChangedBinding = new EventBinding<OnPlayerChangeState>(HandlePlayerStateChanged);
+        EventBus<OnPlayerChangeState>.Register(m_OnPlayerStateChangedBinding);
     }
 
 
@@ -295,10 +308,12 @@ public class PlayerHUD : MonoBehaviour
     }
     private void UpdatePlayerHealthText()
     {
+        ShowHealth();
         m_playerHealthText.text = $"Health: {m_currentHealth}/{m_maxHealth}";
     }
     private void UpdatePlayerHealthImage()
     {
+        ShowHealth();
         m_playerHealthImage.fillAmount = (float)m_currentHealth / (float)m_maxHealth;
     }
 
@@ -325,9 +340,9 @@ public class PlayerHUD : MonoBehaviour
         {
             await UniTask.Delay((int)delayTime, cancellationToken: m_HideCurrencyTk.Token);
 
-            m_playerCurrencyText.transform.parent.gameObject.SetActive(true);
+            m_playerCurrencyText.transform.parent.gameObject.SetActive(false);
         }
-        catch (OperationCanceledException e)
+        catch
         {
 
         }
@@ -374,13 +389,26 @@ public class PlayerHUD : MonoBehaviour
 
     }
 
-
+    private void HandlePlayerStateChanged(OnPlayerChangeState args)
+    {
+        if (args.newState == PlayerStates.Combat)
+        {
+            ShowWeapon();
+            ShowHealth();
+        }
+        if (args.newState == PlayerStates.Exploring)
+        {
+            HideWeapon();
+            FadeHealth();
+        }
+    }
     private void HandleAmmoChanged(OnAmmoChanged arg0)
     {
-
+        ShowWeapon();
         m_currentAmmo = arg0.currentAmmo;
         m_maxAmmo = arg0.maxAmmo;
         UpdateAmmoText();
+
 
     }
 
@@ -434,7 +462,7 @@ public class PlayerHUD : MonoBehaviour
     private void HandleGameStart(OnGameStart arg0)
     {
         GetComponent<Canvas>().enabled = true;
-        ActivateAll();
+        // ActivateAll();
     }
 
     private void HandleMapCollected()
@@ -503,39 +531,75 @@ public class PlayerHUD : MonoBehaviour
 
 
     #region Desactivate & Activate
+    void ShowHealth()
+    {
+        m_PlayerHealthImageTransform.gameObject.SetActive(true);
+        for (int i = 0; i < m_PlayerHealthImageTransform.childCount; i++)
+        {
+            m_PlayerHealthImageTransform.GetChild(i).GetComponent<Image>().DOFade(255, 1f);
+        }
+    }
 
+    void FadeHealth()
+    {
+
+        for (int i = 0; i < m_PlayerHealthImageTransform.childCount; i++)
+        {
+            m_PlayerHealthImageTransform.GetChild(i).GetComponent<Image>().DOFade(0, k_FadeDelay).SetEase(Ease.Linear);
+        }
+    }
+
+    void ShowWeapon()
+    {
+        float m_fadeTime = 1f;
+        m_ammoVisualHolder.gameObject.SetActive(true);
+        m_ammoText.DOFade(255, m_fadeTime).SetEase(Ease.Linear);
+        m_currentWeaponImage.DOFade(255, m_fadeTime).SetEase(Ease.Linear);
+    }
+
+    void HideWeapon()
+    {
+        m_ammoText.DOFade(0, k_FadeDelay).SetEase(Ease.InSine);
+        m_currentWeaponImage.DOColor(new Color(255, 255, 255, 0), k_FadeDelay);
+
+
+
+    }
 
     void DesactivateAll()
     {
-        Debug.Log("Desactivating all");
+        // Debug.Log("Desactivating all");
+        m_playerCurrencyText.transform.parent.gameObject.SetActive(false);
         _interactTransform.gameObject.SetActive(false);
         _inventoryTransform.GetComponent<Canvas>().enabled = false;
         _messageTransform.gameObject.SetActive(false);
         m_ammoVisualHolder.SetActive(false);
 
+
         m_PlayerHealthCanvas.gameObject.SetActive(false);
+
+        m_playerHealthText.gameObject.SetActive(false);
+
         m_PlayerHealthImageTransform.gameObject.SetActive(false);
 
-        m_playerCurrencyText.transform.parent.gameObject.SetActive(false);
-
+        //Desactivate health image 
+        for (int i = 0; i < m_PlayerHealthImageTransform.childCount; i++)
+        {
+            m_PlayerHealthImageTransform.GetChild(i).GetComponent<Image>().color = new Color(255, 255, 255, 0);
+        }
 
         m_backpackVisualHolder.gameObject.SetActive(false);
     }
 
     void ActivateAll()
     {
-        m_ammoVisualHolder.SetActive(true);
+        // m_ammoVisualHolder.SetActive(true);
         _messageTransform.gameObject.SetActive(false);
         // _inventoryTransform.GetComponent<Canvas>().enabled = true;
 
-        m_PlayerHealthImageTransform.gameObject.SetActive(true);
-        if (m_isHealthTextActivated)
-            m_PlayerHealthCanvas.gameObject.SetActive(true);
+        // m_PlayerHealthImageTransform.gameObject.SetActive(true);
 
-        if (m_isHealthImageActivated)
-            m_PlayerHealthImageTransform.gameObject.SetActive(true);
-
-
+        // ShowHealth();
         // m_playerCurrencyText.transform.parent.gameObject.SetActive(true);
 
         if (!m_isTutorial)
