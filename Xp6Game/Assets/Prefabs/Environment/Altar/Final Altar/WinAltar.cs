@@ -126,7 +126,7 @@ public class WinAltar : MonoBehaviour, Interactable
     #region Popup
     void ActivatePopup()
     {
-
+        if (!_canInteract) return;
         m_soulsText.enabled = true;
         m_soulsText.alpha = 1f;
         m_soulsText.transform.DOMoveY(m_soulsText.transform.position.y + m_DistanceOffsetY, interactTimeTween).SetEase(Ease.InOutSine);
@@ -156,7 +156,7 @@ public class WinAltar : MonoBehaviour, Interactable
         _canInteract = false;
 
 
-
+        if (m_playerInventory.GetCurrency() < m_RequiredSouls) return;
 
         StartAltarActivation();
         m_isActivated = true;
