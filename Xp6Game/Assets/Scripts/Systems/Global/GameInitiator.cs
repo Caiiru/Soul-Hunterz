@@ -30,8 +30,7 @@ public class GameInitiator : MonoBehaviour
         BindObjects();
         BindEvents();
         await _sceneLoader.Initialize();
-        await InitializeMainMenu();
-        await InitializeAudio();
+        await InitializeMainMenu(); 
         await InitializeLoadingScreen();
     }
 
@@ -129,12 +128,7 @@ public class GameInitiator : MonoBehaviour
 
         await InitializeMainMenu();
 
-    }
-    public async UniTask InitializeAudio()
-    {
-        await _audioManager.Initialize();
-    }
-
+    } 
 
 
 

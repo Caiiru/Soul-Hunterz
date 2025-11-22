@@ -7,10 +7,19 @@ public class AudioManager : MonoBehaviour
 
     // [SerializeField] private AnimationEventSound[] sounds;
 
-    #region Singleton
     private static AudioManager instance;
 
     public static AudioManager Instance => instance;
+
+    public AnimationEventSound AltarActivationEvent;
+
+    public bool m_DebugEvent;
+
+    //Events
+    EventBinding<OnStartAltarActivation> m_OnStartAltarActivationBinding;
+
+
+    #region Singleton
 
     void Awake()
     {
@@ -21,17 +30,51 @@ public class AudioManager : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(this.gameObject);
     }
-    #endregion
-    public async UniTask Initialize()
+    void Start()
     {
-        await UniTask.CompletedTask;
+        BindEvents();
     }
 
-    
+
+    void OnDestroy()
+    {
+        UnbindEvents();
+    }
+    #endregion
+
+    void Update()
+    {
+        if (m_DebugEvent)
+        {
+            m_DebugEvent = false;
+            HandleAltarActivation();
+        }
+    }
+    private void BindEvents()
+    {
+        m_OnStartAltarActivationBinding = new EventBinding<OnStartAltarActivation>(HandleAltarActivation);
+        EventBus<OnStartAltarActivation>.Register(m_OnStartAltarActivationBinding);
+    }
+
+    private void UnbindEvents()
+    {
+        EventBus<OnStartAltarActivation>.Unregister(m_OnStartAltarActivationBinding);
+    }
+
+    //handle events
+
+    void HandleAltarActivation()
+    {
+        Debug.Log("Altar Activated Sound event");
+        PlayOneShotAtPosition(AltarActivationEvent.soundEvent, transform.position);
+    }
+
+
     public void PlayOneShotAtPosition(EventReference eventRef, Vector3 position)
-    { 
+    {
         RuntimeManager.PlayOneShot(eventRef, position);
     }
+
 
 
 }
