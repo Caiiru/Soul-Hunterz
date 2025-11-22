@@ -9,12 +9,9 @@ using UnityEngine.VFX;
 
 public class PlayerInventory : MonoBehaviour
 {
-    [SerializeField] bool isInventoryOpen = false;
-    // private CharacterInput _characterInput;
-    InputAction _inventoryInput;
-
-    [Header("Inventory KeyCodes")]
-    public KeyCode debugWeapon = KeyCode.P;
+    [Header("Inventory")]
+    bool m_canOpenInventory;
+    [SerializeField] bool isInventoryOpen = false; 
 
 
     [Header("Weapons and Components")]
@@ -44,6 +41,9 @@ public class PlayerInventory : MonoBehaviour
     EventBinding<OnGameWin> m_OnGameWinBinding;
     EventBinding<OnGameOver> m_OnGameOverBinding;
 
+    //Tutorial
+
+    EventBinding<OnMapCollected> m_OnTutorialMapCollected;
 
     public delegate void PlayerGetWeapon(AbstractWeapon weapon, int slot);
     public static event PlayerGetWeapon OnPlayerGetWeapon;
@@ -111,6 +111,14 @@ public class PlayerInventory : MonoBehaviour
         });
         EventBus<OnGameOver>.Register(m_OnGameOverBinding);
 
+        m_OnTutorialMapCollected = new EventBinding<OnMapCollected>(() =>
+        { 
+            m_canOpenInventory=true;
+
+        });
+        EventBus<OnMapCollected>.Register(m_OnTutorialMapCollected);
+
+
 
 
 
@@ -149,6 +157,9 @@ public class PlayerInventory : MonoBehaviour
 
     void ToggleInventory(bool newState)
     {
+        if(!m_canOpenInventory)return;
+
+
         isInventoryOpen = newState;
         // OnPlayerInventoryToggle?.Invoke(isInventoryOpen);
         EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = newState });

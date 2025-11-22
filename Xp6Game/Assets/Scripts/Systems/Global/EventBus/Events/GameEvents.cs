@@ -51,3 +51,10 @@ public class OnFinalAltarActivated : IEvent
 
 }
 
+//Tutorial
+
+public class OnMapCollected : IEvent
+{
+
+}
+

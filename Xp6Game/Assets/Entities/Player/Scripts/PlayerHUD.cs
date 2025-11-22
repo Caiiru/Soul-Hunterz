@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -70,13 +71,19 @@ public class PlayerHUD : MonoBehaviour
 
     [Header("Currency")]
     public TextMeshProUGUI m_playerCurrencyText;
+    public const float k_currencyHideDelay = 5;
 
     [Header("Backpack")]
+    private bool m_isTutorial = true;
     public Transform m_backpackVisualHolder;
 
 
     //Message Queue
     Queue<String> m_messageQueue = new Queue<String>();
+
+    //Token
+
+    CancellationTokenSource m_HideCurrencyTk;
 
 
     // Events
@@ -97,6 +104,8 @@ public class PlayerHUD : MonoBehaviour
     EventBinding<OnPlayerTakeDamage> m_OnPlayerTakeDamage;
     EventBinding<OnAmmoChanged> m_OnAmmoChangedBinding;
     EventBinding<OnUpdateSouls> m_OnUpdateSouls;
+
+    EventBinding<OnMapCollected> m_OnMapCollectedBinding;
     //Message HUD
     EventBinding<OnDisplayMessage> m_OnDisplayMessageBinding;
 
@@ -156,6 +165,7 @@ public class PlayerHUD : MonoBehaviour
 
     }
 
+    #region Bind Events
     void BindEvents()
     {
         //Game Start
@@ -204,7 +214,10 @@ public class PlayerHUD : MonoBehaviour
         EventBus<OnSetPlayerHealthEvent>.Register(m_OnSetHealthEvent);
 
         //Update Currency
-        m_OnUpdateSouls = new EventBinding<OnUpdateSouls>(HandleUpdateCurrencyEvent);
+        m_OnUpdateSouls = new EventBinding<OnUpdateSouls>(async (data) =>
+        {
+            await HandleUpdateCurrencyEvent(data);
+        });
         EventBus<OnUpdateSouls>.Register(m_OnUpdateSouls);
 
         //Set Message 
@@ -228,7 +241,10 @@ public class PlayerHUD : MonoBehaviour
         m_OnAmmoChangedBinding = new EventBinding<OnAmmoChanged>(HandleAmmoChanged);
         EventBus<OnAmmoChanged>.Register(m_OnAmmoChangedBinding);
 
+        //MAP
 
+        m_OnMapCollectedBinding = new EventBinding<OnMapCollected>(HandleMapCollected);
+        EventBus<OnMapCollected>.Register(m_OnMapCollectedBinding);
     }
 
 
@@ -246,12 +262,13 @@ public class PlayerHUD : MonoBehaviour
         EventBus<OnDisplayMessage>.Unregister(m_OnDisplayMessageBinding);
     }
 
+    #endregion
     void Initialize()
     {
         BoxCollider2D _dropZoneCollider = _dropZone.GetComponent<BoxCollider2D>();
         _dropZoneCollider.size = _dropZone.GetComponent<RectTransform>().rect.size;
 
-        ActivateAll();
+        // ActivateAll();
         _interactTransform.gameObject.SetActive(false);
         EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = false });
 
@@ -285,10 +302,39 @@ public class PlayerHUD : MonoBehaviour
     }
 
 
-    private void HandleUpdateCurrencyEvent(OnUpdateSouls eventData)
+    private async UniTask HandleUpdateCurrencyEvent(OnUpdateSouls eventData)
     {
+        //TODO: Use iDisposable
+        if (m_isTutorial) return;
+
+        m_playerCurrencyText.transform.parent.gameObject.SetActive(true);
+
+
+
         int currentCurrency = eventData.amount;
         m_playerCurrencyText.text = $"{currentCurrency.ToString()}";
+
+        m_HideCurrencyTk?.Cancel();
+
+        m_HideCurrencyTk = new CancellationTokenSource();
+
+        const float delayTime = k_currencyHideDelay * 1000;
+
+        try
+        {
+            await UniTask.Delay((int)delayTime, cancellationToken: m_HideCurrencyTk.Token);
+
+            m_playerCurrencyText.transform.parent.gameObject.SetActive(true);
+        }
+        catch (OperationCanceledException e)
+        {
+            Debug.LogError(e.Message);
+        }
+        finally
+        {
+
+        }
+
     }
 
 
@@ -390,6 +436,15 @@ public class PlayerHUD : MonoBehaviour
         ActivateAll();
     }
 
+    private void HandleMapCollected()
+    {
+        // m_isTutorial=false;
+        m_backpackVisualHolder.transform.localScale = Vector3.zero;
+        m_backpackVisualHolder.gameObject.SetActive(true);
+        m_backpackVisualHolder.transform.DOScale(1f, 1.5f).SetEase(Ease.OutBounce);
+
+    }
+
     #endregion
 
     #region Ammo Methods
@@ -454,7 +509,6 @@ public class PlayerHUD : MonoBehaviour
         Debug.Log("Desactivating all");
         _interactTransform.gameObject.SetActive(false);
         _inventoryTransform.GetComponent<Canvas>().enabled = false;
-        m_playerCurrencyText.gameObject.SetActive(false);
         _messageTransform.gameObject.SetActive(false);
         m_ammoVisualHolder.SetActive(false);
 
@@ -469,10 +523,11 @@ public class PlayerHUD : MonoBehaviour
 
     void ActivateAll()
     {
-        Debug.Log("Activating All");
         m_ammoVisualHolder.SetActive(true);
         _messageTransform.gameObject.SetActive(false);
         // _inventoryTransform.GetComponent<Canvas>().enabled = true;
+
+        m_PlayerHealthImageTransform.gameObject.SetActive(true);
         if (m_isHealthTextActivated)
             m_PlayerHealthCanvas.gameObject.SetActive(true);
 
@@ -480,12 +535,10 @@ public class PlayerHUD : MonoBehaviour
             m_PlayerHealthImageTransform.gameObject.SetActive(true);
 
 
-        m_playerCurrencyText.gameObject.SetActive(true);
-        m_PlayerHealthImageTransform.gameObject.SetActive(true);
+        // m_playerCurrencyText.transform.parent.gameObject.SetActive(true);
 
-        m_playerCurrencyText.transform.parent.gameObject.SetActive(true);
-
-        m_backpackVisualHolder.gameObject.SetActive(true);
+        if (!m_isTutorial)
+            m_backpackVisualHolder.gameObject.SetActive(true);
     }
 
     #endregion
