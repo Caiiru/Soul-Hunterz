@@ -25,7 +25,7 @@ public class WinAltar : MonoBehaviour, Interactable
     [SerializeField]
     private float interactTimeTween = 0.5f;
 
-    private bool _canInteract = true;
+    [SerializeField] bool _canInteract = true;
 
     PlayerInventory m_playerInventory;
 
@@ -99,6 +99,8 @@ public class WinAltar : MonoBehaviour, Interactable
 
         m_ActivatedEffect.SetBool("Active", false);
 
+        m_playerInventory = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerInventory>();
+
 
     }
     #endregion
@@ -126,7 +128,7 @@ public class WinAltar : MonoBehaviour, Interactable
     #region Popup
     void ActivatePopup()
     {
-        if (!_canInteract) return;
+        if (m_isActivated) return;
         m_soulsText.enabled = true;
         m_soulsText.alpha = 1f;
         m_soulsText.transform.DOMoveY(m_soulsText.transform.position.y + m_DistanceOffsetY, interactTimeTween).SetEase(Ease.InOutSine);
@@ -148,25 +150,23 @@ public class WinAltar : MonoBehaviour, Interactable
     #region Interact
     public bool CanInteract()
     {
-        return _canInteract;
+        return (m_playerInventory.GetCurrency() >= m_RequiredSouls) && _canInteract;
+        // return _canInteract;
     }
 
     public void Interact()
     {
         _canInteract = false;
 
-
-        if (m_playerInventory.GetCurrency() < m_RequiredSouls) return;
-
         StartAltarActivation();
         m_isActivated = true;
         EventBus<OnStartAltarActivation>.Raise(new OnStartAltarActivation());
-
+        // ActivatePopup()
 
     }
 
 
-    #endregion 
+    #endregion
     #region Souls
 
     private void GetSouls()
@@ -194,14 +194,14 @@ public class WinAltar : MonoBehaviour, Interactable
     #region Activation
     void FinishActivation()
     {
-        m_isActivated = false;
+        // m_isActivated = true;
         m_ActivatedEffect.SetBool("Active", true);
         _canInteract = false;
         EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
         EventBus<OnAltarActivated>.Raise(
             new OnAltarActivated { m_AltarActivatedIndex = m_AltarIndex });
 
-        DesactivatePopup();
+        // DesactivatePopup();
     }
 
     void StartAltarActivation()
@@ -262,7 +262,7 @@ public class WinAltar : MonoBehaviour, Interactable
 
 
     }
-    #endregion 
+    #endregion
 
     public async void ResetGame()
     {
