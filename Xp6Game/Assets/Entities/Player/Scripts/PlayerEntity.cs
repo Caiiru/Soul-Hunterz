@@ -186,7 +186,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
             return;
         }
 
-        EventBus<OnPlayerTakeDamage>.Raise(new OnPlayerTakeDamage { value = damage });
+        EventBus<OnPlayerTakeDamage>.Raise(new OnPlayerTakeDamage { value = damage , currentHealth = m_currentHealth});
 
         SetPlayerState(PlayerStates.Combat);
 
@@ -268,7 +268,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
             case PlayerStates.PreCombat:
                 break;
             case PlayerStates.Combat:
-                
+
                 m_CombatTime = k_maxCombatTime;
                 break;
 

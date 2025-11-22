@@ -239,8 +239,11 @@ public class CameraManager : MonoBehaviour
                 if (perlin == null || perlin == m_MenuPerlin) continue;
 
 
-                perlin.AmplitudeGain = baseAmplitude * _attenuation * m_ActivationAltarSettings.shakeIntensityMultiplier;
-                perlin.FrequencyGain = baseFrequency * _attenuation * m_ActivationAltarSettings.shakeIntensityMultiplier;
+                perlin.AmplitudeGain = baseAmplitude * _attenuation *
+                    m_ActivationAltarSettings.shakeIntensityMultiplier;
+
+                perlin.FrequencyGain = baseFrequency * _attenuation *
+                    m_ActivationAltarSettings.shakeIntensityMultiplier;
 
 
 
