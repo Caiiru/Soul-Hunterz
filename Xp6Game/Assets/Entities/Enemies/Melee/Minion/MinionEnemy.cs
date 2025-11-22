@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class MinionEnemy : Enemy<EnemySO>
@@ -64,6 +65,12 @@ public class MinionEnemy : Enemy<EnemySO>
 
  
         }
+    }
+    protected override UniTask Die()
+    {
+        // return base.Die();
+        return UniTask.CompletedTask;
+
     }
 
     public bool GetMove()

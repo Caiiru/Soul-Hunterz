@@ -17,12 +17,12 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     private float m_attackTimer = 0;
 
     [Tooltip("Does this enemy use a NavMeshAgent for movement?")]
-    [SerializeField] bool m_hasNavMesh = true;
-    [SerializeField] protected NavMeshAgent m_navMesh;
-    [SerializeField] protected StateMachine m_stateMachine;
+    protected bool m_hasNavMesh = true;
+    protected NavMeshAgent m_navMesh;
+    protected StateMachine m_stateMachine;
 
 
-    [SerializeField] private Transform m_targetTransform;
+    private Transform m_targetTransform;
 
 
 
@@ -38,12 +38,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     EventBinding<OnGameOver> m_OnGameOverBinding;
     EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
 
-
-
-    [Header("Debug Mode", order = 8)]
-
-    [SerializeField] private bool m_DebugMode = true;
-    public Animator m_animator;
+    protected Animator m_animator;
 
     private int k_Milliseconds = 1000;
 
