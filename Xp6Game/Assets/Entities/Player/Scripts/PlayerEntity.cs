@@ -268,6 +268,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
             case PlayerStates.PreCombat:
                 break;
             case PlayerStates.Combat:
+                
                 m_CombatTime = k_maxCombatTime;
                 break;
 

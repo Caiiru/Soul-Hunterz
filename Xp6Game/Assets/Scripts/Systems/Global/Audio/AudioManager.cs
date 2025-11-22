@@ -12,11 +12,13 @@ public class AudioManager : MonoBehaviour
     public static AudioManager Instance => instance;
 
     public AnimationEventSound AltarActivationEvent;
+    public AnimationEventSound WaveClearedEvent;
 
     public bool m_DebugEvent;
 
     //Events
     EventBinding<OnStartAltarActivation> m_OnStartAltarActivationBinding;
+    EventBinding<OnWaveClearedEvent> m_OnWaveClearedBinding;
 
 
     #region Singleton
@@ -54,6 +56,12 @@ public class AudioManager : MonoBehaviour
     {
         m_OnStartAltarActivationBinding = new EventBinding<OnStartAltarActivation>(HandleAltarActivation);
         EventBus<OnStartAltarActivation>.Register(m_OnStartAltarActivationBinding);
+
+        m_OnWaveClearedBinding = new EventBinding<OnWaveClearedEvent>(() =>
+        {
+            PlayOneShotAtPosition(WaveClearedEvent.soundEvent, transform.position);
+        });
+        EventBus<OnWaveClearedEvent>.Register(m_OnWaveClearedBinding);
     }
 
     private void UnbindEvents()
@@ -65,7 +73,6 @@ public class AudioManager : MonoBehaviour
 
     void HandleAltarActivation()
     {
-        Debug.Log("Altar Activated Sound event");
         PlayOneShotAtPosition(AltarActivationEvent.soundEvent, transform.position);
     }
 

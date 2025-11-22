@@ -46,6 +46,11 @@ public class WaveEndEvent : IEvent
 {
     public int waveIndex;
 }
+
+public class OnWaveClearedEvent : IEvent
+{
+
+}
 public class OnFinalAltarActivated : IEvent
 {
 
