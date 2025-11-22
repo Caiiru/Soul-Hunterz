@@ -28,6 +28,12 @@ public class MainAltar : MonoBehaviour, Interactable
 
     private bool _canInteract = true;
 
+    [Header("Timer")]
+    public float m_timerBetweenInteraction = 0.5f;
+    public float m_timer = 0f;
+
+
+
     [Header("VFX")]
     public VisualEffect m_MainAltar;
     public VisualEffect[] m_MiniAltares;
@@ -49,7 +55,7 @@ public class MainAltar : MonoBehaviour, Interactable
 
 
     #endregion
-
+    #region Start & Bind
     void Start()
     {
         BindEvents();
@@ -60,17 +66,7 @@ public class MainAltar : MonoBehaviour, Interactable
 
     void BindEvents()
     {
-        m_OnGameStartBinding = new EventBinding<OnGameStart>(() =>
-        {
 
-            m_soulsText.gameObject.SetActive(true);
-            if (!m_soulsText.enabled)
-            {
-                m_soulsText.enabled = true;
-            }
-            _canInteract = true;
-        });
-        EventBus<OnGameStart>.Register(m_OnGameStartBinding);
 
         m_OnPlayerDiedBinding = new EventBinding<OnPlayerDied>(() =>
         {
@@ -107,8 +103,8 @@ public class MainAltar : MonoBehaviour, Interactable
         if (m_soulsText == null) return;
 
         m_soulsText.gameObject.SetActive(true);
-        m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
-        m_soulsText.enabled = false;
+        // m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
+        // m_soulsText.enabled = false;
 
         foreach (VisualEffect _miniAltar in m_MiniAltares)
         {
@@ -123,11 +119,18 @@ public class MainAltar : MonoBehaviour, Interactable
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         m_playerInventory = player.GetComponent<PlayerInventory>();
 
+        _canInteract = false;
     }
 
+    #endregion
+    #region Update
+
+
+    #endregion
+    #region Triggers
     void OnTriggerExit(Collider collision)
     {
-
+        return;
         if (m_isActivated) return;
         if (collision.CompareTag("Player"))
         {
@@ -136,6 +139,7 @@ public class MainAltar : MonoBehaviour, Interactable
     }
     void OnTriggerEnter(Collider other)
     {
+        return;
         if (m_isActivated) return;
         if (other.CompareTag("Player"))
         {
@@ -146,15 +150,15 @@ public class MainAltar : MonoBehaviour, Interactable
     }
     void OnTriggerStay(Collider other)
     {
-
+        return;
         if (m_playerInventory == null)
             m_playerInventory = other.GetComponent<PlayerInventory>();
     }
-
+    #endregion
+    #region Altar Activated 
     private void HandleNewAltarActivation(OnAltarActivated arg0)
     {
         ActivateMiniAltar(arg0.m_AltarActivatedIndex);
-
 
         if (arg0.m_AltarActivatedIndex == 3)
         {
@@ -166,8 +170,16 @@ public class MainAltar : MonoBehaviour, Interactable
             m_soulsText.text = "...";
         }
     }
+
+    void ActivateMiniAltar(int index)
+    {
+        m_MiniAltares[index].SetBool("Active", true);
+    }
+    #endregion
+    #region Popup
     void ActivatePopup()
     {
+        return;
         if (!CanInteract()) return;
 
 
@@ -187,6 +199,9 @@ public class MainAltar : MonoBehaviour, Interactable
         m_soulsText.transform.DOMoveY(m_soulsText.transform.position.y - m_DistanceOffsetY, interactTimeTween).SetEase(Ease.InOutSine);
         m_soulsText.DOFade(0f, interactTimeTween).OnComplete(() => m_soulsText.enabled = false);
     }
+    #endregion
+
+    #region Interact
     public bool CanInteract()
     {
         return _canInteract;
@@ -194,8 +209,18 @@ public class MainAltar : MonoBehaviour, Interactable
 
     public void Interact()
     {
-        // Debug.Log("Player Interacted with Win Altar");
+        EventBus<OnStartAltarActivation>.Raise(new OnStartAltarActivation());
+
         // _canInteract = false;
+        m_timer = 0;
+        m_isActivated = true;
+
+        // GameManager.Instance.WinGame();
+    }
+
+    void GetSouls()
+    {
+        m_timer = 0;
         if (m_isFinalForm)
         {
             EventBus<OnFinalAltarActivated>.Raise(new OnFinalAltarActivated());
@@ -213,7 +238,6 @@ public class MainAltar : MonoBehaviour, Interactable
         else
             return;
         AddSouls(m_SoulsPerInteraction);
-        // GameManager.Instance.WinGame();
     }
 
 
@@ -237,17 +261,14 @@ public class MainAltar : MonoBehaviour, Interactable
         EventBus<OnAltarActivated>.Raise(
             new OnAltarActivated { m_AltarActivatedIndex = m_AltarIndex });
 
-        m_isActivated = true;
+        m_isActivated = false;
         _canInteract = false;
 
         m_soulsText.gameObject.SetActive(false);
 
     }
-
-    void ActivateMiniAltar(int index)
-    {
-        m_MiniAltares[index].SetBool("Active", true);
-    }
+    #endregion
+    #region Reset Game
 
     public async void ResetGame()
     {
@@ -263,8 +284,11 @@ public class MainAltar : MonoBehaviour, Interactable
 
 
     }
+
+    #endregion
     public InteractableType GetInteractableType()
     {
         return InteractableType.Interactable;
     }
+
 }

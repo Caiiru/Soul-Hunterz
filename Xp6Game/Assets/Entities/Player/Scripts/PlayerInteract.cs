@@ -1,7 +1,9 @@
+using System;
 using DG.Tweening;
 using StarterAssets;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.VFX;
 
 public class PlayerInteract : MonoBehaviour
 {
@@ -16,6 +18,17 @@ public class PlayerInteract : MonoBehaviour
     private bool m_HasAnyInteractableNearby = false;
 
     private const int k_InteractableLayerMask = 1 << 10;
+
+    //events
+
+    EventBinding<OnStartAltarActivation> m_OnAltarActivated;
+    EventBinding<OnAltarActivated> m_OnAltarEndedActivation;
+
+
+    //VFX
+
+    public VisualEffect m_PlayerSouls;
+
     void Start()
     {
 #if ENABLE_INPUT_SYSTEM 
@@ -27,9 +40,31 @@ public class PlayerInteract : MonoBehaviour
 #else
 		Debug.LogError( "Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
+
+        BindEvents();
+    }
+    #region Events
+    void BindEvents()
+    {
+        m_OnAltarActivated = new EventBinding<OnStartAltarActivation>(HandleAltarActivated);
+        EventBus<OnStartAltarActivation>.Register(m_OnAltarActivated);
+
+        m_OnAltarEndedActivation = new EventBinding<OnAltarActivated>(HandleAltarEndedActivation);
+        EventBus<OnAltarActivated>.Register(m_OnAltarEndedActivation);
+
+
     }
 
-    // Update is called once per frame
+    private void HandleAltarEndedActivation(OnAltarActivated arg0)
+    {
+        m_PlayerSouls.SetBool("Active", false);
+        m_PlayerSouls.SetVector3("TargetPoint", Vector3.zero);
+    }
+
+
+
+    #endregion
+    #region Update
     void Update()
     {
         if (_playerInput.interact)
@@ -63,7 +98,21 @@ public class PlayerInteract : MonoBehaviour
         }
 
 
+
     }
+    #endregion
+    #region Altar Activated
+    private void HandleAltarActivated(OnStartAltarActivation arg0)
+    {
+        Animator _animator = GetComponentInChildren<Animator>();
+        if (_animator == null) return;
+
+        // Debug.Log("Altar Activated");
+        // _animator.SetTrigger("altarEventStarted");
+
+    }
+
+    #endregion
 
 
 
@@ -80,6 +129,21 @@ public class PlayerInteract : MonoBehaviour
 
         }
         _nearbyInteractable.GetComponent<Interactable>().Interact();
+
+        if (_nearbyInteractable.TryGetComponent<WinAltar>(out WinAltar _winAltar))
+        {
+            m_PlayerSouls.SetBool("Active", true);
+            Vector3 _position = _nearbyInteractable.position;
+            _position.y = 1f;
+            m_PlayerSouls.SetVector3("TargetPoint", _position);
+        }
+        else
+        {
+            m_PlayerSouls.SetBool("Active", false);
+            m_PlayerSouls.SetVector3("TargetPoint", Vector3.zero);
+
+        }
+
 
         return;
 

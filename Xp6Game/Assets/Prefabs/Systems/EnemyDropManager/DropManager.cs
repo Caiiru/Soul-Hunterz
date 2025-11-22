@@ -61,7 +61,7 @@ public class DropManager : MonoBehaviour
         ComponentSO _componentToDrop = GetComponentToDrop(_enemyTable);
         if (_componentToDrop == null) return;
 
-        Debug.Log($"Dropping {_componentToDrop.ComponentName} for {arg0.enemyID} on {arg0.deathPosition}");
+        // Debug.Log($"Dropping {_componentToDrop.ComponentName} for {arg0.enemyID} on {arg0.deathPosition}");
         EventBus<OnDropComponent>.Raise(new OnDropComponent
         {
             isFromPlayer = false,

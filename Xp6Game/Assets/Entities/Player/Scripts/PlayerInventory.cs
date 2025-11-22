@@ -133,7 +133,7 @@ public class PlayerInventory : MonoBehaviour
         m_currency = 0;
 
 
-        EventBus<OnCollectSouls>.Raise(new OnCollectSouls { amount = 10 });
+        EventBus<OnCollectSouls>.Raise(new OnCollectSouls { amount = 550 });
     }
     #endregion
 

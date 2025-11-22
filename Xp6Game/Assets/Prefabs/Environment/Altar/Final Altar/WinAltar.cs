@@ -1,3 +1,4 @@
+using System.Collections;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using StarterAssets;
@@ -26,8 +27,16 @@ public class WinAltar : MonoBehaviour, Interactable
 
     private bool _canInteract = true;
 
-    PlayerInventory m_playerInventory;
+    [SerializeField] PlayerInventory m_playerInventory;
 
+    private bool m_isActivated = false;
+
+    [Header("Timer")]
+
+    public ActivationAltarSettings m_AltarSettings;
+
+    public int m_soulsStartAmount = 0;
+    private int m_soulsRemove = 0;
 
     public VisualEffect m_ActivatedEffect;
     #region Events
@@ -79,7 +88,7 @@ public class WinAltar : MonoBehaviour, Interactable
 
         return UniTask.CompletedTask;
     }
-
+    #region Initialize
     void Initialize()
     {
         transform.name = "???";
@@ -93,18 +102,20 @@ public class WinAltar : MonoBehaviour, Interactable
 
 
     }
+    #endregion
 
+    #region Trigger Events
     void OnTriggerExit(Collider collision)
     {
 
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag("Player") && !m_isActivated)
         {
             DesactivatePopup();
         }
     }
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") && !m_isActivated)
         {
             ActivatePopup();
             if (m_playerInventory == null)
@@ -112,6 +123,8 @@ public class WinAltar : MonoBehaviour, Interactable
         }
     }
 
+    #endregion
+    #region Popup
     void ActivatePopup()
     {
 
@@ -131,6 +144,9 @@ public class WinAltar : MonoBehaviour, Interactable
         m_soulsText.transform.DOMoveY(m_soulsText.transform.position.y - m_DistanceOffsetY, interactTimeTween).SetEase(Ease.InOutSine);
         m_soulsText.DOFade(0f, interactTimeTween).OnComplete(() => m_soulsText.enabled = false);
     }
+
+    #endregion
+    #region Interact
     public bool CanInteract()
     {
         return _canInteract;
@@ -138,16 +154,31 @@ public class WinAltar : MonoBehaviour, Interactable
 
     public void Interact()
     {
-        // Debug.Log("Player Interacted with Win Altar");
-        // _canInteract = false;
-        if (m_playerInventory.GetCurrency() >= m_SoulsPerInteraction)
-            m_playerInventory.RemoveCurrency(m_SoulsPerInteraction);
-        else
-            return;
-        AddSouls(m_SoulsPerInteraction);
-        // GameManager.Instance.WinGame();
+        _canInteract = false;
+
+
+
+
+        StartAltarActivation();
+        m_isActivated = true;
+        EventBus<OnStartAltarActivation>.Raise(new OnStartAltarActivation());
+
+
     }
 
+
+    #endregion 
+    #region Souls
+
+    private void GetSouls()
+    {
+        if (m_playerInventory.GetCurrency() < m_RequiredSouls)
+            return;
+
+        int souls = m_RequiredSouls / 10;
+        m_playerInventory.RemoveCurrency(souls);
+        AddSouls(souls);
+    }
 
     void AddSouls(int amount)
     {
@@ -155,15 +186,84 @@ public class WinAltar : MonoBehaviour, Interactable
         m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
         if (m_CurrentSouls >= m_RequiredSouls)
         {
-
-            m_ActivatedEffect.SetBool("Active", true);
-            _canInteract = false;
-            EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
-            EventBus<OnAltarActivated>.Raise(
-                new OnAltarActivated { m_AltarActivatedIndex = m_AltarIndex });
+            // ActivateAltar();
+            // Debug.Log("Activated");
             // Debug.Log("Win");
         }
     }
+    #endregion
+    #region Activation
+    void FinishActivation()
+    {
+        m_isActivated = false;
+        m_ActivatedEffect.SetBool("Active", true);
+        _canInteract = false;
+        EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
+        EventBus<OnAltarActivated>.Raise(
+            new OnAltarActivated { m_AltarActivatedIndex = m_AltarIndex });
+
+        DesactivatePopup();
+    }
+
+    void StartAltarActivation()
+    {
+        // m_ActivatedEffect.SetBool("Active", true);
+        _canInteract = false;
+        StartCoroutine(AltarActivationTransition());
+
+    }
+
+    IEnumerator AltarActivationTransition()
+    {
+        int totalSoulsToTransfer = m_RequiredSouls;
+        m_soulsRemove = 0;
+
+
+        float elapsed = 0f;
+        float _duration = m_AltarSettings.activationDuration - 1f;
+
+
+        while (elapsed < _duration)
+        {
+            float _timeProgress = elapsed / _duration;
+
+            float _attenuation = m_AltarSettings.altarActivationCurve.Evaluate(_timeProgress);
+
+            int targetSoulsRemoved = Mathf.CeilToInt(totalSoulsToTransfer * _attenuation);
+
+            int soulsToRemoveThisFrame = targetSoulsRemoved - m_soulsRemove;
+            if (soulsToRemoveThisFrame > 0)
+            {
+                m_playerInventory.RemoveCurrency(soulsToRemoveThisFrame);
+                m_soulsRemove = targetSoulsRemoved;
+            }
+
+
+            float lerpSouls = Mathf.Lerp(m_CurrentSouls, m_RequiredSouls, _attenuation);
+
+
+            int _souls = Mathf.CeilToInt(lerpSouls);
+
+            // m_playerInventory.RemoveCurrency(1);
+            // AddSouls(_souls);
+
+            m_soulsText.text = $"{_souls}/{m_RequiredSouls}";
+
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        int remainSoulsToCleanUp = totalSoulsToTransfer - m_soulsRemove;
+        if (remainSoulsToCleanUp > 0)
+            m_playerInventory.RemoveCurrency(remainSoulsToCleanUp);
+
+
+        FinishActivation();
+
+
+    }
+    #endregion 
 
     public async void ResetGame()
     {

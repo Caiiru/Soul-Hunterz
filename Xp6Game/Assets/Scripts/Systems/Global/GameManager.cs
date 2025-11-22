@@ -403,3 +403,8 @@ public enum GameState
     Win,
     GameOver
 }
+
+public static class GameSettings
+{
+    public const float k_AltarTimeActivation = 10; 
+}
