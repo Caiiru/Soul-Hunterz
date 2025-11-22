@@ -99,7 +99,7 @@ public class CameraManager : MonoBehaviour
 
         m_OnMapCollectedBinding = new EventBinding<OnMapCollected>(async () =>
         {
-            await HandleTutorialShake(5);
+            await HandleTutorialShake(m_ActivationAltarSettings.tutorialShakeDuration);
         });
         EventBus<OnMapCollected>.Register(m_OnMapCollectedBinding);
 
