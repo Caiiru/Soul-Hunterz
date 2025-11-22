@@ -34,15 +34,15 @@ public class PlayerInventory : MonoBehaviour
 
     [Header("Currency")]
     public int m_currency = 0;
-
+    public VisualEffect m_soulsVFX;
 
     #region Events
 
     EventBinding<OnCollectSouls> m_OnCollectSouls;
     EventBinding<OnGameStart> m_OnGameStartBinding;
 
-    EventBinding<OnGameWin>m_OnGameWinBinding;
-    EventBinding<OnGameOver>m_OnGameOverBinding;
+    EventBinding<OnGameWin> m_OnGameWinBinding;
+    EventBinding<OnGameOver> m_OnGameOverBinding;
 
 
     public delegate void PlayerGetWeapon(AbstractWeapon weapon, int slot);
@@ -51,10 +51,19 @@ public class PlayerInventory : MonoBehaviour
     #endregion
     void Start()
     {
+        BindObjects();
         BindEvents();
         Initialize();
 
 
+    }
+    void BindObjects()
+    {
+        if (m_soulsVFX == null)
+        {
+            Debug.LogError("NO Soul VFX found");
+        }
+        m_soulsVFX.enabled = false;
     }
 
     private void Initialize()
@@ -99,9 +108,9 @@ public class PlayerInventory : MonoBehaviour
         m_OnGameOverBinding = new EventBinding<OnGameOver>(() =>
         {
             ToggleInventory(false);
-        }); 
+        });
         EventBus<OnGameOver>.Register(m_OnGameOverBinding);
-    
+
 
 
 
@@ -133,7 +142,7 @@ public class PlayerInventory : MonoBehaviour
         m_currency = 0;
 
 
-        EventBus<OnCollectSouls>.Raise(new OnCollectSouls { amount = 10 });
+        EventBus<OnCollectSouls>.Raise(new OnCollectSouls { amount = 550 });
     }
     #endregion
 
@@ -235,6 +244,9 @@ public class PlayerInventory : MonoBehaviour
     {
         m_currency -= m_SoulsPerInteraction;
         EventBus<OnUpdateSouls>.Raise(new OnUpdateSouls { amount = m_currency });
+
+        //VFX 
+        m_soulsVFX.Play();
     }
     #endregion
 }
