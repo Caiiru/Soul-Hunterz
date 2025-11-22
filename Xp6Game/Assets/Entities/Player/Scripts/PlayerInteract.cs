@@ -3,6 +3,7 @@ using DG.Tweening;
 using StarterAssets;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.VFX;
 
 public class PlayerInteract : MonoBehaviour
 {
@@ -21,6 +22,12 @@ public class PlayerInteract : MonoBehaviour
     //events
 
     EventBinding<OnStartAltarActivation> m_OnAltarActivated;
+    EventBinding<OnAltarActivated> m_OnAltarEndedActivation;
+
+
+    //VFX
+
+    public VisualEffect m_PlayerSouls;
 
     void Start()
     {
@@ -42,6 +49,16 @@ public class PlayerInteract : MonoBehaviour
         m_OnAltarActivated = new EventBinding<OnStartAltarActivation>(HandleAltarActivated);
         EventBus<OnStartAltarActivation>.Register(m_OnAltarActivated);
 
+        m_OnAltarEndedActivation = new EventBinding<OnAltarActivated>(HandleAltarEndedActivation);
+        EventBus<OnAltarActivated>.Register(m_OnAltarEndedActivation);
+
+
+    }
+
+    private void HandleAltarEndedActivation(OnAltarActivated arg0)
+    {
+        m_PlayerSouls.SetBool("Active", false);
+        m_PlayerSouls.SetVector3("TargetPoint", Vector3.zero);
     }
 
 
@@ -81,6 +98,7 @@ public class PlayerInteract : MonoBehaviour
         }
 
 
+
     }
     #endregion
     #region Altar Activated
@@ -89,8 +107,8 @@ public class PlayerInteract : MonoBehaviour
         Animator _animator = GetComponentInChildren<Animator>();
         if (_animator == null) return;
 
-        Debug.Log("Altar Activated");
-        _animator.SetTrigger("altarEventStarted");
+        // Debug.Log("Altar Activated");
+        // _animator.SetTrigger("altarEventStarted");
 
     }
 
@@ -111,6 +129,21 @@ public class PlayerInteract : MonoBehaviour
 
         }
         _nearbyInteractable.GetComponent<Interactable>().Interact();
+
+        if (_nearbyInteractable.TryGetComponent<WinAltar>(out WinAltar _winAltar))
+        {
+            m_PlayerSouls.SetBool("Active", true);
+            Vector3 _position = _nearbyInteractable.position;
+            _position.y = 1f;
+            m_PlayerSouls.SetVector3("TargetPoint", _position);
+        }
+        else
+        {
+            m_PlayerSouls.SetBool("Active", false);
+            m_PlayerSouls.SetVector3("TargetPoint", Vector3.zero);
+
+        }
+
 
         return;
 

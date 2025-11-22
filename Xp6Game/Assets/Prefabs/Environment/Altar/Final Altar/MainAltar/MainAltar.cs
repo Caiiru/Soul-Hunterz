@@ -66,17 +66,7 @@ public class MainAltar : MonoBehaviour, Interactable
 
     void BindEvents()
     {
-        m_OnGameStartBinding = new EventBinding<OnGameStart>(() =>
-        {
-
-            m_soulsText.gameObject.SetActive(true);
-            if (!m_soulsText.enabled)
-            {
-                m_soulsText.enabled = true;
-            }
-            _canInteract = true;
-        });
-        EventBus<OnGameStart>.Register(m_OnGameStartBinding);
+ 
 
         m_OnPlayerDiedBinding = new EventBinding<OnPlayerDied>(() =>
         {
@@ -113,8 +103,8 @@ public class MainAltar : MonoBehaviour, Interactable
         if (m_soulsText == null) return;
 
         m_soulsText.gameObject.SetActive(true);
-        m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
-        m_soulsText.enabled = false;
+        // m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
+        // m_soulsText.enabled = false;
 
         foreach (VisualEffect _miniAltar in m_MiniAltares)
         {
@@ -129,33 +119,18 @@ public class MainAltar : MonoBehaviour, Interactable
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         m_playerInventory = player.GetComponent<PlayerInventory>();
 
+        _canInteract = false;
     }
 
     #endregion
     #region Update
 
-    void Update()
-    {
-        if (!m_isActivated)
-            return;
 
-        if (m_timer >= m_timerBetweenInteraction)
-            GetSouls();
-
-        HandleTimer();
-
-    }
-    private void HandleTimer()
-    {
-        m_timer += Time.deltaTime;
-
-
-    }
     #endregion
     #region Triggers
     void OnTriggerExit(Collider collision)
     {
-
+        return;
         if (m_isActivated) return;
         if (collision.CompareTag("Player"))
         {
@@ -164,6 +139,7 @@ public class MainAltar : MonoBehaviour, Interactable
     }
     void OnTriggerEnter(Collider other)
     {
+        return;
         if (m_isActivated) return;
         if (other.CompareTag("Player"))
         {
@@ -174,7 +150,7 @@ public class MainAltar : MonoBehaviour, Interactable
     }
     void OnTriggerStay(Collider other)
     {
-
+        return;
         if (m_playerInventory == null)
             m_playerInventory = other.GetComponent<PlayerInventory>();
     }
