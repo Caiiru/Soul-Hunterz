@@ -62,10 +62,8 @@ public class GameManager : MonoBehaviour
     public GameObject PopupManagerPrefab;
 
     [Space]
-    public GameObject PlayerPrefab;
-    public GameObject StartZonePrefab;
-    public GameObject EndZonePrefab;
-    public GameObject EnvironmentPrefab;
+    public GameObject PlayerPrefab; 
+    public GameObject EndZonePrefab; 
 
     [Space]
     [Header("Generic Manager")]
@@ -83,17 +81,8 @@ public class GameManager : MonoBehaviour
     private EnemyManager _enemyManager;
     private GameObject m_GenericManager;
 
-
-    [Space]
-    [Header("Start Settings")]
-
-    public List<GameObject> altarSpawnPositions;
-
-    [Space]
-    [Header("Win Settings")]
-    public Transform[] winAltarSpawnPositions;
-    public int enemiesToDefeatToWin = 10;
-    [SerializeField] private int enemiesDefeated = 0;
+ 
+    private List<GameObject> altarSpawnPositions; 
 
     [Header("Game Scene")]
     public Transform m_FOGHolder;
@@ -215,24 +204,13 @@ public class GameManager : MonoBehaviour
     }
 
     void BindEnemiesEvents()
-    {
-        enemyDiedEventBinding = new EventBinding<OnEnemyDied>(OnEnemyDied);
-        EventBus<OnEnemyDied>.Register(enemyDiedEventBinding);
+    { 
     }
 
 
     #region Events Methods
 
-
-    private void OnEnemyDied(OnEnemyDied arg0)
-    {
-        enemiesDefeated++;
-        if (!IsGameState(GameState.Playing)) return;
-        if (enemiesDefeated >= enemiesToDefeatToWin)
-        {
-            // ActivateWinAltar();
-        }
-    }
+ 
 
     private void HandleFinalAltarActivated(OnFinalAltarActivated arg0)
     {
@@ -327,23 +305,7 @@ public class GameManager : MonoBehaviour
 
         }
     }
-    void ActivateWinAltar()
-    {
-        if (_endZone.activeSelf) return;
-        _endZone.SetActive(true);
-        _endZone.transform.position = GetRandomAltarSpawn().transform.position;
-    }
-
-    void SpawnStartAltar()
-    {
-        _startZone = Instantiate(StartZonePrefab);
-        _startZone.SetActive(false);
-    }
-    void ActivateStartAltar()
-    {
-        _startZone.transform.position = GetRandomAltarSpawn().transform.position;
-        _startZone.SetActive(true);
-    }
+ 
 
     private async void HandleAltarActivated(OnAltarActivated arg0)
     {
@@ -405,8 +367,7 @@ public class GameManager : MonoBehaviour
     }
 
     private void ResetGame()
-    {
-        enemiesDefeated = 0;
+    { 
         m_AltarsActivated = 0;
         _enemyManager.SetCurrentWave(0);
         m_FOGHolder.gameObject.SetActive(true);
