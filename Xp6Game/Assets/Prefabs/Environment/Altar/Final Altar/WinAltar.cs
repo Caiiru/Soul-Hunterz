@@ -27,7 +27,7 @@ public class WinAltar : MonoBehaviour, Interactable
 
     private bool _canInteract = true;
 
-    [SerializeField] PlayerInventory m_playerInventory;
+    PlayerInventory m_playerInventory;
 
     private bool m_isActivated = false;
 
@@ -35,7 +35,6 @@ public class WinAltar : MonoBehaviour, Interactable
 
     public ActivationAltarSettings m_AltarSettings;
 
-    public int m_soulsStartAmount = 0;
     private int m_soulsRemove = 0;
 
     public VisualEffect m_ActivatedEffect;

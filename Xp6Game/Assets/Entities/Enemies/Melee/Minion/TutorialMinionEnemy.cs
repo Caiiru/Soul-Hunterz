@@ -1,7 +1,8 @@
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 
-public class MinionEnemy : Enemy<EnemySO>
+public class TutorialMinionEnemy : Enemy<EnemySO>
 {
     public bool m_IsMoving;
 
@@ -10,6 +11,8 @@ public class MinionEnemy : Enemy<EnemySO>
 
     Collider[] m_HitCollider;
 
+    const int k_Milliseconds = 1000;
+    public GameObject m_DropMap;
 
     public void SetMove(bool isMoving)
     {
@@ -23,7 +26,7 @@ public class MinionEnemy : Enemy<EnemySO>
         base.Initialize();
         m_PlayerLayerMask = 1 << 7;
         m_HitCollider = new Collider[5];
-        
+
 
     }
 
@@ -56,20 +59,53 @@ public class MinionEnemy : Enemy<EnemySO>
             }
 
             foreach (var _hit in m_HitCollider)
-            { 
-                if(_hit.TryGetComponent<PlayerEntity>(out var _comp)){
+            {
+                if (_hit.TryGetComponent<PlayerEntity>(out var _comp))
+                {
                     _comp.TakeDamage(m_entityData.m_AttackMeleeDamage);
                     break;
                 }
             }
 
- 
+
         }
     }
-    protected override UniTask Die()
+    protected override async UniTask Die()
     {
-        return base.Die(); 
+        // return base.Die();
 
+        if (m_hasNavMesh)
+        {
+            m_navMesh.enabled = false;
+        }
+
+        if (m_stateMachine != null)
+        {
+            m_stateMachine.SetActive(false);
+        }
+        this.GetComponent<Collider>().enabled = false;
+
+        m_animator.SetTrigger("isDead");
+
+
+        await UniTask.Delay(1 * k_Milliseconds);
+
+        var m_AnimationClipInfo = m_animator.GetCurrentAnimatorClipInfo(0)[0].clip.length;
+
+
+        await UniTask.Delay((int)m_AnimationClipInfo * k_Milliseconds);
+
+
+        transform.DOMoveY(transform.position.y - 2f, 2).SetEase(Ease.Linear);
+
+
+        await UniTask.Delay(2 * k_Milliseconds);
+        Instantiate(m_DropMap, transform.position, Quaternion.identity);
+
+
+
+        await UniTask.Delay(1 * k_Milliseconds);
+        Destroy(this.gameObject);
     }
 
     public bool GetMove()

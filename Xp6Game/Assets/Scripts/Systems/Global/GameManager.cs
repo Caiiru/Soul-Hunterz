@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -42,6 +43,9 @@ public class GameManager : MonoBehaviour
     EventBinding<OnAltarActivated> m_OnAltarActivatedBinding;
 
     EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
+
+    EventBinding<OnMapCollected> m_OnMapCollectedBinding;
+
 
 
     #endregion
@@ -138,6 +142,9 @@ public class GameManager : MonoBehaviour
         m_OnFinalAltarActivatedBinding = new EventBinding<OnFinalAltarActivated>(HandleFinalAltarActivated);
         EventBus<OnFinalAltarActivated>.Register(m_OnFinalAltarActivatedBinding);
 
+        m_OnMapCollectedBinding = new EventBinding<OnMapCollected>(HandleTutorialFinished);
+        EventBus<OnMapCollected>.Register(m_OnMapCollectedBinding);
+
     }
 
 
@@ -233,6 +240,20 @@ public class GameManager : MonoBehaviour
         m_FOGHolder.transform.DOScale(m_FOGStartScale, 0.5f);
     }
 
+    private async void HandleTutorialFinished(OnMapCollected arg0)
+    {
+        if (m_FOGHolder != null && m_FOGHolder.gameObject.activeSelf)
+            m_FOGHolder.DOScale(new Vector3(100, 100, 100), 10f).SetEase(Ease.InOutSine).OnComplete(() =>
+            {
+                m_FOGHolder.gameObject.SetActive(false);
+            });
+
+        EventBus<OnDisplayMessage>.Raise(new OnDisplayMessage { m_Message = "Use your map to find all altars" });
+        await SpawnAllAltars();
+
+        // cameraShakeManager.instance.CameraShake(GetComponent<CinemachineImpulseSource>());
+    }
+
     #endregion
 
     void SpawnPlayer()
@@ -268,7 +289,6 @@ public class GameManager : MonoBehaviour
     async UniTask SpawnNewAltar()
     {
 
-        Debug.Log("Spawning New Altar");
 
         GameObject newAltar = Instantiate(EndZonePrefab, Vector3.zero, Quaternion.identity);
         newAltar.SetActive(false);
@@ -285,6 +305,27 @@ public class GameManager : MonoBehaviour
         newAltar.transform.DOMoveY(newAltar.transform.position.y + 4, 3f).SetEase(Ease.OutBounce);
 
         // _endZone.SetActive(false);
+    }
+
+    async UniTask SpawnAllAltars()
+    {
+        for (int i = 0; i < altarSpawnPositions.Count; i++)
+        {
+            GameObject newAltar = Instantiate(EndZonePrefab, altarSpawnPositions[i].transform.position, Quaternion.identity);
+
+            newAltar.transform.position = new Vector3(
+            newAltar.transform.position.x,
+            newAltar.transform.position.y - 5,
+            newAltar.transform.position.z);
+
+            newAltar.GetComponent<WinAltar>().m_AltarIndex = i;
+
+
+            await UniTask.WaitForSeconds(0.1f);
+            newAltar.SetActive(true);
+            newAltar.transform.DOMoveY(newAltar.transform.position.y + 4, 3f).SetEase(Ease.OutBounce);
+
+        }
     }
     void ActivateWinAltar()
     {
@@ -316,11 +357,7 @@ public class GameManager : MonoBehaviour
         }
         await SpawnNewAltar();
 
-        if (m_FOGHolder != null && m_FOGHolder.gameObject.activeSelf)
-            m_FOGHolder.DOScale(new Vector3(100, 100, 100), 5f).SetEase(Ease.InOutSine).OnComplete(() =>
-            {
-                m_FOGHolder.gameObject.SetActive(false);
-            });
+
 
 
     }
@@ -406,5 +443,5 @@ public enum GameState
 
 public static class GameSettings
 {
-    public const float k_AltarTimeActivation = 10; 
+    public const float k_AltarTimeActivation = 10;
 }

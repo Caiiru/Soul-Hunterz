@@ -41,6 +41,10 @@ public class CameraManager : MonoBehaviour
     EventBinding<OnStartAltarActivation> m_OnAltarActivated;
     EventBinding<OnAltarActivated> m_OnAltarEndedActivation;
 
+    //Tutorial
+
+    EventBinding<OnMapCollected> m_OnMapCollectedBinding;
+
 
 
 
@@ -93,7 +97,21 @@ public class CameraManager : MonoBehaviour
         EventBus<OnAltarActivated>.Register(m_OnAltarEndedActivation);
 
 
+        m_OnMapCollectedBinding = new EventBinding<OnMapCollected>(async () =>
+        {
+            await HandleTutorialShake(5);
+        });
+        EventBus<OnMapCollected>.Register(m_OnMapCollectedBinding);
 
+
+
+    }
+
+    private async UniTask HandleTutorialShake(int duration)
+    {
+        StartCoroutine(DoScreenShake(1, 1, duration, m_ActivationAltarSettings.tutorialCurve));
+        await UniTask.Delay(duration * 1000);
+        await HandleAltarEndedActivation();
     }
 
     private async UniTask HandleAltarEndedActivation()
@@ -177,9 +195,9 @@ public class CameraManager : MonoBehaviour
         }
     }
 
-    private void HandleAltarActivation(OnStartAltarActivation arg0)
+    private void HandleAltarActivation()
     {
-        StartCoroutine(DoScreenShake(1, 1));
+        StartCoroutine(DoScreenShake(1, 1, m_ActivationAltarSettings.activationDuration, m_ActivationAltarSettings.shakeCurve));
         // m_CinemachineCamera = this.GetComponentInChildren<CinemachineCamera>();
 
         // m_CinemachineCamera.Target.TrackingTarget = GameObject.FindWithTag("Player").transform;
@@ -197,7 +215,7 @@ public class CameraManager : MonoBehaviour
         // }
     }
 
-    private IEnumerator DoScreenShake(float baseAmplitude, float baseFrequency)
+    private IEnumerator DoScreenShake(float baseAmplitude, float baseFrequency, float duration, AnimationCurve curve)
     {
         m_isShaking = true;
         float elapsed = 0;
@@ -207,11 +225,11 @@ public class CameraManager : MonoBehaviour
         m_CinemachineCamera.Target.TrackingTarget = GameObject.FindWithTag("Player").transform;
 
 
-        while (elapsed < m_ActivationAltarSettings.activationDuration)
+        while (elapsed < duration)
         {
-            float _timeProgress = elapsed / m_ActivationAltarSettings.activationDuration;
+            float _timeProgress = elapsed / duration;
 
-            float _attenuation = m_ActivationAltarSettings.shakeCurve.Evaluate(_timeProgress);
+            float _attenuation = curve.Evaluate(_timeProgress);
 
 
             for (int i = 0; i < m_DrivenCameraTransform.childCount; i++)

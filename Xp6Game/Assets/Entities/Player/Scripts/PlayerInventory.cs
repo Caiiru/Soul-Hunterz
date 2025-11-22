@@ -9,12 +9,9 @@ using UnityEngine.VFX;
 
 public class PlayerInventory : MonoBehaviour
 {
+    [Header("Inventory")]
+    bool m_canOpenInventory;
     [SerializeField] bool isInventoryOpen = false;
-    // private CharacterInput _characterInput;
-    InputAction _inventoryInput;
-
-    [Header("Inventory KeyCodes")]
-    public KeyCode debugWeapon = KeyCode.P;
 
 
     [Header("Weapons and Components")]
@@ -44,6 +41,9 @@ public class PlayerInventory : MonoBehaviour
     EventBinding<OnGameWin> m_OnGameWinBinding;
     EventBinding<OnGameOver> m_OnGameOverBinding;
 
+    //Tutorial
+
+    EventBinding<OnMapCollected> m_OnTutorialMapCollected;
 
     public delegate void PlayerGetWeapon(AbstractWeapon weapon, int slot);
     public static event PlayerGetWeapon OnPlayerGetWeapon;
@@ -111,6 +111,14 @@ public class PlayerInventory : MonoBehaviour
         });
         EventBus<OnGameOver>.Register(m_OnGameOverBinding);
 
+        m_OnTutorialMapCollected = new EventBinding<OnMapCollected>(() =>
+        {
+            m_canOpenInventory = true;
+
+        });
+        EventBus<OnMapCollected>.Register(m_OnTutorialMapCollected);
+
+
 
 
 
@@ -142,13 +150,16 @@ public class PlayerInventory : MonoBehaviour
         m_currency = 0;
 
 
-        EventBus<OnCollectSouls>.Raise(new OnCollectSouls { amount = 550 });
+        // EventBus<OnCollectSouls>.Raise(new OnCollectSouls { amount = 550 });
     }
     #endregion
 
 
     void ToggleInventory(bool newState)
     {
+        if (!m_canOpenInventory) return;
+
+
         isInventoryOpen = newState;
         // OnPlayerInventoryToggle?.Invoke(isInventoryOpen);
         EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = newState });
