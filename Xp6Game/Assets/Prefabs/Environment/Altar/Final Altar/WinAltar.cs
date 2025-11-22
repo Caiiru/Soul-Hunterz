@@ -9,11 +9,19 @@ using UnityEngine.VFX;
 
 public class WinAltar : MonoBehaviour, Interactable
 {
+    public AltarDirection m_AltarDirection;
+
+    [Space]
 
     public int m_RequiredSouls = 10;
     public int m_CurrentSouls = 0;
     public int m_SoulsPerInteraction = 5;
     public int m_AltarIndex = 0;
+
+
+    [Header("Spawn position")]
+
+    public Transform m_spawnPositionHolder;
 
     [Header("Text Settigs")]
     [SerializeField]
@@ -90,7 +98,7 @@ public class WinAltar : MonoBehaviour, Interactable
     #region Initialize
     void Initialize()
     {
-        transform.name = "???";
+        transform.name = "Altar";
         _canInteract = true;
         if (m_soulsText == null) return;
 
@@ -199,9 +207,12 @@ public class WinAltar : MonoBehaviour, Interactable
         _canInteract = false;
         EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
         EventBus<OnAltarActivated>.Raise(
-            new OnAltarActivated { m_AltarActivatedIndex = m_AltarIndex });
+            new OnAltarActivated { m_AltarActivatedIndex = m_AltarIndex, m_Direction = m_AltarDirection, m_SpawnPointHolder = m_spawnPositionHolder });
 
-        EventBus<OnWaveClearedEvent>.Raise(new OnWaveClearedEvent());
+
+
+        //Spawn Enemy Wave
+
 
         // DesactivatePopup();
     }
@@ -264,6 +275,11 @@ public class WinAltar : MonoBehaviour, Interactable
 
 
     }
+
+    private void SpawnWave()
+    {
+
+    }
     #endregion
 
     public async void ResetGame()
@@ -283,4 +299,12 @@ public class WinAltar : MonoBehaviour, Interactable
     {
         return InteractableType.Interactable;
     }
+}
+
+public enum AltarDirection
+{
+    NORTH,
+    SOUTH,
+    EAST,
+    WEST
 }

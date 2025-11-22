@@ -36,6 +36,8 @@ public class OnStartAltarActivation : IEvent
 public class OnAltarActivated : IEvent
 {
     public int m_AltarActivatedIndex;
+    public AltarDirection m_Direction;
+    public Transform m_SpawnPointHolder; 
 }
 
 public class WaveStartEvent : IEvent

@@ -85,22 +85,21 @@ public class EnemyManager : MonoBehaviour
         {
             if (data.m_AltarActivatedIndex == 0)
             {
-                //Start First Wave
-
+                //Start First Wave 
 
             }
         }));
 
         m_OnFinalAltarActivatedBinding = new EventBinding<OnFinalAltarActivated>(() =>
         {
-            _enemySpawner.SetNewWave(m_FinalWave);
+            // _enemySpawner.SetNewWave(m_FinalWave);
             _enemySpawner.StartSpawning();
         });
         EventBus<OnFinalAltarActivated>.Register(m_OnFinalAltarActivatedBinding);
 
 
-        m_OnEnemyDiedBinding = new EventBinding<OnEnemyDied>(OnEnemyDiedHandler);
-        EventBus<OnEnemyDied>.Register(m_OnEnemyDiedBinding);
+        // m_OnEnemyDiedBinding = new EventBinding<OnEnemyDied>(OnEnemyDiedHandler);
+        // EventBus<OnEnemyDied>.Register(m_OnEnemyDiedBinding);
 
 
     }
@@ -182,15 +181,15 @@ public class EnemyManager : MonoBehaviour
     public void StartNextWave()
     {
         // _enemySpawner.StartSpawning(); 
+        return;
 
 
+        // _enemySpawner.SetNewWave(m_Waves[m_currentWave]);
+        // EventBus<WaveStartEvent>.Raise(new WaveStartEvent { waveIndex = m_currentWave });
+        // m_currentWave = m_Waves.Length < m_currentWave - 1 ? m_currentWave++ : m_currentWave;
 
-        _enemySpawner.SetNewWave(m_Waves[m_currentWave]);
-        EventBus<WaveStartEvent>.Raise(new WaveStartEvent { waveIndex = m_currentWave });
-        m_currentWave = m_Waves.Length < m_currentWave - 1 ? m_currentWave++ : m_currentWave;
-
-        if (AudioManager.Instance == null) return;
-        AudioManager.Instance.PlayOneShotAtPosition(m_waveStartClip, Camera.main.transform.position);
+        // if (AudioManager.Instance == null) return;
+        // AudioManager.Instance.PlayOneShotAtPosition(m_waveStartClip, Camera.main.transform.position);
 
     }
     public void StopSpawning()

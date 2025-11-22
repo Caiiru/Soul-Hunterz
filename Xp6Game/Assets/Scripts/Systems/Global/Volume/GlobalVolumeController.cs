@@ -80,8 +80,8 @@ public class GlobalVolumeController : MonoBehaviour
 
     IEnumerator HandleWaveCleared()
     {
-        DesactivateAllWeights();
-
+        // DesactivateAllWeights();
+        
         if (WaveClearedVolume.weight == 0)
         {
             StartCoroutine(DoLerpToOne(WaveClearedVolume, volumeSettings.waveClearedLerpDuration));
@@ -90,7 +90,7 @@ public class GlobalVolumeController : MonoBehaviour
         yield return new WaitForSeconds(volumeSettings.waveClearedDelay);
 
 
-        DesactivateAllWeights();
+        // DesactivateAllWeights();
 
         if (m_PlayerCurrentHealth <= m_PlayerHealthLimit)
         {
