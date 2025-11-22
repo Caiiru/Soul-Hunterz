@@ -201,6 +201,8 @@ public class WinAltar : MonoBehaviour, Interactable
         EventBus<OnAltarActivated>.Raise(
             new OnAltarActivated { m_AltarActivatedIndex = m_AltarIndex });
 
+        EventBus<OnWaveClearedEvent>.Raise(new OnWaveClearedEvent());
+
         // DesactivatePopup();
     }
 
