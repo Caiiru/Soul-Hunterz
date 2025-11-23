@@ -34,7 +34,7 @@ public class CursorController : MonoBehaviour
 
     private void EndedClick() {
         ChangeCursor(cursor);
-        Debug.Log("Cursor Released");
+        // Debug.Log("Cursor Released");
     }
 
 

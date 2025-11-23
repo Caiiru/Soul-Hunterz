@@ -21,7 +21,7 @@ public class ComponentSlot : MonoBehaviour
     {
         _transform = GetComponent<RectTransform>();
         Vector2 _compSize = new Vector2(transform.GetComponent<RectTransform>().rect.width, transform.GetComponent<RectTransform>().rect.height);
-        transform.GetComponent<BoxCollider2D>().size = _compSize;
+        transform.GetComponent<BoxCollider2D>().size = new Vector2(60, 60);
     }
 
     public void OverrideComponent(ComponentUI component)
@@ -29,13 +29,7 @@ public class ComponentSlot : MonoBehaviour
         // Debug.Log("Override Component");
         component.transform.position = this.transform.position;
         component.transform.SetParent(this.transform);
-        if (m_isInventory)
-            component.transform.DOScale(Vector3.one * 2, 0.1f);
-        else
-        {
-            component.transform.DOScale(Vector3.one, 0.1f);
 
-        }
         currentComponentUI = component;
         component.SetSlot(this);
 
@@ -48,6 +42,8 @@ public class ComponentSlot : MonoBehaviour
         weapon.m_weaponComponents[slotPosition] = currentComponent;
 
         EventBus<OnComponentUpdate>.Raise(new OnComponentUpdate());
+
+
         // weapon.ReadComponents();
     }
 
