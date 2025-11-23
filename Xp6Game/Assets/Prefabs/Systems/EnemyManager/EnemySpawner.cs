@@ -43,6 +43,10 @@ public class EnemySpawner : MonoBehaviour
     EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
     EventBinding<OnAltarActivated> m_OnAltarActivatedBinding;
 
+    //Player reference
+
+    Transform m_playerReferece;
+
 
     void Start()
     {
@@ -52,6 +56,9 @@ public class EnemySpawner : MonoBehaviour
         {
             Debug.LogError("EnemyPoolManager não encontrado no GameObject! O Pool não funcionará.");
         }
+
+        m_playerReferece = GameObject.FindGameObjectWithTag("Player").transform;
+
 
         _random = new System.Random();
         BindEvents();
@@ -150,7 +157,7 @@ public class EnemySpawner : MonoBehaviour
             // EventBus<WaveEndEvent>.Raise(new WaveEndEvent()); // Exemplo de evento de fim de onda 
             m_isWaveActive = false;
             StopSpawning();
-            
+
 
         }
     }
@@ -200,6 +207,7 @@ public class EnemySpawner : MonoBehaviour
             m_EnemiesActive++;
 
         }
+        enemy.GetComponent<StateMachine>().SetDestination(m_playerReferece.position);
     }
 
     // --- Métodos Auxiliares ---
