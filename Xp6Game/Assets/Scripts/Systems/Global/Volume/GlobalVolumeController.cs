@@ -81,21 +81,25 @@ public class GlobalVolumeController : MonoBehaviour
     IEnumerator HandleWaveCleared()
     {
         // DesactivateAllWeights();
-        
+        if (AltarActivatedVolume.weight != 0)
+        {
+            StartCoroutine(DoLerpToZero(AltarActivatedVolume, 1f));
+        }
         if (WaveClearedVolume.weight == 0)
         {
             StartCoroutine(DoLerpToOne(WaveClearedVolume, volumeSettings.waveClearedLerpDuration));
         }
 
-        yield return new WaitForSeconds(volumeSettings.waveClearedDelay);
+        yield return new WaitForSeconds(volumeSettings.waveClearedLerpDuration * 2);
 
+        StartCoroutine(DoLerpToZero(WaveClearedVolume, volumeSettings.waveClearedLerpDuration));
 
         // DesactivateAllWeights();
 
         if (m_PlayerCurrentHealth <= m_PlayerHealthLimit)
         {
 
-            StartCoroutine(DoLerpToZero(LowHealthVolume, volumeSettings.LerpDuration));
+            StartCoroutine(DoLerpToOne(LowHealthVolume, volumeSettings.LerpDuration));
         }
 
 
@@ -136,6 +140,9 @@ public class GlobalVolumeController : MonoBehaviour
             yield return null;
 
         }
+        if (targetVolume.weight != 0)
+            targetVolume.weight = 0;
+
     }
 
     void DesactivateAllWeights()

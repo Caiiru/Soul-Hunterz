@@ -61,7 +61,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     public override void Initialize()
     {
         base.Initialize();
-        transform.name = m_entityData.m_name;
+        // transform.name = m_entityData.m_name;
         // Debug.Log($"Enemy Enabled: {gameObject.name} with Speed: {speed} and Attack Range: {attackRange}");
 
         m_attackRange = m_entityData.m_AttackRange;
@@ -210,12 +210,6 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         DropSoul();
 
-        EventBus<OnEnemyDied>.Raise(new OnEnemyDied
-        {
-            enemyID = m_entityData.m_name,
-            deathPosition = transform.position
-        });
-
         await UniTask.Delay(2 * k_Milliseconds);
         var m_AnimationClipInfo = m_animator.GetCurrentAnimatorClipInfo(0)[0].clip.length;
 
@@ -229,12 +223,21 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         await UniTask.Delay(3 * k_Milliseconds);
 
+        EventBus<OnEnemyDied>.Raise(new OnEnemyDied
+        {
+            enemyID = m_entityData.m_name,
+            deathPosition = transform.position,
+            enemy = this.gameObject,
+
+
+        });
+
 
 
 
         // Debug.Log("Enemy died");
         // await base.Die();
-        Destroy(this.gameObject);
+        // Destroy(this.gameObject);
     }
 
     private void DropSoul()

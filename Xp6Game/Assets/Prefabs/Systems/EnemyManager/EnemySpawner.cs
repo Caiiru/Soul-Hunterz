@@ -1,87 +1,168 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [SerializeField] bool canSpawn = false;
-    [SerializeField] float spawnInterval = 5f;
-    float timer = 0;
+    // --- Variáveis de Controle de Spawn ---
+    [SerializeField] private bool canSpawn = false;
+    [SerializeField] private float spawnInterval = 5f;
+    private float timer = 0;
 
-    System.Random _random;
+    // Contagem de inimigos ativos (retirados do Pool)
+    [SerializeField] private int m_EnemiesActive = 0;
 
-    [SerializeField] int m_EnemiesActive = 0;
+    // Índice da onda atual a ser spawnada (usado no Evento OnAltarActivatedHandler)
+    private int m_spawnActivated = -1;
 
+    bool m_isWaveActive = false;
+
+    // Fonte de números aleatórios
+    private System.Random _random;
+
+    // --- Referências Essenciais ---
+    [Header("Pool & Data")]
+    public WaveData[] EnemiesToSpawn;
+    [SerializeField] private EnemyPool m_EnemyPool; // Mudei para o nome da classe que você criou
+
+    // Queue para armazenar as EnemyData que PRECISAM ser spawnadas (ordenadas e com duplicatas).
+    private readonly Queue<EnemyData> m_enemiesToSpawnQueue = new Queue<EnemyData>();
+
+    // --- Posições de Spawn ---
     [Header("Positions")]
     public GameObject[] enemySpawnPosition;
-    // public GameObject[] m_EnemyFinalSpawnPositions;
-
-    public AltarSpawn[] m_AltarSpawns;
+    public AltarSpawn[] m_AltarSpawns; // Mantido, mas não usado diretamente no spawn aqui
 
     private EnemyManager _enemyManager;
+    private bool m_isFinalForm;
 
-    [SerializeField] private Queue<GameObject> m_enemiesToSpawn = new Queue<GameObject>();
-
-
-    bool m_isFinalForm;
-
-    //Events
+    // --- Eventos (Mantidos Ilesos) ---
     EventBinding<OnEnemyDied> m_OnEnemyDiedBinding;
     EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
+    EventBinding<OnAltarActivated> m_OnAltarActivatedBinding;
 
 
     void Start()
     {
-        _enemyManager = GameManager.Instance.GetEnemyManager();
-        enemySpawnPosition = GameObject.FindGameObjectsWithTag("EnemySpawnPos");
-        // m_EnemyFinalSpawnPositions = GameObject.FindGameObjectsWithTag("EnemyFinalPos");
-
-        if (enemySpawnPosition.Length == 0)
+        // Certifique-se de que o pool manager é o componente correto (EnemyPoolManager)
+        m_EnemyPool = gameObject.GetComponent<EnemyPool>();
+        if (m_EnemyPool == null)
         {
-            Debug.LogError("No enemy spawn positions found.");
+            Debug.LogError("EnemyPoolManager não encontrado no GameObject! O Pool não funcionará.");
         }
 
         _random = new System.Random();
-
         BindEvents();
     }
 
     private void BindEvents()
     {
+        // ... (Seus Event Bindings Inalterados)
         m_OnEnemyDiedBinding = new EventBinding<OnEnemyDied>(OnEnemyDiedHandler);
+        EventBus<OnEnemyDied>.Register(m_OnEnemyDiedBinding); // Adicionei o registro
 
         m_OnFinalAltarActivatedBinding = new EventBinding<OnFinalAltarActivated>(HandlerFinalAltar);
         EventBus<OnFinalAltarActivated>.Register(m_OnFinalAltarActivatedBinding);
 
+        m_OnAltarActivatedBinding = new EventBinding<OnAltarActivated>(OnAltarActivatedHandler);
+        EventBus<OnAltarActivated>.Register(m_OnAltarActivatedBinding);
     }
+
+    // --- Lógica de Eventos ---
+
+    private void OnAltarActivatedHandler(OnAltarActivated arg0)
+    {
+        // 1. Define as posições de spawn baseadas no Altar
+        m_isWaveActive = true;
+        Transform spawnholder = arg0.m_SpawnPointHolder;
+        enemySpawnPosition = new GameObject[spawnholder.childCount];
+
+        for (int i = 0; i < spawnholder.childCount; i++)
+        {
+            enemySpawnPosition[i] = spawnholder.GetChild(i).gameObject;
+        }
+
+        // 2. Prepara a Queue de Inimigos para a Onda
+
+        m_spawnActivated++;
+        PrepareWaveQueue(m_spawnActivated);
+
+        // 3. Começa a spawnar no FixedUpdate
+        StartSpawning();
+    }
+
+    // --- Novo Método: Prepara a fila de inimigos ---
+    public void PrepareWaveQueue(int waveCount)
+    {
+        if (waveCount < 0 || waveCount >= EnemiesToSpawn.Length)
+        {
+            Debug.LogError($"WaveData inválida para o índice {waveCount}.");
+            return;
+        }
+
+        WaveData currentWave = EnemiesToSpawn[waveCount];
+
+        // Limpa a fila antes de adicionar a nova onda
+        m_enemiesToSpawnQueue.Clear();
+
+        // Itera sobre CADA tipo de inimigo
+        foreach (var enemyData in currentWave.m_enemies)
+        {
+            // Adiciona o prefab na Queue o número 'amount' de vezes
+            for (int i = 0; i < enemyData.amount; i++)
+            {
+                m_enemiesToSpawnQueue.Enqueue(enemyData);
+            }
+        }
+
+        // Define o intervalo de spawn para a onda atual
+        spawnInterval = currentWave.m_spawnDelay;
+    }
+
+
+    // O Coroutine 'SpawnWave' não é mais necessário, pois a Queue agora alimenta o FixedUpdate
+    // Se você quiser spawnar todos de uma vez (Burst), o código iria aqui.
+    // Mantenha o FixedUpdate para spawns sequenciais baseados em `spawnInterval`.
+
 
     private void HandlerFinalAltar(OnFinalAltarActivated arg0)
     {
-        m_enemiesToSpawn.Clear();
+        m_enemiesToSpawnQueue.Clear();
+        StopSpawning(); // Para qualquer spawn pendente
         m_isFinalForm = true;
-
-
     }
 
     private void OnEnemyDiedHandler(OnEnemyDied arg0)
     {
+        if (!m_isWaveActive) return;
+
+
         m_EnemiesActive--;
-    }
 
-    async void FixedUpdate()
-    {
-        if (!canSpawn) return;
-
-
-        timer += Time.deltaTime;
-        if (timer >= spawnInterval && m_enemiesToSpawn.Count > 0)
+        // Lógica: Se a fila estiver vazia E não houver inimigos ativos, a onda terminou.
+        if (m_enemiesToSpawnQueue.Count == 0 && m_EnemiesActive <= 0)
         {
-            timer = 0;
-            // SpawnRandomEnemyAt(GetRandomSpawnPosition()); 
+            EventBus<OnWaveClearedEvent>.Raise(new OnWaveClearedEvent());
+            // EventBus<WaveEndEvent>.Raise(new WaveEndEvent()); // Exemplo de evento de fim de onda
         }
     }
+
+    // --- Loop de Spawn com Delay ---
+    void FixedUpdate()
+    {
+        // Só tenta spawnar se puder, se a fila não estiver vazia e se houver posições de spawn
+        if (!canSpawn || m_enemiesToSpawnQueue.Count == 0 || enemySpawnPosition.Length == 0) return;
+
+        timer += Time.deltaTime;
+
+        if (timer >= spawnInterval)
+        {
+            timer = 0;
+            SpawnNextEnemyFromQueue(GetRandomSpawnPosition());
+        }
+    }
+
     public void StartSpawning()
     {
         canSpawn = true;
@@ -91,121 +172,53 @@ public class EnemySpawner : MonoBehaviour
     {
         canSpawn = false;
     }
-    private void SpawnRandomEnemyAt(Vector3 SpawnPosition)
+
+    // --- Novo Método de Spawn (Usando Pool) ---
+    private void SpawnNextEnemyFromQueue(Vector3 spawnPosition)
     {
-        // GameObject enemy = _enemyManager.GetEnemy();
-
-        // if (enemy == null) return;
-
-        // is melee or ranged
-        int randomIndex = _random.Next(10);
-
-
-        if (randomIndex < 5)
+        if (m_enemiesToSpawnQueue.Count == 0 || m_EnemyPool == null)
         {
-            SpawnMeleeEnemy(SpawnPosition);
+            StopSpawning();
+            return;
         }
-        else
+
+        // Pega o PRÓXIMO inimigo na fila (garantindo a ordem da WaveData)
+        EnemyData enemyDataToSpawn = m_enemiesToSpawnQueue.Dequeue();
+
+        // Usa o PoolManager para pegar o inimigo
+        GameObject enemy = m_EnemyPool.SpawnFromPool(enemyDataToSpawn, spawnPosition, Quaternion.identity);
+
+        if (enemy != null)
         {
-            SpawnRandomRangedEnemy(SpawnPosition);
+            m_EnemiesActive++;
+
         }
     }
 
-    private void SpawnMeleeEnemy(Vector3 spawnPosition)
+    // --- Métodos Auxiliares ---
+
+    private Vector3 GetRandomSpawnPosition()
     {
+        // RandomOffset mantido para espalhar os inimigos
+        Vector3 randomOffset = new Vector3(_random.Next(1, 1), 0, _random.Next(1, 1));
 
+        int randomIndex = _random.Next(enemySpawnPosition.Length);
+        return enemySpawnPosition[randomIndex].transform.position;
     }
-    private void SpawnRandomRangedEnemy(Vector3 spawnPosition)
-    {
-        // EnemySO _enemyData = GetRandomRangedData();
-
-        GameObject enemy = _enemyManager.GetRangedEnemy();
-        if (enemy == null) return;
-        enemy.transform.position = spawnPosition;
-        enemy.transform.rotation = Quaternion.identity;
-
-        enemy.SetActive(true);
-
-        // enemy.GetComponent<RangedEnemy>().SetData(_enemyData);
-        enemy.GetComponent<RangedEnemy>().Initialize();
-
-    }
-
-    // private Vector3 GetRandomSpawnPosition()
-    // {
-
-
-    //     //Spread out the enemies
-    //     Vector3 randomOffset = new Vector3(_random.Next(-5, 5), 0, _random.Next(-5, 5));
-    //     if (!m_isFinalForm)
-    //     {
-    //         int randomIndex = _random.Next(enemySpawnPosition.Length);
-    //         return enemySpawnPosition[randomIndex].transform.position + randomOffset;
-    //     }
-    //     else
-    //     {
-    //         int randomIndex = _random.Next(m_EnemyFinalSpawnPositions.Length);
-    //         return m_EnemyFinalSpawnPositions[randomIndex].transform.position + randomOffset;
-    //     }
-
-    //     // return enemySpawnPosition[randomIndex].transform.position;
-    // }
-
-
-
-    // public async void SetNewWave(WaveData data)
-    // {
-
-    //     // EventBus<WaveStartEvent>.Raise(new WaveStartEvent { waveIndex = m_currentWave - 1 });
-    //     for (int i = 0; i < data.m_enemies.Length; i++)
-    //     {
-    //         foreach (var d in data.m_enemies)
-    //         {
-    //             for (int j = 0; j < d.amount; j++)
-    //                 m_enemiesToSpawn.Enqueue(d.m_prefab);
-
-    //             // Instantiate(d.m_prefab);
-    //         }
-    //     }
-    //     spawnInterval = data.m_spawnRate;
-
-    //     await SpawnNextInQueue();
-    // }
-    // // public async UniTask SpawnNextInQueue()
-    // // {
-    // //     if (m_enemiesToSpawn.Count == 0)
-    // //     {
-
-    // //         // EventBus<WaveEndEvent>.Raise(new WaveEndEvent());
-    // //         await UniTask.CompletedTask;
-    // //     }
-    // //     if (!canSpawn) await UniTask.CompletedTask;
-
-    // //     GameObject enemyPrefab = m_enemiesToSpawn.Dequeue();
-    // //     Vector3 spawnPosition = GetRandomSpawnPosition();
-
-    // //     GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
-    // //     m_EnemiesActive++;
-    // //     enemy.SetActive(true);
-    // //     // enemy.GetComponent<Enemy<EnemySO>>().Initialize();
-
-    // //     await UniTask.CompletedTask;
-    // // }
-
-
 
     public int GetActiveEnemies()
     {
         return m_EnemiesActive;
     }
-
-
-
 }
-
 [System.Serializable]
+
 public struct AltarSpawn
+
 {
+
     public AltarDirection altarDirection;
+
     public Transform[] spawnPoints;
+
 }

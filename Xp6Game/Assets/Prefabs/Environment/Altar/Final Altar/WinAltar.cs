@@ -167,8 +167,6 @@ public class WinAltar : MonoBehaviour, Interactable
         _canInteract = false;
 
         StartAltarActivation();
-        m_isActivated = true;
-        EventBus<OnStartAltarActivation>.Raise(new OnStartAltarActivation());
         // ActivatePopup()
 
     }
@@ -220,6 +218,11 @@ public class WinAltar : MonoBehaviour, Interactable
     void StartAltarActivation()
     {
         // m_ActivatedEffect.SetBool("Active", true);
+
+        m_isActivated = true;
+        EventBus<OnStartAltarActivation>.Raise(new OnStartAltarActivation { m_Direction = m_AltarDirection });
+
+        
         _canInteract = false;
         StartCoroutine(AltarActivationTransition());
 

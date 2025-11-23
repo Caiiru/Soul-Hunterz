@@ -72,7 +72,7 @@ public class CollectableComponent : Collectable, Interactable
     {
         _itemIcon.sprite = componentData.Icon;
         _itemIcon.color = new Color(255, 255, 255, 255);
-        
+
 
         transform.name = componentData.ComponentName;
 
@@ -101,7 +101,7 @@ public class CollectableComponent : Collectable, Interactable
     UniTask PopupIcon()
     {
 
-        //Activate Icon Mesh
+    //Activate Icon Mesh
         _itemIcon.color = new Color(255, 255, 255, 255);
         _iconHolder.gameObject.SetActive(true);
         //Set to position
@@ -155,6 +155,7 @@ public class CollectableComponent : Collectable, Interactable
 
         EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
         DesactiveItem();
+        m_CanInteract = false;
 
     }
 
