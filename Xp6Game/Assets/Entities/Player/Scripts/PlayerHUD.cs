@@ -265,7 +265,8 @@ public class PlayerHUD : MonoBehaviour
         {
             // m_isTutorial = false;
 
-            m_backpackLight.gameObject.SetActive(false);
+            // m_backpackLight.gameObject.SetActive(false);
+            m_backpackLight.GetComponent<Animator>().SetTrigger("backPackDefault");
         }));
 
         m_OnAltarActivatedBinding = new EventBinding<OnAltarActivated>((data) =>
@@ -574,11 +575,13 @@ public class PlayerHUD : MonoBehaviour
     {
         m_backpackVisualHolder.gameObject.SetActive(false);
         _inventoryTransform.GetComponent<Canvas>().enabled = true;
+        m_backpackLight.gameObject.SetActive(false);
     }
     void HideInventory()
     {
         m_backpackVisualHolder.gameObject.SetActive(true);
         _inventoryTransform.GetComponent<Canvas>().enabled = false;
+        m_backpackLight.gameObject.SetActive(true);
 
     }
     #endregion
