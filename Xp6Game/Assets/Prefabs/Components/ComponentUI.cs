@@ -55,6 +55,8 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         if (PlayerHUD.Instance != null)
             _hudTransform = PlayerHUD.Instance.transform;
 
+
+
     }
 
 
@@ -116,7 +118,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         {
             EventBus<OnDropComponent>.Raise(new OnDropComponent
             {
-                isFromPlayer=true,
+                isFromPlayer = true,
                 data = this.componentData,
 
             });
@@ -153,6 +155,14 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     public void SetSlot(ComponentSlot slot)
     {
         currentSlot = slot;
+
+        // Debug.Log("Set slot");
+        // Debug.Log($"My rect size: {_myRect.width}, {_myRect.height}");
+        // Debug.Log($"Parent rect size: {_parentRect.width}, {_parentRect.height}");
+        // Debug.Log(_parentRect.transform);
+
+        transform.GetComponent<RectTransform>().DOScale(0.6f, 0.2f).SetEase(Ease.OutBounce);
+
     }
 
     public void SetVisualByData()
