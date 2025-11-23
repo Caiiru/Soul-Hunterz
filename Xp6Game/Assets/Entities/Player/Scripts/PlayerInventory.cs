@@ -12,6 +12,7 @@ public class PlayerInventory : MonoBehaviour
     [Header("Inventory")]
     bool m_canOpenInventory;
     [SerializeField] bool isInventoryOpen = false;
+    bool m_isTutorialFinished = false;
 
 
     [Header("Weapons and Components")]
@@ -158,6 +159,12 @@ public class PlayerInventory : MonoBehaviour
     void ToggleInventory(bool newState)
     {
         if (!m_canOpenInventory) return;
+
+        if (!m_isTutorialFinished)
+        {
+            EventBus<OnTutorialFinished>.Raise(new OnTutorialFinished());
+            m_isTutorialFinished = true;
+        }
 
 
         isInventoryOpen = newState;

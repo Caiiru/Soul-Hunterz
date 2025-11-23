@@ -89,3 +89,7 @@ public class OnDisplayMessage : IEvent
 {
     public string m_Message;
 }
+public class OnTutorialFinished : IEvent
+{
+    
+}

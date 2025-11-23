@@ -79,6 +79,7 @@ public class PlayerHUD : MonoBehaviour
     [Header("Backpack")]
     private bool m_isTutorial = true;
     public Transform m_backpackVisualHolder;
+    public Transform m_backpackLight;
 
 
     //Message Queue
@@ -254,6 +255,13 @@ public class PlayerHUD : MonoBehaviour
 
         m_OnMapCollectedBinding = new EventBinding<OnMapCollected>(HandleMapCollected);
         EventBus<OnMapCollected>.Register(m_OnMapCollectedBinding);
+
+        EventBus<OnTutorialFinished>.Register(new EventBinding<OnTutorialFinished>(() =>
+        {
+            // m_isTutorial = false;
+            
+            m_backpackLight.gameObject.SetActive(false);
+        }));
 
         //Change State
         //
@@ -471,6 +479,12 @@ public class PlayerHUD : MonoBehaviour
         m_backpackVisualHolder.transform.localScale = Vector3.zero;
         m_backpackVisualHolder.gameObject.SetActive(true);
         m_backpackVisualHolder.transform.DOScale(1f, 1.5f).SetEase(Ease.OutBounce);
+
+        m_backpackLight.transform.localScale = Vector3.zero;
+        m_backpackLight.gameObject.SetActive(true);
+        m_backpackLight.transform.DOScale(1f, 1.5f).SetEase(Ease.OutBounce);
+
+        m_backpackLight.GetComponent<Animator>().SetTrigger("InventoryEvent");
 
     }
 
