@@ -62,13 +62,13 @@ public class UIWeaponVisual : MonoBehaviour
             }
         }
 
-        // Bullet
-        GameObject bulletGO = Instantiate(componentUIPrefab, BulletPanel);
-        // ComponentUI bullet = bulletGO.GetComponent<ComponentUI>();
-        // bullet.SetComponentSprite(weapon.GetBullet().Icon);
+        // // Bullet
+        // GameObject bulletGO = Instantiate(componentUIPrefab, BulletPanel);
+        // // ComponentUI bullet = bulletGO.GetComponent<ComponentUI>();
+        // // bullet.SetComponentSprite(weapon.GetBullet().Icon);
 
-        bulletGO.transform.localPosition = Vector3.zero;
-        bulletGO.transform.DOScale(Vector3.one, 0.1f);
+        // bulletGO.transform.localPosition = Vector3.zero;
+        // bulletGO.transform.DOScale(Vector3.one, 0.1f);
 
         // bullet.enabled = false;
     }
