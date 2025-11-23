@@ -17,7 +17,7 @@ public class MenuController : MonoBehaviour
     EventBinding<StartGameEvent> m_StartButtonClicked;
     EventBinding<OnGameOver> m_OnGameOverEvent;
     EventBinding<OnGameWin> m_OnGameWinEvent;
-    EventBinding<ChangeMenuStateEvent> m_OnMenuStateChanged; 
+    EventBinding<ChangeMenuStateEvent> m_OnMenuStateChanged;
 
 
 
@@ -36,7 +36,7 @@ public class MenuController : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        // DontDestroyOnLoad(gameObject);
     }
 
 
@@ -47,7 +47,7 @@ public class MenuController : MonoBehaviour
         DesactivateAll();
         ChangeMenuState(m_MenuState);
         BindEvents();
-        if(m_MenuState == MenuState.Game)
+        if (m_MenuState == MenuState.Game)
         {
 
             //debug -> start game 
@@ -108,7 +108,7 @@ public class MenuController : MonoBehaviour
     private void HandleMenuState()
     {
         DesactivateAll();
-        
+
         switch (m_MenuState)
         {
             case MenuState.MainMenu:

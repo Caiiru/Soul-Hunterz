@@ -21,12 +21,17 @@ public class EndMenuController : MonoBehaviour
         // SceneManager.LoadScene("Game");
         RetryGame();
     }
-    public void RetryGame()
+    public async void RetryGame()
     {
 
         // await LoadGameScene();
 
-        EventBus<ChangeMenuStateEvent>.Raise(new ChangeMenuStateEvent { newState = MenuState.MainMenu });//
+
+        EventBusUtil.ClearAllBuses();
+        await SceneManager.LoadSceneAsync("Game");
+
+        // EventBus<ChangeMenuStateEvent>.Raise(new ChangeMenuStateEvent { newState = MenuState.MainMenu });
+
         // EventBus<StartGameEvent>.Raise(new StartGameEvent());
     }
 

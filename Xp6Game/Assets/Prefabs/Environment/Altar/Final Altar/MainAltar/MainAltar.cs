@@ -209,6 +209,8 @@ public class MainAltar : MonoBehaviour, Interactable
 
     public void Interact()
     {
+
+        return;
         EventBus<OnStartAltarActivation>.Raise(new OnStartAltarActivation());
 
         // _canInteract = false;
