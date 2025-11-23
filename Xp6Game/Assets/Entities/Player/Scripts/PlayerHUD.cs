@@ -646,6 +646,8 @@ public class PlayerHUD : MonoBehaviour
         }
 
         m_backpackVisualHolder.gameObject.SetActive(false);
+
+        m_backpackLight.gameObject.SetActive(false);
     }
 
     void ActivateAll()
