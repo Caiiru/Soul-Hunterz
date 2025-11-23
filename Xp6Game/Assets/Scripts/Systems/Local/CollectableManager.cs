@@ -1,4 +1,4 @@
- 
+
 using UnityEngine;
 
 [RequireComponent(typeof(CollectablePool))]
@@ -75,7 +75,8 @@ public class CollectableManager : MonoBehaviour
             GameObject collectable = _collectablePool.GetSoulCollectable();
             if (collectable != null)
             {
-                Vector3 spawnPosition = eventData.spawnPosition + Vector3.up * 0.5f;
+                Vector3 spawnPosition = eventData.spawnPosition;
+                spawnPosition.y = 3f;
                 collectable.transform.position = spawnPosition;
                 CollectableSoul soulCollectable = collectable.GetComponent<CollectableSoul>();
                 soulCollectable.SetSoulValue(eventData.soulAmount);
@@ -102,14 +103,14 @@ public class CollectableManager : MonoBehaviour
         {
             Vector3 m_dropPosition = new Vector3(
                 eventData.position.x,
-                eventData.position.y + 0.5f,
+                0.5f,
                 eventData.position.z
 
             );
 
             collectable.transform.position = m_dropPosition;
             collectable.GetComponent<CollectableComponent>().SetComponentData(eventData.data);
-            collectable.GetComponent<CollectableComponent>().SpawnOnPosition(m_dropPosition,Vector3.zero);
+            collectable.GetComponent<CollectableComponent>().SpawnOnPosition(m_dropPosition, Vector3.zero);
             collectable.SetActive(true);
         }
     }
