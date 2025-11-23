@@ -94,7 +94,7 @@ public class EnemyPool : MonoBehaviour
         {
             // Cria e retorna um novo objeto, fora da capacidade inicial.
             GameObject newObj = Instantiate(prefabToPool, this.transform);
-            newObj.name = prefabToPool.name + " (CLONE - NEW)"; // Para rastreamento
+            newObj.name = prefabToPool.name; // Para rastreamento
             newObj.transform.position = position;
             newObj.transform.rotation = rotation;
             newObj.SetActive(true);

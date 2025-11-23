@@ -22,7 +22,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     protected StateMachine m_stateMachine;
 
 
-    private Transform m_targetTransform;
+    protected Transform m_targetTransform;
 
 
 
