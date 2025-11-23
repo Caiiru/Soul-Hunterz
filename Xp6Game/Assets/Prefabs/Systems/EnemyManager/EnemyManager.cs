@@ -22,19 +22,14 @@ public class EnemyManager : MonoBehaviour
 
     public int m_currentWave = 0;
 
-
     //Events
 
     EventBinding<OnGameWin> m_OnGameWinEventBinding;
     EventBinding<OnGameOver> m_OnGameOverBinding;
     EventBinding<OnEnemyDied> m_OnEnemyDiedBinding;
     EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
-
     EventBinding<OnMapCollected> m_OnTutorialFinished;
 
-    [Header("Audio")]
-
-    public EventReference m_waveStartClip;
 
     public async UniTask Initialize()
     {
@@ -85,22 +80,21 @@ public class EnemyManager : MonoBehaviour
         {
             if (data.m_AltarActivatedIndex == 0)
             {
-                //Start First Wave
-
+                //Start First Wave  
 
             }
         }));
 
         m_OnFinalAltarActivatedBinding = new EventBinding<OnFinalAltarActivated>(() =>
         {
-            _enemySpawner.SetNewWave(m_FinalWave);
+            // _enemySpawner.SetNewWave(m_FinalWave);
             _enemySpawner.StartSpawning();
         });
         EventBus<OnFinalAltarActivated>.Register(m_OnFinalAltarActivatedBinding);
 
 
-        m_OnEnemyDiedBinding = new EventBinding<OnEnemyDied>(OnEnemyDiedHandler);
-        EventBus<OnEnemyDied>.Register(m_OnEnemyDiedBinding);
+        // m_OnEnemyDiedBinding = new EventBinding<OnEnemyDied>(OnEnemyDiedHandler);
+        // EventBus<OnEnemyDied>.Register(m_OnEnemyDiedBinding);
 
 
     }
@@ -108,8 +102,7 @@ public class EnemyManager : MonoBehaviour
     private void OnEnemyDiedHandler(OnEnemyDied arg0)
     {
         if (_enemySpawner.GetActiveEnemies() <= 7)
-        {
-            Debug.Log("NEXT WAVE");
+        { 
             EventBus<WaveEndEvent>.Raise(new WaveEndEvent());
             StartNextWave();
         }
@@ -134,40 +127,7 @@ public class EnemyManager : MonoBehaviour
     {
         UnbindEvents();
     }
-    // async UniTask SpawnRangedEnemyPool()
-    // {
-    //     int m_enemyDataIndex = 0;
-    //     for (int i = 0; i < maxEnemies; i++)
-    //     {
-    //         GameObject enemy = Instantiate(m_EnemiesToSpawn[0].prefabs[m_enemyDataIndex], _enemyHolder);
-    //         rangedPool.Add(enemy);
-    //         enemy.SetActive(false);
-
-    //         m_enemyDataIndex++;
-    //         if (m_enemyDataIndex >= m_EnemiesToSpawn[0].prefabs.Length)
-    //         {
-    //             m_enemyDataIndex = 0;
-    //         }
-    //     }
-    //     await UniTask.CompletedTask;
-    // }
-    // async UniTask SpawnMeeleEnemyPool()
-    // {
-    //     int m_enemyDataIndex = 0;
-    //     for (int i = 0; i < maxEnemies; i++)
-    //     {
-    //         GameObject enemy = Instantiate(m_EnemiesToSpawn[1].m_prefab[m_enemyDataIndex], _enemyHolder);
-    //         rangedPool.Add(enemy);
-    //         enemy.SetActive(false);
-
-    //         m_enemyDataIndex++;
-    //         if (m_enemyDataIndex >= m_EnemiesToSpawn[0].m_prefab.Length)
-    //         {
-    //             m_enemyDataIndex = 0;
-    //         }
-    //     }
-    //     await UniTask.CompletedTask;
-    // }
+    
     public GameObject GetRangedEnemy()
     {
         foreach (GameObject enemy in rangedPool)
@@ -182,15 +142,15 @@ public class EnemyManager : MonoBehaviour
     public void StartNextWave()
     {
         // _enemySpawner.StartSpawning(); 
+        return;
 
 
+        // _enemySpawner.SetNewWave(m_Waves[m_currentWave]);
+        // EventBus<WaveStartEvent>.Raise(new WaveStartEvent { waveIndex = m_currentWave });
+        // m_currentWave = m_Waves.Length < m_currentWave - 1 ? m_currentWave++ : m_currentWave;
 
-        _enemySpawner.SetNewWave(m_Waves[m_currentWave]);
-        EventBus<WaveStartEvent>.Raise(new WaveStartEvent { waveIndex = m_currentWave });
-        m_currentWave = m_Waves.Length < m_currentWave - 1 ? m_currentWave++ : m_currentWave;
-
-        if (AudioManager.Instance == null) return;
-        AudioManager.Instance.PlayOneShotAtPosition(m_waveStartClip, Camera.main.transform.position);
+        // if (AudioManager.Instance == null) return;
+        // AudioManager.Instance.PlayOneShotAtPosition(m_waveStartClip, Camera.main.transform.position);
 
     }
     public void StopSpawning()
@@ -226,7 +186,7 @@ public struct EnemyData
 public struct WaveData
 {
     public int waveNumber;
-    public float m_spawnRate;
+    public float m_spawnDelay;
     public EnemyData[] m_enemies;
 }
 

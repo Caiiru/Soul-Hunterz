@@ -22,6 +22,7 @@ public class OnEnemyDied : IEvent
 {
     public string enemyID;
     public Vector3 deathPosition;
+    public GameObject enemy;
 }
 public class SpawnSoulEvent : IEvent
 {
@@ -31,11 +32,13 @@ public class SpawnSoulEvent : IEvent
 
 public class OnStartAltarActivation : IEvent
 {
-
+    public AltarDirection m_Direction;
 }
 public class OnAltarActivated : IEvent
 {
     public int m_AltarActivatedIndex;
+    public AltarDirection m_Direction;
+    public Transform m_SpawnPointHolder;
 }
 
 public class WaveStartEvent : IEvent

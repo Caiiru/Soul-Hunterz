@@ -30,7 +30,7 @@ public abstract class Entity<T> : MonoBehaviour where T : EntitySO
         m_currentHealth = this.m_MaxHealth;
         canBeDamaged = m_entityData.m_CanBeDamaged;
 
-        transform.name = m_entityData.name;
+        // transform.name = m_entityData.name;
     }
 
     public virtual async void TakeDamage(int damage)
@@ -97,7 +97,7 @@ public abstract class Entity<T> : MonoBehaviour where T : EntitySO
         {
             // Debug.Log($"Comparing {audioName} with {m_entityData.m_SoundsList[i].m_SoundType}");
             if (m_entityData.m_SoundsList[i].m_SoundType == audioName)
-            { 
+            {
                 return m_entityData.m_SoundsList[i].m_SoundReference;
             }
         }
