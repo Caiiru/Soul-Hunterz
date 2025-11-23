@@ -11,6 +11,7 @@ public class EnemySpawner : MonoBehaviour
     private float timer = 0;
 
     // Contagem de inimigos ativos (retirados do Pool)
+    [SerializeField] private int m_EnemiesOnThisWave = 0;
     [SerializeField] private int m_EnemiesActive = 0;
 
     // Índice da onda atual a ser spawnada (usado no Evento OnAltarActivatedHandler)
@@ -100,6 +101,7 @@ public class EnemySpawner : MonoBehaviour
             Debug.LogError($"WaveData inválida para o índice {waveCount}.");
             return;
         }
+        m_EnemiesOnThisWave = 0;
 
         WaveData currentWave = EnemiesToSpawn[waveCount];
 
@@ -109,6 +111,7 @@ public class EnemySpawner : MonoBehaviour
         // Itera sobre CADA tipo de inimigo
         foreach (var enemyData in currentWave.m_enemies)
         {
+            m_EnemiesOnThisWave += enemyData.amount;
             // Adiciona o prefab na Queue o número 'amount' de vezes
             for (int i = 0; i < enemyData.amount; i++)
             {
@@ -141,11 +144,14 @@ public class EnemySpawner : MonoBehaviour
         m_EnemiesActive--;
 
         // Lógica: Se a fila estiver vazia E não houver inimigos ativos, a onda terminou.
-        if (m_enemiesToSpawnQueue.Count == 0 && m_EnemiesActive <= 0)
+        if (m_enemiesToSpawnQueue.Count == 0 && m_EnemiesActive <= m_EnemiesOnThisWave / 10)
         {
             EventBus<OnWaveClearedEvent>.Raise(new OnWaveClearedEvent());
-            // EventBus<WaveEndEvent>.Raise(new WaveEndEvent()); // Exemplo de evento de fim de onda
-            Debug.Log("Wave ended");
+            // EventBus<WaveEndEvent>.Raise(new WaveEndEvent()); // Exemplo de evento de fim de onda 
+            m_isWaveActive = false;
+            StopSpawning();
+            
+
         }
     }
 
