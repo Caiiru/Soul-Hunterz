@@ -28,6 +28,9 @@ public class MapCollectable : Collectable, Interactable
     {
 
         if (!CanInteract()) return;
+        EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
+
+
         var _myInteractVFX = Instantiate(_onInteractPrefabVFX, transform.position, Quaternion.identity);
         _myInteractVFX.transform.localScale = new Vector3(2f, 2f, 2f);
         Destroy(_myInteractVFX, 3f);
