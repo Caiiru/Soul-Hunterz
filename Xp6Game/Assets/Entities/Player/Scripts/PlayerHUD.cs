@@ -345,6 +345,13 @@ public class PlayerHUD : MonoBehaviour
     {
         ShowHealth();
         m_playerHealthImage.fillAmount = (float)m_currentHealth / (float)m_maxHealth;
+        m_playerHealthImage.transform.parent.GetComponent<Animator>().SetTrigger("heartTakeDamage");
+
+        if (m_currentHealth <= 30)
+        {
+            m_playerHealthImage.transform.parent.GetComponent<Animator>().SetTrigger("lowHP");
+
+        }
     }
 
 
