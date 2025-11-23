@@ -102,10 +102,8 @@ public class GlobalVolumeController : MonoBehaviour
         {
             StartCoroutine(DoLerpToZero(WaveVolume, volumeSettings.waveClearedLerpDuration));
         }
-        if (WaveClearedVolume.weight == 0)
-        {
-            StartCoroutine(DoLerpToOne(WaveClearedVolume, volumeSettings.waveClearedLerpDuration));
-        }
+        StartCoroutine(DoLerpToOne(WaveClearedVolume, volumeSettings.waveClearedLerpDuration));
+
 
         yield return new WaitForSeconds(volumeSettings.waveClearedLerpDuration);
 
@@ -168,6 +166,7 @@ public class GlobalVolumeController : MonoBehaviour
         LowHealthVolume.weight = 0;
         AltarActivatedVolume.weight = 0;
         WaveClearedVolume.weight = 0;
+        WaveVolume.weight = 0;
     }
 
     // Update is called once per frame

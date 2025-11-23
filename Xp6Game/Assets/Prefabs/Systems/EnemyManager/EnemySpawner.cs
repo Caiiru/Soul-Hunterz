@@ -145,6 +145,7 @@ public class EnemySpawner : MonoBehaviour
         {
             EventBus<OnWaveClearedEvent>.Raise(new OnWaveClearedEvent());
             // EventBus<WaveEndEvent>.Raise(new WaveEndEvent()); // Exemplo de evento de fim de onda
+            Debug.Log("Wave ended");
         }
     }
 

@@ -81,6 +81,9 @@ public class PlayerHUD : MonoBehaviour
     public Transform m_backpackVisualHolder;
     public Transform m_backpackLight;
 
+    [Header("Map")]
+    public MapsData[] m_MapData;
+
 
     //Message Queue
     Queue<String> m_messageQueue = new Queue<String>();
@@ -117,6 +120,8 @@ public class PlayerHUD : MonoBehaviour
 
     //Player State
     EventBinding<OnPlayerChangeState> m_OnPlayerStateChangedBinding;
+    //
+    EventBinding<OnAltarActivated> m_OnAltarActivatedBinding;
 
 
     #endregion
@@ -259,9 +264,26 @@ public class PlayerHUD : MonoBehaviour
         EventBus<OnTutorialFinished>.Register(new EventBinding<OnTutorialFinished>(() =>
         {
             // m_isTutorial = false;
-            
+
             m_backpackLight.gameObject.SetActive(false);
         }));
+
+        m_OnAltarActivatedBinding = new EventBinding<OnAltarActivated>((data) =>
+        {
+            foreach (var map in m_MapData)
+            {
+                if (map.direction == data.m_Direction)
+                {
+                    map.activatedIcon.gameObject.SetActive(true);
+                    map.altarIcon.gameObject.SetActive(false);
+
+                }
+
+            }
+
+        });
+
+        EventBus<OnAltarActivated>.Register(m_OnAltarActivatedBinding);
 
         //Change State
         //
@@ -470,9 +492,20 @@ public class PlayerHUD : MonoBehaviour
     private void HandleGameStart(OnGameStart arg0)
     {
         GetComponent<Canvas>().enabled = true;
+
+        //Desactivate All maps
         // ActivateAll();
+        DesactivateSoulsMap();
     }
 
+    void DesactivateSoulsMap()
+    {
+        foreach (var _data in m_MapData)
+        {
+            _data.activatedIcon.gameObject.SetActive(false);
+
+        }
+    }
     private void HandleMapCollected()
     {
         m_isTutorial = false;
@@ -626,4 +659,12 @@ public class PlayerHUD : MonoBehaviour
     {
         UnbindEvents();
     }
+}
+
+[System.Serializable]
+public struct MapsData
+{
+    public AltarDirection direction;
+    public Transform altarIcon;
+    public Transform activatedIcon;
 }
