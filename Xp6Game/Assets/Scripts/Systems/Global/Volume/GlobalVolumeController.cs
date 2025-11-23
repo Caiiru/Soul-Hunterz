@@ -16,13 +16,15 @@ public class GlobalVolumeController : MonoBehaviour
     [Header("Volumes")]
     public Volume LowHealthVolume;
     public Volume AltarActivatedVolume;
+    public Volume WaveVolume;
     public Volume WaveClearedVolume;
 
     //Events
 
     EventBinding<OnPlayerTakeDamage> m_OnTakeDamageBinding;
 
-    EventBinding<OnStartAltarActivation> m_OnAltarActivatedBinding;
+    EventBinding<OnStartAltarActivation> m_OnAltarStartedBinding;
+    EventBinding<OnAltarActivated> m_OnAltarActivatedBinding;
     EventBinding<OnWaveClearedEvent> m_OnWaveClearedBinding;
 
     void Start()
@@ -36,9 +38,17 @@ public class GlobalVolumeController : MonoBehaviour
         m_OnTakeDamageBinding = new EventBinding<OnPlayerTakeDamage>(HandlePlayerTakeDamage);
         EventBus<OnPlayerTakeDamage>.Register(m_OnTakeDamageBinding);
 
-        //Altar
-        m_OnAltarActivatedBinding = new EventBinding<OnStartAltarActivation>(HandleAltarActivation);
-        EventBus<OnStartAltarActivation>.Register(m_OnAltarActivatedBinding);
+        //Altar Started
+        m_OnAltarStartedBinding = new EventBinding<OnStartAltarActivation>(HandleAltarStarted);
+        EventBus<OnStartAltarActivation>.Register(m_OnAltarStartedBinding);
+
+        //Wave Started
+        m_OnAltarActivatedBinding = new EventBinding<OnAltarActivated>(() =>
+        {
+            StartCoroutine(HandleWaveStarted());
+        });
+        EventBus<OnAltarActivated>.Register(m_OnAltarActivatedBinding);
+
 
         //Wave Cleared
         m_OnWaveClearedBinding = new EventBinding<OnWaveClearedEvent>(async () => await HandleWaveCleared());
@@ -67,7 +77,7 @@ public class GlobalVolumeController : MonoBehaviour
 
     }
 
-    void HandleAltarActivation()
+    void HandleAltarStarted()
     {
         DesactivateAllWeights();
         if (AltarActivatedVolume.weight != 1)
@@ -77,24 +87,32 @@ public class GlobalVolumeController : MonoBehaviour
         }
 
     }
+    IEnumerator HandleWaveStarted()
+    {
+        StartCoroutine(DoLerpToZero(AltarActivatedVolume, altarSettings.activationDuration / 2));
+        yield return new WaitForSeconds(altarSettings.activationDuration / 2);
+        StartCoroutine(DoLerpToOne(WaveVolume, volumeSettings.LerpDuration));
+
+    }
 
     IEnumerator HandleWaveCleared()
     {
         // DesactivateAllWeights();
         if (AltarActivatedVolume.weight != 0)
         {
-            StartCoroutine(DoLerpToZero(AltarActivatedVolume, 1f));
+            StartCoroutine(DoLerpToZero(WaveVolume, volumeSettings.waveClearedLerpDuration));
         }
         if (WaveClearedVolume.weight == 0)
         {
             StartCoroutine(DoLerpToOne(WaveClearedVolume, volumeSettings.waveClearedLerpDuration));
         }
 
-        yield return new WaitForSeconds(volumeSettings.waveClearedLerpDuration * 2);
+        yield return new WaitForSeconds(volumeSettings.waveClearedLerpDuration);
 
         StartCoroutine(DoLerpToZero(WaveClearedVolume, volumeSettings.waveClearedLerpDuration));
 
-        // DesactivateAllWeights();
+        yield return new WaitForSeconds(volumeSettings.waveClearedLerpDuration);
+        DesactivateAllWeights();
 
         if (m_PlayerCurrentHealth <= m_PlayerHealthLimit)
         {
