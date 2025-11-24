@@ -165,7 +165,8 @@ public class EnemySpawner : MonoBehaviour
                 EventBus<OnWaveClearedEvent>.Raise(new OnWaveClearedEvent());
             else
             {
-                EventBus<OnGameWin>.Raise(new OnGameWin());
+                // EventBus<OnGameWin>.Raise(new OnGameWin());
+                GameManager.Instance.WinGame();
             }
             // EventBus<WaveEndEvent>.Raise(new WaveEndEvent()); // Exemplo de evento de fim de onda 
             m_isWaveActive = false;

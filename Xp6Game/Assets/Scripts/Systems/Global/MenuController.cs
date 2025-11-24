@@ -71,11 +71,12 @@ public class MenuController : MonoBehaviour
         EventBus<OnGameOver>.Register(m_OnGameOverEvent);
 
 
-        m_OnGameWinEvent = new EventBinding<OnGameWin>(() =>
-        {
-            ChangeMenuState(MenuState.Victory);
-        });
-        EventBus<OnGameWin>.Register(m_OnGameWinEvent);
+        // m_OnGameWinEvent = new EventBinding<OnGameWin>(() =>
+        // {
+        //     ChangeMenuState(MenuState.Victory);
+        //     Debug.Log("Win Menu Controller");
+        // });
+        // EventBus<OnGameWin>.Register(m_OnGameWinEvent);
 
         m_OnMenuStateChanged = new EventBinding<ChangeMenuStateEvent>(ChangeMenuEvent);
         EventBus<ChangeMenuStateEvent>.Register(m_OnMenuStateChanged);
@@ -118,6 +119,7 @@ public class MenuController : MonoBehaviour
             case MenuState.Victory:
                 m_VictoryMenu.SetActive(true);
                 // m_MenuCamera.gameObject.SetActive(true);
+                m_VictoryMenu.SetActive(true);
                 break;
             case MenuState.GameOver:
                 // m_MenuCamera.gameObject.SetActive(true);

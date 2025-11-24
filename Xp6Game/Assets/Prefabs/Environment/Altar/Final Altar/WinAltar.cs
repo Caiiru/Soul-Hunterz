@@ -293,9 +293,7 @@ public class WinAltar : MonoBehaviour, Interactable
         if (m_AltarIndex == 0) { return; }
 
         await UnbindEvents();
-
-        Debug.Log($"Destroying Altar {m_AltarIndex}");
-        Destroy(gameObject);
+ 
 
     }
     public InteractableType GetInteractableType()

@@ -156,7 +156,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     #region End Game
     async void EndGame()
     {
-
+        await Die();
         await UnbindEvents();
         // Debug.Log("DEstroying ENEMY"); 
     }
@@ -211,21 +211,20 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         await UniTask.Delay((int)m_AnimationClipInfo * k_Milliseconds);
 
-
-        transform.DOMoveY(transform.position.y - 2f, 2).SetEase(Ease.Linear);
-
-
-
-        await UniTask.Delay(3 * k_Milliseconds);
-
         EventBus<OnEnemyDied>.Raise(new OnEnemyDied
         {
             enemyID = m_entityData.m_name,
             deathPosition = transform.position,
             enemy = this.gameObject,
 
-
         });
+        transform.DOMoveY(transform.position.y - 2f, 2).SetEase(Ease.Linear);
+
+
+
+        await UniTask.Delay(3 * k_Milliseconds);
+
+
 
 
 
