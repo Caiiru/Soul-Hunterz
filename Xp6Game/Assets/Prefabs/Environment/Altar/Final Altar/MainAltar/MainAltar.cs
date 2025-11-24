@@ -9,28 +9,12 @@ public class MainAltar : MonoBehaviour, Interactable
 {
     public bool m_isActivated;
 
-    public int m_RequiredSouls = 10;
-    public int m_CurrentSouls = 0;
-    public int m_SoulsPerInteraction = 5;
-    public int m_AltarIndex = 0;
+    public int m_altarsActivatedAlready = 0;
 
+    public int m_lastAltarActivation = 0;
 
+    public bool _canInteract = true;
 
-    [Header("Text Settigs")]
-    [SerializeField]
-    TextMeshProUGUI m_soulsText;
-
-    [SerializeField]
-    private float m_DistanceOffsetY = 1f;
-
-    [SerializeField]
-    private float interactTimeTween = 0.5f;
-
-    private bool _canInteract = true;
-
-    [Header("Timer")]
-    public float m_timerBetweenInteraction = 0.5f;
-    public float m_timer = 0f;
 
 
 
@@ -50,7 +34,8 @@ public class MainAltar : MonoBehaviour, Interactable
     EventBinding<OnPlayerDied> m_OnPlayerDiedBinding;
     EventBinding<OnGameWin> m_OnGameWinBinding;
 
-    EventBinding<OnAltarActivated> m_OnNewAltarActivated;
+    EventBinding<OnWaveClearedEvent> m_OnNewAltarActivated;
+    EventBinding<OnAltarActivated> m_OnAltarActivated;
 
 
 
@@ -66,22 +51,16 @@ public class MainAltar : MonoBehaviour, Interactable
 
     void BindEvents()
     {
-
-
-        m_OnPlayerDiedBinding = new EventBinding<OnPlayerDied>(() =>
-        {
-            ResetGame();
-        });
-        EventBus<OnPlayerDied>.Register(m_OnPlayerDiedBinding);
-
-        m_OnGameWinBinding = new EventBinding<OnGameWin>(() =>
-        {
-            ResetGame();
-        });
         EventBus<OnGameWin>.Register(m_OnGameWinBinding);
 
-        m_OnNewAltarActivated = new EventBinding<OnAltarActivated>(HandleNewAltarActivation);
-        EventBus<OnAltarActivated>.Register(m_OnNewAltarActivated);
+
+        m_OnNewAltarActivated = new EventBinding<OnWaveClearedEvent>(HandleNewAltarActivation);
+        EventBus<OnWaveClearedEvent>.Register(m_OnNewAltarActivated);
+
+        m_OnAltarActivated = new EventBinding<OnAltarActivated>(HandleAltarActivation);
+        EventBus<OnAltarActivated>.Register(m_OnAltarActivated);
+
+
     }
 
 
@@ -91,20 +70,15 @@ public class MainAltar : MonoBehaviour, Interactable
         EventBus<OnGameStart>.Unregister(m_OnGameStartBinding);
         EventBus<OnPlayerDied>.Unregister(m_OnPlayerDiedBinding);
         EventBus<OnGameWin>.Unregister(m_OnGameWinBinding);
-        EventBus<OnAltarActivated>.Unregister(m_OnNewAltarActivated);
+        EventBus<OnWaveClearedEvent>.Unregister(m_OnNewAltarActivated);
 
         return UniTask.CompletedTask;
     }
 
     void Initialize()
     {
-        transform.name = "Altar";
-        _canInteract = true;
-        if (m_soulsText == null) return;
+        transform.name = "Portal";
 
-        m_soulsText.gameObject.SetActive(true);
-        // m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
-        // m_soulsText.enabled = false;
 
         foreach (VisualEffect _miniAltar in m_MiniAltares)
         {
@@ -122,53 +96,25 @@ public class MainAltar : MonoBehaviour, Interactable
         _canInteract = false;
     }
 
-    #endregion
-    #region Update
-
-
-    #endregion
-    #region Triggers
-    void OnTriggerExit(Collider collision)
-    {
-        return;
-        if (m_isActivated) return;
-        if (collision.CompareTag("Player"))
-        {
-            DesactivatePopup();
-        }
-    }
-    void OnTriggerEnter(Collider other)
-    {
-        return;
-        if (m_isActivated) return;
-        if (other.CompareTag("Player"))
-        {
-            ActivatePopup();
-            if (m_playerInventory == null)
-                m_playerInventory = other.GetComponent<PlayerInventory>();
-        }
-    }
-    void OnTriggerStay(Collider other)
-    {
-        return;
-        if (m_playerInventory == null)
-            m_playerInventory = other.GetComponent<PlayerInventory>();
-    }
-    #endregion
+    #endregion 
     #region Altar Activated 
-    private void HandleNewAltarActivation(OnAltarActivated arg0)
-    {
-        ActivateMiniAltar(arg0.m_AltarActivatedIndex);
 
-        if (arg0.m_AltarActivatedIndex == 3)
+    private void HandleAltarActivation(OnAltarActivated arg0)
+    {
+        m_lastAltarActivation = arg0.m_AltarActivatedIndex;
+
+    }
+    private void HandleNewAltarActivation()
+    {
+        ActivateMiniAltar(m_lastAltarActivation);
+        m_altarsActivatedAlready++;
+
+        if (m_altarsActivatedAlready >= 3)
         {
+            Debug.Log("Can Activate the last altar");
             _canInteract = true;
-            m_soulsText.gameObject.SetActive(true);
-            m_soulsText.enabled = true;
-            m_soulsText.alpha = 1f;
-            m_isFinalForm = true;
-            m_soulsText.text = "...";
         }
+
     }
 
     void ActivateMiniAltar(int index)
@@ -176,30 +122,7 @@ public class MainAltar : MonoBehaviour, Interactable
         m_MiniAltares[index].SetBool("Active", true);
     }
     #endregion
-    #region Popup
-    void ActivatePopup()
-    {
-        return;
-        if (!CanInteract()) return;
 
-
-        m_soulsText.enabled = true;
-        m_soulsText.alpha = 1f;
-        m_soulsText.transform.DOMoveY(m_soulsText.transform.position.y + m_DistanceOffsetY, interactTimeTween).SetEase(Ease.InOutSine);
-
-        // m_soulsText.text = $"Press {StarterAssetsInputs.Instance.GetInteractAction().action.GetBindingDisplayString(0)} to interact";
-        if (!CanInteract())
-        {
-            m_soulsText.alpha = 0.5f;
-        }
-    }
-
-    void DesactivatePopup()
-    {
-        m_soulsText.transform.DOMoveY(m_soulsText.transform.position.y - m_DistanceOffsetY, interactTimeTween).SetEase(Ease.InOutSine);
-        m_soulsText.DOFade(0f, interactTimeTween).OnComplete(() => m_soulsText.enabled = false);
-    }
-    #endregion
 
     #region Interact
     public bool CanInteract()
@@ -210,49 +133,14 @@ public class MainAltar : MonoBehaviour, Interactable
     public void Interact()
     {
 
+        EventBus<OnFinalAltarActivated>.Raise(new OnFinalAltarActivated());
+        _canInteract = false;
+
+        EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
         return;
-        EventBus<OnStartAltarActivation>.Raise(new OnStartAltarActivation());
 
-        // _canInteract = false;
-        m_timer = 0;
-        m_isActivated = true;
-
-        // GameManager.Instance.WinGame();
     }
 
-    void GetSouls()
-    {
-        m_timer = 0;
-        if (m_isFinalForm)
-        {
-            EventBus<OnFinalAltarActivated>.Raise(new OnFinalAltarActivated());
-            EventBus<OnDisplayMessage>.Raise(new OnDisplayMessage { m_Message = "!" });
-
-            m_MainAltar.SetBool("Active", true);
-            EventBus<OnGameWin>.Raise(new OnGameWin());
-            return;
-            _canInteract = false;
-            m_soulsText.gameObject.SetActive(false);
-            return;
-        }
-        if (m_playerInventory.GetCurrency() >= m_SoulsPerInteraction)
-            m_playerInventory.RemoveCurrency(m_SoulsPerInteraction);
-        else
-            return;
-        AddSouls(m_SoulsPerInteraction);
-    }
-
-
-    void AddSouls(int amount)
-    {
-        m_CurrentSouls += amount;
-        m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
-        if (m_CurrentSouls >= m_RequiredSouls)
-        {
-            ActivateAltar();
-
-        }
-    }
 
     void ActivateAltar()
     {
@@ -260,34 +148,14 @@ public class MainAltar : MonoBehaviour, Interactable
         // ActivateMiniAltar(0);
 
         EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
-        EventBus<OnAltarActivated>.Raise(
-            new OnAltarActivated { m_AltarActivatedIndex = m_AltarIndex });
 
         m_isActivated = false;
         _canInteract = false;
 
-        m_soulsText.gameObject.SetActive(false);
 
     }
     #endregion
-    #region Reset Game
 
-    public async void ResetGame()
-    {
-        m_CurrentSouls = 0;
-        m_soulsText.text = $"{m_CurrentSouls}/{m_RequiredSouls}";
-        _canInteract = false;
-
-        m_soulsText.gameObject.SetActive(false);
-
-        m_isFinalForm = false;
-
-
-
-
-    }
-
-    #endregion
     public InteractableType GetInteractableType()
     {
         return InteractableType.Interactable;
