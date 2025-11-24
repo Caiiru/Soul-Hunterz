@@ -16,6 +16,9 @@ public class ComponentSlot : MonoBehaviour
 
     public bool m_isInventory;
 
+    [Header("SFX")]
+    public AnimationEventSound m_ComponentAppliedSFX;
+
 
     void Start()
     {
@@ -42,6 +45,8 @@ public class ComponentSlot : MonoBehaviour
         weapon.m_weaponComponents[slotPosition] = currentComponent;
 
         EventBus<OnComponentUpdate>.Raise(new OnComponentUpdate());
+
+        AudioManager.Instance.PlayOneShotAtPosition(m_ComponentAppliedSFX.soundEvent, transform.position);
 
 
         // weapon.ReadComponents();
