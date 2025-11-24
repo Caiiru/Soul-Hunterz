@@ -21,7 +21,9 @@ public class CollectableComponent : Collectable, Interactable
     [SerializeField] float offsetY = 10f;
     Vector3 _startSize;
 
+    [Header("SFX")]
 
+    public AnimationEventSound m_componentCollectedSFX;
 
 
     public async void Start()
@@ -152,9 +154,10 @@ public class CollectableComponent : Collectable, Interactable
         {
             data = componentData,
         });
+        AudioManager.Instance.PlayOneShotAtPosition(m_componentCollectedSFX.soundEvent, transform.position);
+        DesactiveItem();
 
         EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
-        DesactiveItem();
 
     }
 
