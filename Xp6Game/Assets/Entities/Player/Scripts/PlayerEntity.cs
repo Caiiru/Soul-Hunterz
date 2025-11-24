@@ -186,7 +186,7 @@ public class PlayerEntity : Entity<PlayerEntitySO>
             return;
         }
 
-        EventBus<OnPlayerTakeDamage>.Raise(new OnPlayerTakeDamage { value = damage , currentHealth = m_currentHealth});
+        EventBus<OnPlayerTakeDamage>.Raise(new OnPlayerTakeDamage { value = damage, currentHealth = m_currentHealth });
 
         SetPlayerState(PlayerStates.Combat);
 
@@ -329,6 +329,13 @@ public class PlayerEntity : Entity<PlayerEntitySO>
     void OnDestroy()
     {
         UnbindEvents();
+    }
+
+    internal void Heal(int healAmout)
+    {
+        m_currentHealth = m_currentHealth + healAmout > m_MaxHealth ? m_MaxHealth : m_currentHealth + healAmout;
+        EventBus<OnSetPlayerHealthEvent>.Raise(new OnSetPlayerHealthEvent { maxHealth = m_entityData.m_MaxHealth, currentHealth = m_currentHealth });
+
     }
     #endregion
 }

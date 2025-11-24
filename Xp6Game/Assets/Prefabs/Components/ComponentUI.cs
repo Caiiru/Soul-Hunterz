@@ -206,7 +206,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         if (componentData != null && _canDrag == true)
         {
             // Calcula a posição do mouse na tela
-            Vector3 popupPosition = Input.mousePosition;
+            Vector3 popupPosition = transform.position;
 
             // Chama o gerenciador para exibir o popup com os dados
             ComponentDescription.Instance.ShowPopup(componentData, popupPosition);
