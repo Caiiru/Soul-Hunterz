@@ -246,12 +246,7 @@ public class PlayerHUD : MonoBehaviour
         EventBus<OnPlayerDied>.Register(new EventBinding<OnPlayerDied>(() =>
         {
             DesactivateAll();
-        }));
-        EventBus<OnGameWin>.Register(new EventBinding<OnGameWin>(() =>
-        {
-            DesactivateAll();
-
-        }));
+        })); 
         m_OnAmmoChangedBinding = new EventBinding<OnAmmoChanged>(HandleAmmoChanged);
         EventBus<OnAmmoChanged>.Register(m_OnAmmoChangedBinding);
 

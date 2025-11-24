@@ -109,9 +109,8 @@ public class MainAltar : MonoBehaviour, Interactable
         ActivateMiniAltar(m_lastAltarActivation);
         m_altarsActivatedAlready++;
 
-        if (m_altarsActivatedAlready >= 3)
+        if (m_altarsActivatedAlready > 3)
         {
-            Debug.Log("Can Activate the last altar");
             _canInteract = true;
         }
 
@@ -132,7 +131,7 @@ public class MainAltar : MonoBehaviour, Interactable
 
     public void Interact()
     {
-
+        m_MainAltar.SetBool("Active", true);
         EventBus<OnFinalAltarActivated>.Raise(new OnFinalAltarActivated());
         _canInteract = false;
 

@@ -159,13 +159,14 @@ public class EnemySpawner : MonoBehaviour
         m_EnemiesActive--;
 
         // Lógica: Se a fila estiver vazia E não houver inimigos ativos, a onda terminou.
-        if (m_enemiesToSpawnQueue.Count == 0 && m_EnemiesActive <= m_EnemiesOnThisWave / 10)
+        if (m_enemiesToSpawnQueue.Count == 0 && m_EnemiesActive <= m_EnemiesOnThisWave / 20)
         {
             if (!m_isFinalForm)
                 EventBus<OnWaveClearedEvent>.Raise(new OnWaveClearedEvent());
             else
             {
-                EventBus<OnGameWin>.Raise(new OnGameWin());
+                // EventBus<OnGameWin>.Raise(new OnGameWin());
+                GameManager.Instance.WinGame();
             }
             // EventBus<WaveEndEvent>.Raise(new WaveEndEvent()); // Exemplo de evento de fim de onda 
             m_isWaveActive = false;
@@ -220,7 +221,15 @@ public class EnemySpawner : MonoBehaviour
             m_EnemiesActive++;
 
         }
-        enemy.GetComponent<StateMachine>().SetDestination(m_playerReferece.position);
+        try
+        {
+            enemy.GetComponent<StateMachine>().SetDestination(m_playerReferece.position);
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e.Message);
+            enemy.GetComponent<Enemy<EnemySO>>().TakeDamage(9999);
+        }
     }
 
     // --- Métodos Auxiliares ---

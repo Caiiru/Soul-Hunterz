@@ -331,9 +331,8 @@ public class GameManager : MonoBehaviour
     #region Game End Methods
     public void WinGame()
     {
-        ChangeGameState(GameState.Win);
-        ResetGame();
-        EventBus<OnGameWin>.Raise(new OnGameWin());
+        // EventBus<OnGameWin>.Raise(new OnGameWin());
+        EventBus<OnGameOver>.Raise(new OnGameOver());
 
 
 

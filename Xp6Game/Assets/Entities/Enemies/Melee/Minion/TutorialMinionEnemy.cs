@@ -74,7 +74,7 @@ public class TutorialMinionEnemy : Enemy<EnemySO>
     {
         // return base.Die();
 
-        if (m_hasNavMesh)
+        if (m_navMesh)
         {
             m_navMesh.enabled = false;
         }
