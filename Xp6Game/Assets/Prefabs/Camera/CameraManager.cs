@@ -96,7 +96,7 @@ public class CameraManager : MonoBehaviour
         });
         EventBus<OnAltarActivated>.Register(m_OnAltarEndedActivation);
 
-        EventBinding<OnFinalAltarActivated> _OnFinalAltarActivated = new EventBinding<OnFinalAltarActivated>(HandleFinalAltar);
+        EventBinding<OnFinalAltarActivated> _OnFinalAltarActivated = new EventBinding<OnFinalAltarActivated>(async () => { await HandleFinalAltar(); });
         EventBus<OnFinalAltarActivated>.Register(_OnFinalAltarActivated);
 
 
@@ -117,10 +117,11 @@ public class CameraManager : MonoBehaviour
         await HandleAltarEndedActivation();
     }
 
-    private void HandleFinalAltar()
+    private async UniTask HandleFinalAltar()
     {
-        StartCoroutine(DoScreenShake(1, 1, m_ActivationAltarSettings.activationDuration/2, m_ActivationAltarSettings.shakeCurve));
-
+        StartCoroutine(DoScreenShake(1, 1, m_ActivationAltarSettings.activationDuration / 2, m_ActivationAltarSettings.shakeCurve));
+        await UniTask.Delay(10 * 1000);
+        await HandleAltarEndedActivation();
     }
 
     private async UniTask HandleAltarEndedActivation()
