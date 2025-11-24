@@ -2,8 +2,9 @@ using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 
-public class ComponentSlot : MonoBehaviour
+public class ComponentSlot : MonoBehaviour, IPointerEnterHandler
 {
     private RectTransform _transform;
 
@@ -15,6 +16,10 @@ public class ComponentSlot : MonoBehaviour
     int slotPosition;
 
     public bool m_isInventory;
+
+    [Header("SFX")]
+    public AnimationEventSound m_ComponentAppliedSFX;
+    public AnimationEventSound m_HoverSFX;
 
 
     void Start()
@@ -42,6 +47,8 @@ public class ComponentSlot : MonoBehaviour
         weapon.m_weaponComponents[slotPosition] = currentComponent;
 
         EventBus<OnComponentUpdate>.Raise(new OnComponentUpdate());
+
+        AudioManager.Instance.PlayOneShotAtPosition(m_ComponentAppliedSFX.soundEvent, transform.position);
 
 
         // weapon.ReadComponents();
@@ -79,5 +86,10 @@ public class ComponentSlot : MonoBehaviour
         currentComponent = null;
         currentComponentUI = null;
         weapon = null;
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        AudioManager.Instance.PlayOneShotAtPosition(m_HoverSFX.soundEvent, transform.position);
     }
 }
