@@ -125,12 +125,6 @@ public class GlobalVolumeController : MonoBehaviour
         yield return new WaitForSeconds(volumeSettings.waveClearedLerpDuration);
         DesactivateAllWeights();
 
-        if (m_PlayerCurrentHealth <= m_PlayerHealthLimit)
-        {
-
-            StartCoroutine(DoLerpToOne(LowHealthVolume, volumeSettings.LerpDuration));
-        }
-
 
 
     }

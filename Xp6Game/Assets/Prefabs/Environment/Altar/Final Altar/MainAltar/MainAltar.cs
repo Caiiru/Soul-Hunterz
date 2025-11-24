@@ -15,7 +15,7 @@ public class MainAltar : MonoBehaviour, Interactable
 
     public bool _canInteract = true;
 
-    
+
 
 
     [Header("VFX")]
@@ -112,7 +112,7 @@ public class MainAltar : MonoBehaviour, Interactable
         if (m_altarsActivatedAlready >= 3)
         {
             Debug.Log("Can Activate the last altar");
-            _canInteract=true;
+            _canInteract = true;
         }
 
     }
@@ -134,6 +134,9 @@ public class MainAltar : MonoBehaviour, Interactable
     {
 
         EventBus<OnFinalAltarActivated>.Raise(new OnFinalAltarActivated());
+        _canInteract = false;
+
+        EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
         return;
 
     }
