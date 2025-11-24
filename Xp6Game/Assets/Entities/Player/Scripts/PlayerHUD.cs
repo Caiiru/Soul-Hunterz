@@ -75,6 +75,7 @@ public class PlayerHUD : MonoBehaviour
     [Header("Currency")]
     public TextMeshProUGUI m_playerCurrencyText;
     public const float k_currencyHideDelay = 5;
+    public GameObject m_playerCurrencyShadow;
 
     [Header("Backpack")]
     private bool m_isTutorial = true;
@@ -369,6 +370,7 @@ public class PlayerHUD : MonoBehaviour
         if (m_isTutorial) return;
 
         m_playerCurrencyText.transform.parent.gameObject.SetActive(true);
+        m_playerCurrencyShadow.SetActive(true);
 
 
 
@@ -386,6 +388,7 @@ public class PlayerHUD : MonoBehaviour
             await UniTask.Delay((int)delayTime, cancellationToken: m_HideCurrencyTk.Token);
 
             m_playerCurrencyText.transform.parent.gameObject.SetActive(false);
+            m_playerCurrencyShadow.SetActive(false);
         }
         catch
         {
@@ -634,6 +637,7 @@ public class PlayerHUD : MonoBehaviour
     {
         // Debug.Log("Desactivating all");
         m_playerCurrencyText.transform.parent.gameObject.SetActive(false);
+        m_playerCurrencyShadow.SetActive(false);
         _interactTransform.gameObject.SetActive(false);
         _inventoryTransform.GetComponent<Canvas>().enabled = false;
         _messageTransform.gameObject.SetActive(false);
