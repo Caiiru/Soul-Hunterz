@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler
+public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] bool _canDrag = true;
     [SerializeField] bool _isInventoryOpen = false;
@@ -21,6 +21,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     [Header("Component UI")]
     public Vector3 normalScale;
     public Vector3 dragScale;
+    private Vector2 offset = new Vector2(10, -10);
 
 
     public ComponentSO componentData;
@@ -79,6 +80,8 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         // Debug.Log("Begin Drag");
         if (!isDraggable()) return;
 
+        ComponentDescription.Instance.HidePopup();
+        ComponentDescription.Instance.SetDragging(true);
         _startDragPosition = this.transform.position;
         _oldParent = transform.parent;
         transform.SetParent(_inventoryCanvas);
@@ -98,6 +101,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     {
         if (!isDraggable()) return;
 
+        ComponentDescription.Instance.SetDragging(false);
 
         Collider2D hitCollider = Physics2D.OverlapPoint(transform.position);
         var overlap = Physics2D.OverlapCircleAll(transform.position, 1f);
@@ -147,6 +151,7 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
     {
         // Debug.Log("on drag");
         if (!isDraggable()) return;
+
         transform.position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1);
         // transform.SetParent(null);
 
@@ -196,4 +201,20 @@ public class ComponentUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
         _canDrag = draggable;
     }
 
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (componentData != null && _canDrag == true)
+        {
+            // Calcula a posição do mouse na tela
+            Vector3 popupPosition = Input.mousePosition;
+
+            // Chama o gerenciador para exibir o popup com os dados
+            ComponentDescription.Instance.ShowPopup(componentData, popupPosition);
+        }
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        ComponentDescription.Instance.HidePopup();
+    }
 }
