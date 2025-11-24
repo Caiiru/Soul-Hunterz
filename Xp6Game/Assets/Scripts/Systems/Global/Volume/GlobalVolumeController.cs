@@ -102,9 +102,9 @@ public class GlobalVolumeController : MonoBehaviour
     }
     IEnumerator HandleWaveStarted()
     {
+        StartCoroutine(DoLerpToOne(WaveVolume, volumeSettings.LerpDuration));
         StartCoroutine(DoLerpToZero(AltarActivatedVolume, altarSettings.activationDuration / 2));
         yield return new WaitForSeconds(altarSettings.activationDuration / 2);
-        StartCoroutine(DoLerpToOne(WaveVolume, volumeSettings.LerpDuration));
 
     }
 
@@ -116,9 +116,6 @@ public class GlobalVolumeController : MonoBehaviour
             StartCoroutine(DoLerpToZero(WaveVolume, volumeSettings.waveClearedLerpDuration));
         }
         StartCoroutine(DoLerpToOne(WaveClearedVolume, volumeSettings.waveClearedLerpDuration));
-
-
-        yield return new WaitForSeconds(volumeSettings.waveClearedLerpDuration);
 
         StartCoroutine(DoLerpToZero(WaveClearedVolume, volumeSettings.waveClearedLerpDuration));
 
