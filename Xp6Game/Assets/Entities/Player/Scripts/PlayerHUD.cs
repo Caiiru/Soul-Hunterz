@@ -123,6 +123,8 @@ public class PlayerHUD : MonoBehaviour
     //
     EventBinding<OnAltarActivated> m_OnAltarActivatedBinding;
 
+    EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
+
 
     #endregion
 
@@ -235,10 +237,6 @@ public class PlayerHUD : MonoBehaviour
         });
         EventBus<OnUpdateSouls>.Register(m_OnUpdateSouls);
 
-        //Set Message
-
-        EventBus<OnAltarActivated>.Register(new EventBinding<OnAltarActivated>(HandleMessageAltarActivated));
-
         m_OnDisplayMessageBinding = new EventBinding<OnDisplayMessage>(HandleDisplayMessage);
         EventBus<OnDisplayMessage>.Register(m_OnDisplayMessageBinding);
 
@@ -271,6 +269,7 @@ public class PlayerHUD : MonoBehaviour
 
         m_OnAltarActivatedBinding = new EventBinding<OnAltarActivated>((data) =>
         {
+            HandleMessageAltarActivated(data);
             foreach (var map in m_MapData)
             {
                 if (map.direction == data.m_Direction)
@@ -285,6 +284,14 @@ public class PlayerHUD : MonoBehaviour
         });
 
         EventBus<OnAltarActivated>.Register(m_OnAltarActivatedBinding);
+
+        m_OnFinalAltarActivatedBinding = new EventBinding<OnFinalAltarActivated>(() =>
+        {
+            EventBus<OnDisplayMessage>.Raise(new OnDisplayMessage { m_Message = "Sobreviva" });
+
+        });
+        EventBus<OnFinalAltarActivated>.Register(m_OnFinalAltarActivatedBinding);
+
 
         //Change State
         //
@@ -406,17 +413,17 @@ public class PlayerHUD : MonoBehaviour
     {
         // if (_isHovering) return;
 
-        string interactType = eventData.interactableType == InteractableType.Collectable ? "to collect " : "to interact with ";
+        string interactType = eventData.interactableType == InteractableType.Collectable ? "para coletar " : "para interagir com ";
         _isHovering = true;
 
-        SetTextToInteract($"Press {_interactInput.GetBindingDisplayString(0)} {interactType}{eventData.InteractableName}");
+        SetTextToInteract($"Pressione {_interactInput.GetBindingDisplayString(0)} {interactType}{eventData.InteractableName}");
         ShowInteractText();
         PopupInteractText();
 
     }
     void OnInteractUpdate(OnInteractUpdateEvent eventData)
     {
-        SetTextToInteract($"Press {_interactInput.GetBindingDisplayString(0)} to interact with {eventData.InteractableName}");
+        SetTextToInteract($"Pressione {_interactInput.GetBindingDisplayString(0)} para interagir com {eventData.InteractableName}");
     }
 
     void OnInteractLeave()
@@ -452,7 +459,7 @@ public class PlayerHUD : MonoBehaviour
 
     private void HandleMessageAltarActivated(OnAltarActivated arg0)
     {
-        DisplayMessage("Altar has been activated!");
+        DisplayMessage("Altar foi ativado!");
     }
 
     private void HandleDisplayMessage(OnDisplayMessage arg0)

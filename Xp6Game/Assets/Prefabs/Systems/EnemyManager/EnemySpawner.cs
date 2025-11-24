@@ -38,6 +38,8 @@ public class EnemySpawner : MonoBehaviour
     private EnemyManager _enemyManager;
     private bool m_isFinalForm;
 
+    public GameObject[] m_PortalSpawnPos;
+
     // --- Eventos (Mantidos Ilesos) ---
     EventBinding<OnEnemyDied> m_OnEnemyDiedBinding;
     EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
@@ -141,6 +143,12 @@ public class EnemySpawner : MonoBehaviour
         m_enemiesToSpawnQueue.Clear();
         StopSpawning(); // Para qualquer spawn pendente
         m_isFinalForm = true;
+        m_isWaveActive = true;
+        m_PortalSpawnPos = GameObject.FindGameObjectsWithTag("EnemyFinalPos");
+        enemySpawnPosition = m_PortalSpawnPos;
+
+        PrepareWaveQueue(4);
+        StartSpawning();
     }
 
     private void OnEnemyDiedHandler(OnEnemyDied arg0)
@@ -153,7 +161,12 @@ public class EnemySpawner : MonoBehaviour
         // Lógica: Se a fila estiver vazia E não houver inimigos ativos, a onda terminou.
         if (m_enemiesToSpawnQueue.Count == 0 && m_EnemiesActive <= m_EnemiesOnThisWave / 10)
         {
-            EventBus<OnWaveClearedEvent>.Raise(new OnWaveClearedEvent());
+            if (!m_isFinalForm)
+                EventBus<OnWaveClearedEvent>.Raise(new OnWaveClearedEvent());
+            else
+            {
+                EventBus<OnGameWin>.Raise(new OnGameWin());
+            }
             // EventBus<WaveEndEvent>.Raise(new WaveEndEvent()); // Exemplo de evento de fim de onda 
             m_isWaveActive = false;
             StopSpawning();

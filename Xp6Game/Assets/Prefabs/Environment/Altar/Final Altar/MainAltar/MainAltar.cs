@@ -13,7 +13,7 @@ public class MainAltar : MonoBehaviour, Interactable
 
     public int m_lastAltarActivation = 0;
 
-    private bool _canInteract = true;
+    public bool _canInteract = true;
 
     
 
@@ -112,6 +112,7 @@ public class MainAltar : MonoBehaviour, Interactable
         if (m_altarsActivatedAlready >= 3)
         {
             Debug.Log("Can Activate the last altar");
+            _canInteract=true;
         }
 
     }
@@ -132,7 +133,7 @@ public class MainAltar : MonoBehaviour, Interactable
     public void Interact()
     {
 
-        EventBus<OnStartAltarActivation>.Raise(new OnStartAltarActivation());
+        EventBus<OnFinalAltarActivated>.Raise(new OnFinalAltarActivated());
         return;
 
     }

@@ -49,6 +49,12 @@ public class GlobalVolumeController : MonoBehaviour
         });
         EventBus<OnAltarActivated>.Register(m_OnAltarActivatedBinding);
 
+        EventBinding<OnFinalAltarActivated> _FinalAltarBinding = new EventBinding<OnFinalAltarActivated>(() =>
+        {
+            StartCoroutine(HandleFinalWave());
+        });
+        EventBus<OnFinalAltarActivated>.Register(_FinalAltarBinding);
+
 
         //Wave Cleared
         m_OnWaveClearedBinding = new EventBinding<OnWaveClearedEvent>(async () => await HandleWaveCleared());
@@ -75,6 +81,13 @@ public class GlobalVolumeController : MonoBehaviour
 
 
 
+    }
+
+    IEnumerator HandleFinalWave()
+    {
+        StartCoroutine(DoLerpToZero(AltarActivatedVolume, 1f));
+        yield return new WaitForSeconds(1f);
+        StartCoroutine(DoLerpToOne(WaveVolume, 2f));
     }
 
     void HandleAltarStarted()

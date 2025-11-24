@@ -52,7 +52,7 @@ public class WaveEndEvent : IEvent
 
 public class OnWaveClearedEvent : IEvent
 {
-
+    
 }
 public class OnFinalAltarActivated : IEvent
 {

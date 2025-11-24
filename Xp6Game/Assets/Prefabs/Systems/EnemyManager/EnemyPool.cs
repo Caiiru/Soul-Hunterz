@@ -108,7 +108,7 @@ public class EnemyPool : MonoBehaviour
         objectToSpawn.name = prefabToPool.name;
 
         objectToSpawn.transform.SetParent(this.transform.parent);
-        Debug.Log($" {objectToSpawn.name} in position {position}");
+        // Debug.Log($" {objectToSpawn.name} in position {position}");
         objectToSpawn.transform.position = position;
         objectToSpawn.transform.rotation = rotation;
 

@@ -19,6 +19,12 @@ public class AudioManager : MonoBehaviour
     //Events
     EventBinding<OnStartAltarActivation> m_OnStartAltarActivationBinding;
     EventBinding<OnWaveClearedEvent> m_OnWaveClearedBinding;
+    EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
+    EventBinding<OnPlayerDied> _playerDiedBinding;
+    EventBinding<OnGameWin> _gameWinBinding;
+
+
+
 
 
     #region Singleton
@@ -62,11 +68,37 @@ public class AudioManager : MonoBehaviour
             PlayOneShotAtPosition(WaveClearedEvent.soundEvent, transform.position);
         });
         EventBus<OnWaveClearedEvent>.Register(m_OnWaveClearedBinding);
+
+        m_OnFinalAltarActivatedBinding = new EventBinding<OnFinalAltarActivated>(() =>
+        {
+            PlayOneShotAtPosition(AltarActivationEvent.soundEvent, transform.position);
+        });
+        EventBus<OnFinalAltarActivated>.Register(m_OnFinalAltarActivatedBinding);
+
+        //Game Over & Game win
+
+        _playerDiedBinding = new EventBinding<OnPlayerDied>(() =>
+       {
+           PlayOneShotAtPosition(WaveClearedEvent.soundEvent, transform.position);
+       });
+        EventBus<OnPlayerDied>.Register(_playerDiedBinding);
+
+        _gameWinBinding = new EventBinding<OnGameWin>(() =>
+      {
+
+          PlayOneShotAtPosition(WaveClearedEvent.soundEvent, transform.position);
+      });
+        EventBus<OnGameWin>.Register(_gameWinBinding);
     }
 
     private void UnbindEvents()
     {
         EventBus<OnStartAltarActivation>.Unregister(m_OnStartAltarActivationBinding);
+        EventBus<OnWaveClearedEvent>.Unregister(m_OnWaveClearedBinding);
+        EventBus<OnFinalAltarActivated>.Unregister(m_OnFinalAltarActivatedBinding);
+        EventBus<OnPlayerDied>.Unregister(_playerDiedBinding);
+        EventBus<OnGameWin>.Unregister(_gameWinBinding);
+
     }
 
     //handle events

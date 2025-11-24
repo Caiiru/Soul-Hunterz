@@ -101,7 +101,7 @@ public class CollectableComponent : Collectable, Interactable
     UniTask PopupIcon()
     {
 
-    //Activate Icon Mesh
+        //Activate Icon Mesh
         _itemIcon.color = new Color(255, 255, 255, 255);
         _iconHolder.gameObject.SetActive(true);
         //Set to position
@@ -155,17 +155,17 @@ public class CollectableComponent : Collectable, Interactable
 
         EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
         DesactiveItem();
-        m_CanInteract = false;
 
     }
 
     void DesactiveItem()
     {
+        this.transform.gameObject.SetActive(false);
+        return;
         transform.DOScale(0, animDuration).SetEase(Ease.InOutSine).OnComplete(() =>
         {
             _mesh.transform.position = new Vector3(0, 0, 0);
             m_Rigidbody.useGravity = false;
-            this.transform.gameObject.SetActive(false);
         });
     }
 

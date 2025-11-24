@@ -121,7 +121,7 @@ public class CollectableManager : MonoBehaviour
         {
             Vector3 m_dropPosition = new Vector3(
                 m_PlayerTransform.position.x,
-                m_PlayerTransform.position.y + 0.5f,
+                1f,
                 m_PlayerTransform.position.z
 
             );

@@ -128,11 +128,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
 
         // Debug.Log($"{transform.name} binded events");
 
-        m_OnFinalAltarActivatedBinding = new EventBinding<OnFinalAltarActivated>(() =>
-        {
-            EndGame();
-        });
-        EventBus<OnFinalAltarActivated>.Register(m_OnFinalAltarActivatedBinding);
+
     }
 
     private void OnTakeDamageEventListener(int v)
@@ -162,8 +158,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     {
 
         await UnbindEvents();
-        // Debug.Log("DEstroying ENEMY");
-        Destroy(this.gameObject);
+        // Debug.Log("DEstroying ENEMY"); 
     }
 
     #endregion

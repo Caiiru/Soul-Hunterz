@@ -13,7 +13,7 @@ public class Collectable : MonoBehaviour, Interactable
 
     //Player
     public bool isPlayerInRange = false;
-    protected bool m_CanInteract = true;
+    [SerializeField] protected bool m_CanInteract = true;
 
     public Rigidbody m_Rigidbody;
     public Camera _mainCamera;

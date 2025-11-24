@@ -243,6 +243,7 @@ public class GameManager : MonoBehaviour
 
     private void HandleFinalAltarActivated(OnFinalAltarActivated arg0)
     {
+        m_FOGHolder.transform.position = new Vector3(-7.79f,-4.49f,6.76f);
         m_FOGHolder.gameObject.SetActive(true);
         m_FOGHolder.transform.DOScale(m_FOGStartScale, 0.5f);
     }
