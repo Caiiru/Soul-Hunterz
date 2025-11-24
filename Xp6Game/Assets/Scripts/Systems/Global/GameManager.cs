@@ -92,6 +92,10 @@ public class GameManager : MonoBehaviour
     public Transform m_FOGHolder;
     private Vector3 m_FOGStartScale;
 
+    public Material m_FogStartMaterial;
+    public Material m_FogAltarMaterial;
+    //261C4B
+    //red 891B17
 
 
 
@@ -100,6 +104,9 @@ public class GameManager : MonoBehaviour
     {
         BindEvents();
         BindEnemiesEvents();
+
+        m_FOGHolder.GetComponent<MeshRenderer>().material = m_FogStartMaterial;
+        // mat.DOColor(m_FogStartColor, 1f);
         // EventBus<OnGameReadyToStart>.Raise(new OnGameReadyToStart());
     }
 
@@ -114,6 +121,9 @@ public class GameManager : MonoBehaviour
         await BeginGame();
 
         EventBus<OnGameStart>.Raise(new OnGameStart());
+
+        ChangeGameState(GameState.Playing);
+
         await UniTask.CompletedTask;
     }
 
@@ -140,12 +150,14 @@ public class GameManager : MonoBehaviour
 
         m_OnStartAltarActivationBinding = new EventBinding<OnStartAltarActivation>((args) =>
         {
+
+            m_FOGHolder.GetComponent<MeshRenderer>().material = m_FogAltarMaterial;
             foreach (var altar in m_Altars)
             {
                 if (args.m_Direction == altar.GetComponent<WinAltar>().m_AltarDirection)
                 {
                     SetFogPosition(altar.transform.position);
-                    SetFogScale(new Vector3(4.5f, 4.5f, 1f), 1f, false);
+                    SetFogScale(new Vector3(6f, 6f, 1f), 1f, false);
 
                     return;
                 }
@@ -204,6 +216,8 @@ public class GameManager : MonoBehaviour
     async UniTask BeginGame()
     {
         ChangeGameState(GameState.Playing);
+
+
         // _enemyManager.StartSpawning();
         await UniTask.CompletedTask;
     }
@@ -243,7 +257,7 @@ public class GameManager : MonoBehaviour
 
     private void HandleFinalAltarActivated(OnFinalAltarActivated arg0)
     {
-        m_FOGHolder.transform.position = new Vector3(-7.79f,-4.49f,6.76f);
+        m_FOGHolder.transform.position = new Vector3(-7.79f, -4.49f, 6.76f);
         m_FOGHolder.gameObject.SetActive(true);
         m_FOGHolder.transform.DOScale(m_FOGStartScale, 0.5f);
     }
