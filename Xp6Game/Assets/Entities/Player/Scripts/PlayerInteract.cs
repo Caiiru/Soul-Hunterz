@@ -16,7 +16,7 @@ public class PlayerInteract : MonoBehaviour
     [SerializeField] Transform _nearbyInteractable;
 
     private bool interactIsPressed = false;
-    private bool m_HasAnyInteractableNearby = false;
+    public bool m_HasAnyInteractableNearby = false;
 
     private const int k_InteractableLayerMask = 1 << 10;
 
@@ -92,6 +92,7 @@ public class PlayerInteract : MonoBehaviour
 
         if (!m_HasAnyInteractableNearby)
         {
+            m_HasAnyInteractableNearby = true;
             EventBus<OnInteractEnterEvent>.Raise(new OnInteractEnterEvent
             {
                 InteractableName = _nearbyInteractable.name,
@@ -141,14 +142,15 @@ public class PlayerInteract : MonoBehaviour
 
         if (_nearbyInteractable.TryGetComponent<WinAltar>(out WinAltar _winAltar))
         {
-            if(!_winAltar.CanInteract()) return;
+            if (!_winAltar.CanInteract()) return;
             m_PlayerSouls.enabled = true;
             Vector3 _position = _nearbyInteractable.GetChild(0).transform.position;
 
             m_PlayerSouls.SetVector3("Target Position", _position);
             _winAltar.Interact();
         }
-        else{
+        else
+        {
             _nearbyInteractable.GetComponent<Interactable>().Interact();
         }
 
@@ -178,8 +180,12 @@ public class PlayerInteract : MonoBehaviour
         int hitCount = Physics.OverlapSphereNonAlloc(transform.position, interactRadius, interactColliders, k_InteractableLayerMask);
         if (hitCount == 0)
         {
-            m_HasAnyInteractableNearby = false;
-            EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
+            if (m_HasAnyInteractableNearby)
+            {
+                m_HasAnyInteractableNearby = false;
+                EventBus<OnInteractLeaveEvent>.Raise(new OnInteractLeaveEvent());
+                interactColliders = new Collider[3];
+            }
             return null;
         }
 
