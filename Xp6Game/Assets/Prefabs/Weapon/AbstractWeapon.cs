@@ -168,13 +168,13 @@ public abstract class AbstractWeapon : MonoBehaviour
         //Load weapon payload
         BulletSO bulletData = GetBullet();
 
-        payload.AttackDelay = m_FireDelay;
+        payload.AttackDelay = m_WeaponData.AttackDelay;
         payload.SpeedFlat = bulletData.Speed;
         payload.SpeedMultiplier = 1;
         payload.FlatLifeTime = bulletData.LifeTime;
         payload.LifetimeMultiplier = 1;
         payload.BonusDamage = 0;
-        payload.RechargeTime = m_RechargeTime;
+        payload.RechargeTime = m_WeaponData.ReloadTime;
         payload.MaxAmmo = m_WeaponData.MaxAmmo;
 
         return payload;
@@ -196,8 +196,12 @@ public abstract class AbstractWeapon : MonoBehaviour
         m_maxAmmo = payload.MaxAmmo;
         m_CurrentAmmo = m_CurrentAmmo > m_maxAmmo ? m_maxAmmo : m_CurrentAmmo;
 
-        m_FireDelay = payload.AttackDelay;
-        m_RechargeTime = payload.RechargeTime;
+        m_FireDelay = payload.AttackDelay <= 0 ? 0.01f : payload.AttackDelay;
+        // m_CurrentFireDelay = m_FireDelay;
+
+
+        m_RechargeTime = payload.RechargeTime <= 0 ? 0.01f : payload.RechargeTime;
+        // m_CurrentRechargeTime = m_RechargeTime;
 
         UpdateAmmoVisual();
 
@@ -217,7 +221,7 @@ public abstract class AbstractWeapon : MonoBehaviour
     {
         if (!m_CanAttack) return;
         if (m_MuzzleGO == null) return;
-        
+
         GameObject _muzzle = Instantiate(m_MuzzleGO, _firePoint.position, _firePoint.rotation);
         Destroy(_muzzle, 5f);
 
