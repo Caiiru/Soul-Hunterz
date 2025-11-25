@@ -15,6 +15,11 @@ public class DebugController : MonoBehaviour
     {
         ResetGameDebug();
         EndWaveDebug();
+
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            GameManager.Instance.WinGame();
+        }
     }
     async void ResetGameDebug()
     {

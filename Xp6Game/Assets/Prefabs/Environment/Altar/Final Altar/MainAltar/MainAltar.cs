@@ -51,7 +51,6 @@ public class MainAltar : MonoBehaviour, Interactable
 
     void BindEvents()
     {
-        EventBus<OnGameWin>.Register(m_OnGameWinBinding);
 
 
         m_OnNewAltarActivated = new EventBinding<OnWaveClearedEvent>(HandleNewAltarActivation);

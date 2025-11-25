@@ -331,8 +331,8 @@ public class GameManager : MonoBehaviour
     #region Game End Methods
     public void WinGame()
     {
-        // EventBus<OnGameWin>.Raise(new OnGameWin());
-        EventBus<OnGameOver>.Raise(new OnGameOver());
+        EventBus<OnGameWin>.Raise(new OnGameWin());
+        // EventBus<OnGameOver>.Raise(new OnGameOver());
 
 
 
