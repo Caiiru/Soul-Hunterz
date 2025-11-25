@@ -28,7 +28,7 @@ public class SimpleWeapon : AbstractWeapon
             m_CurrentRechargeTime = 0;
         }
     }
-    
+
 
 
     public void Shoot()
@@ -53,8 +53,11 @@ public class SimpleWeapon : AbstractWeapon
 
         if (payload.BulletCount == 1)
         {
-            // Disparo simples
-            var bulletGO = Instantiate(m_bulletPrefab, _firePoint.position, _firePoint.rotation);
+            // Disparo simplesQ
+            Quaternion firepointRot = _firePoint.rotation;
+            firepointRot.x = 0;
+
+            var bulletGO = Instantiate(m_bulletPrefab, _firePoint.position, firepointRot);
             var bullet = bulletGO.GetComponent<Bullet>();
             bullet.Initialize(transform.forward, payload);
             return;
