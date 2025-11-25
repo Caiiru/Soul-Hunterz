@@ -81,7 +81,7 @@ public class EnemySpawner : MonoBehaviour
 
     // --- Lógica de Eventos ---
 
-    private void OnAltarActivatedHandler(OnAltarActivated arg0)
+    void OnAltarActivatedHandler(OnAltarActivated arg0)
     {
         // 1. Define as posições de spawn baseadas no Altar
         m_isWaveActive = true;
@@ -138,7 +138,7 @@ public class EnemySpawner : MonoBehaviour
     // Mantenha o FixedUpdate para spawns sequenciais baseados em `spawnInterval`.
 
 
-    private void HandlerFinalAltar(OnFinalAltarActivated arg0)
+    void HandlerFinalAltar(OnFinalAltarActivated arg0)
     {
         m_enemiesToSpawnQueue.Clear();
         StopSpawning(); // Para qualquer spawn pendente
@@ -159,19 +159,18 @@ public class EnemySpawner : MonoBehaviour
         m_EnemiesActive--;
 
         // Lógica: Se a fila estiver vazia E não houver inimigos ativos, a onda terminou.
-        if (m_enemiesToSpawnQueue.Count == 0 && m_EnemiesActive <= m_EnemiesOnThisWave / 20)
+        if (m_enemiesToSpawnQueue.Count == 0)
         {
-            if (!m_isFinalForm)
+            if (!m_isFinalForm && m_EnemiesActive <= m_EnemiesOnThisWave / 20)
                 EventBus<OnWaveClearedEvent>.Raise(new OnWaveClearedEvent());
             else
             {
-                // EventBus<OnGameWin>.Raise(new OnGameWin());
+                EventBus<OnWaveClearedEvent>.Raise(new OnWaveClearedEvent());
                 GameManager.Instance.WinGame();
             }
             // EventBus<WaveEndEvent>.Raise(new WaveEndEvent()); // Exemplo de evento de fim de onda 
             m_isWaveActive = false;
             StopSpawning();
-
 
         }
     }

@@ -86,6 +86,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Reload",
+                    "type": "PassThrough",
+                    "id": "5f99ccf8-08b0-41d2-8b20-c20f9b96201e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -317,6 +326,17 @@
                     "processors": "",
                     "groups": ";KeyboardMouse",
                     "action": "Attack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fd82fb42-39f0-4a1f-bdd4-3e982caa08ca",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "Reload",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -120,11 +120,7 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
         });
         EventBus<OnGameOver>.Register(m_OnGameOverBinding);
 
-        m_OnGameWinEventBinding = new EventBinding<OnGameWin>(() =>
-        {
-            EndGame();
-        });
-        EventBus<OnGameWin>.Register(m_OnGameWinEventBinding);
+        
 
         // Debug.Log($"{transform.name} binded events");
 
@@ -156,8 +152,11 @@ public abstract class Enemy<T> : Entity<T> where T : EnemySO
     #region End Game
     async void EndGame()
     {
-        await Die();
-        await UnbindEvents();
+        // await Die();
+        // m_stateMachine.SetTarget(null);
+        m_stateMachine.SetActive(false);
+
+        // await UnbindEvents();
         // Debug.Log("DEstroying ENEMY"); 
     }
 

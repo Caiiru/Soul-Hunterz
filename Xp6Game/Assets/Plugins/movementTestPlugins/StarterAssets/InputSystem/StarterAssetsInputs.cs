@@ -16,6 +16,7 @@ namespace StarterAssets
 		public bool interact;
 		public bool inventory;
 		public bool attack;
+		public bool reload;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -92,6 +93,10 @@ namespace StarterAssets
 		public void OnAttack(InputValue value)
 		{
 			AttackInput(value.isPressed);
+		}
+		public void OnReload(InputValue value)
+		{
+			reload = value.isPressed;
 		}
 
 

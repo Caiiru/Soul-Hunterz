@@ -24,6 +24,7 @@ public abstract class AbstractWeapon : MonoBehaviour
 
     public float m_CurrentRechargeTime;
     public float m_RechargeTime;
+    private bool m_IsReloading = false;
 
     [Header("FirePoint")]
     public Transform _firePoint;
@@ -142,6 +143,11 @@ public abstract class AbstractWeapon : MonoBehaviour
     {
         if (m_CurrentRechargeTime < m_RechargeTime)
         {
+            if (!m_IsReloading)
+            {
+                m_IsReloading = true;
+                m_CanAttack = false;
+            }
             m_CurrentRechargeTime += Time.deltaTime;
 
             EventBus<OnUpdatedRechargeTime>.Raise(new OnUpdatedRechargeTime
@@ -152,14 +158,20 @@ public abstract class AbstractWeapon : MonoBehaviour
 
             if (m_CurrentRechargeTime >= m_RechargeTime)
             {
-                m_CurrentAmmo = m_maxAmmo;
-
-                UpdateAmmoVisual();
-
-                EventBus<OnEndedRechargeTime>.Raise(new OnEndedRechargeTime());
-                m_CanAttack = true;
+                Reload();
             }
         }
+    }
+
+    public virtual void Reload()
+    {
+        m_CurrentAmmo = m_maxAmmo;
+
+        UpdateAmmoVisual();
+
+        EventBus<OnEndedRechargeTime>.Raise(new OnEndedRechargeTime());
+        m_CanAttack = true;
+        m_IsReloading = false;
     }
 
     public BulletPayload EncodeWeaponStatsOnPayload()
@@ -225,5 +237,10 @@ public abstract class AbstractWeapon : MonoBehaviour
         GameObject _muzzle = Instantiate(m_MuzzleGO, _firePoint.position, _firePoint.rotation);
         Destroy(_muzzle, 5f);
 
+    }
+
+    public bool IsReloading()
+    {
+        return m_IsReloading;
     }
 }

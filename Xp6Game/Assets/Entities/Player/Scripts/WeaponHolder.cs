@@ -66,11 +66,6 @@ public class WeaponHolder : MonoBehaviour
         });
         EventBus<OnPlayerDied>.Register(m_OnPlayerDiedBinding);
 
-        m_OnGameWinBinding = new EventBinding<OnGameWin>(() =>
-        {
-            ResetGame();
-        });
-        EventBus<OnGameWin>.Register(m_OnGameWinBinding);
     }
 
 
@@ -98,6 +93,10 @@ public class WeaponHolder : MonoBehaviour
         if (CanFire())
         {
             await FireWeapon();
+        }
+        if (m_StarterAssetsInputs.reload && !currentWeapon.IsReloading())
+        {
+            currentWeapon.m_CurrentRechargeTime = 0;
         }
 
 
