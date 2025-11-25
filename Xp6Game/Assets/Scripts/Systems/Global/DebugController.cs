@@ -20,7 +20,7 @@ public class DebugController : MonoBehaviour
     {
         if (Input.GetKeyDown(ResetGameKey))
         {
-            EventBus<OnGameWin>.Raise(new OnGameWin());
+            // EventBus<OnGameWin>.Raise(new OnGameWin());
             EventBusUtil.ClearAllBuses();
             await SceneManager.LoadSceneAsync("Game");
 
