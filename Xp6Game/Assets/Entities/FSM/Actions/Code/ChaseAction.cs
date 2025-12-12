@@ -7,11 +7,11 @@ public class ChaseAction : Action
 
     public override void Setup(StateMachine stateMachine)
     {
+        stateMachine.SetMoving(true);
 
     }
     public override void Act(StateMachine stateMachine)
     { 
-        stateMachine.SetMoving(true);
 
         float randomThresholdOffset = 1.5f;
         Vector3 offset = new Vector3(Random.Range(-randomThresholdOffset, randomThresholdOffset), 0, Random.Range(-randomThresholdOffset, randomThresholdOffset));

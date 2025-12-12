@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.VFX;
 
-public class Idle_DummyEnemy : Enemy
+public class Idle_DummyEnemy : Enemy<EnemySO>
 {
     protected override void OnEnable()
     {
@@ -10,7 +10,7 @@ public class Idle_DummyEnemy : Enemy
         canBeDamaged = false;
     }
 
-    protected override void TakeDamage(int damage)
+    public override void TakeDamage(int damage)
     {
         base.TakeDamage(damage);
 

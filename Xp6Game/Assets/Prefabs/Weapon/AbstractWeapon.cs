@@ -3,67 +3,244 @@ using UnityEngine;
 
 public abstract class AbstractWeapon : MonoBehaviour
 {
-    public WeaponSO WeaponData;
+    public WeaponSO m_WeaponData;
 
-    public GameObject bulletPrefab;
-    public int currentIndexSlot = 0;
-    public ComponentSO[] weaponComponents;
+    public GameObject m_bulletPrefab;
+    public int m_currentIndexSlot = 0;
+    public ComponentSO[] m_weaponComponents;
     [Space]
     [Header("Stats")]
+    public float m_AttackDamage;
+    public bool m_CanAttack = true;
 
-    public float AttackRange;
-    public float AttackRate;
-    public float AttackDamage;
+    [Header("Ammo")]
+    public int m_CurrentAmmo;
+    public int m_maxAmmo;
+    [Header("Fire Delay")]
+    public float m_CurrentFireDelay;
+    public float m_FireDelay;
 
+    [Header("Reload Time")]
+
+    public float m_CurrentRechargeTime;
+    public float m_RechargeTime;
+    private bool m_IsReloading = false;
+
+    [Header("FirePoint")]
     public Transform _firePoint;
     // Visual
-
+    [Header("Visual")]
     public Sprite Icon;
     public string WeaponName;
     public string Description;
     public int Rarity;
     public Color RarityColor;
-    public GameObject meshPrefab;
+
+    [Header("VFX")]
+    public GameObject m_MuzzleGO;
+
+
+    //Events
+
+    EventBinding<OnComponentUpdate> m_OnComponentUpdateBinding;
 
     public virtual void Start()
     {
+        BindEvents();
     }
     void OnEnable()
     {
         // InitializeWeapon();
     }
+
+    protected void BindEvents()
+    {
+        m_OnComponentUpdateBinding = new EventBinding<OnComponentUpdate>(ReadComponents);
+        EventBus<OnComponentUpdate>.Register(m_OnComponentUpdateBinding);
+
+    }
     public virtual void InitializeWeapon()
     {
-        if (WeaponData != null)
+        if (m_WeaponData == null)
         {
-            AttackRange = WeaponData.AttackRange;
-            AttackRate = WeaponData.AttackRate;
-            AttackDamage = WeaponData.AttackDamage;
-
-            Icon = WeaponData.Icon;
-            WeaponName = WeaponData.WeaponName;
-            Description = WeaponData.Description;
-            Rarity = WeaponData.Rarity;
-            RarityColor = WeaponData.RarityColor;
-
-            weaponComponents = WeaponData.components.ToArray();
-            meshPrefab = WeaponData.meshPrefab;
-            if (meshPrefab == null)
-            {
-                Debug.LogError("Weaponn without mesh");
-                return;
-            }
-            GameObject mesh = Instantiate(WeaponData.meshPrefab, transform);
-            _firePoint = transform.Find("FirePoint");
-
-            bulletPrefab.GetComponent<Bullet>().SetBullet(WeaponData.bullet);
-
+            Debug.Log("Weapon Data Null");
+            return;
         }
+        m_FireDelay = m_WeaponData.AttackDelay;
+        m_AttackDamage = m_WeaponData.AttackDamage;
+
+
+        Icon = m_WeaponData.Icon;
+        WeaponName = m_WeaponData.WeaponName;
+        Description = m_WeaponData.Description;
+        Rarity = m_WeaponData.Rarity;
+        RarityColor = m_WeaponData.RarityColor;
+
+        m_weaponComponents = m_WeaponData.components.ToArray();
+
+        //Ammo
+        m_RechargeTime = m_WeaponData.ReloadTime;
+        m_CurrentRechargeTime = m_RechargeTime;
+
+        GameObject mesh = Instantiate(m_WeaponData.meshPrefab, transform);
+        _firePoint = mesh.transform.Find("FirePoint");
+
+        // _firePoint.SetParent(transform.root);
+
+        // m_bulletPrefab.GetComponent<Bullet>().SetBullet(m_WeaponData.bullet);
+        m_bulletPrefab = m_WeaponData.BulletPrefab;
+        m_CanAttack = true;
+
+        m_MuzzleGO = m_WeaponData.m_MuzzleVFX;
+
+        var payload = new BulletPayload();
+        //Load weapon payload
+
+        ReadComponents();
+
+        // m_maxAmmo = m_WeaponData.MaxAmmo;
+        // m_maxAmmo += payload.MaxAmmo;
+
+
+        m_CurrentAmmo = m_WeaponData.MaxAmmo;
+
+
+        UpdateAmmoVisual();
+
+
     }
 
     public BulletSO GetBullet()
     {
-        return WeaponData.bullet;
+        return m_WeaponData.bullet;
     }
-    public virtual void Attack() { }
+
+    public virtual void Update()
+    {
+        HandleFireRateTimer();
+        HandleRechargeTimer();
+    }
+
+    public virtual void HandleFireRateTimer()
+    {
+        if (m_CurrentFireDelay < m_FireDelay)
+        {
+            m_CurrentFireDelay += Time.deltaTime;
+
+
+
+
+            if (m_CurrentFireDelay > m_FireDelay && m_CurrentAmmo > 0)
+            {
+
+                m_CanAttack = true;
+
+            }
+        }
+
+    }
+    public virtual void HandleRechargeTimer()
+    {
+        if (m_CurrentRechargeTime < m_RechargeTime)
+        {
+            if (!m_IsReloading)
+            {
+                m_IsReloading = true;
+                m_CanAttack = false;
+            }
+            m_CurrentRechargeTime += Time.deltaTime;
+
+            EventBus<OnUpdatedRechargeTime>.Raise(new OnUpdatedRechargeTime
+            {
+                time = m_CurrentRechargeTime,
+                maxTime = m_RechargeTime
+            });
+
+            if (m_CurrentRechargeTime >= m_RechargeTime)
+            {
+                Reload();
+            }
+        }
+    }
+
+    public virtual void Reload()
+    {
+        m_CurrentAmmo = m_maxAmmo;
+
+        UpdateAmmoVisual();
+
+        EventBus<OnEndedRechargeTime>.Raise(new OnEndedRechargeTime());
+        m_CanAttack = true;
+        m_IsReloading = false;
+    }
+
+    public BulletPayload EncodeWeaponStatsOnPayload()
+    {
+        var payload = new BulletPayload();
+        //Load weapon payload
+        BulletSO bulletData = GetBullet();
+
+        payload.AttackDelay = m_WeaponData.AttackDelay;
+        payload.SpeedFlat = bulletData.Speed;
+        payload.SpeedMultiplier = 1;
+        payload.FlatLifeTime = bulletData.LifeTime;
+        payload.LifetimeMultiplier = 1;
+        payload.BonusDamage = 0;
+        payload.RechargeTime = m_WeaponData.ReloadTime;
+        payload.MaxAmmo = m_WeaponData.MaxAmmo;
+
+        return payload;
+    }
+    /// <summary>
+    /// when player put a new component, update the weapon payload & stats
+    /// </summary>
+    public void ReadComponents()
+    {
+
+        var payload = EncodeWeaponStatsOnPayload();
+        foreach (var component in m_weaponComponents)
+        {
+            if (component == null) continue;
+            payload = component.InitializeOnWeapon(payload);
+        }
+
+        //Weapon Stats
+        m_maxAmmo = payload.MaxAmmo;
+        m_CurrentAmmo = m_CurrentAmmo > m_maxAmmo ? m_maxAmmo : m_CurrentAmmo;
+
+        m_FireDelay = payload.AttackDelay <= 0 ? 0.01f : payload.AttackDelay;
+        // m_CurrentFireDelay = m_FireDelay;
+
+
+        m_RechargeTime = payload.RechargeTime <= 0 ? 0.01f : payload.RechargeTime;
+        // m_CurrentRechargeTime = m_RechargeTime;
+
+        UpdateAmmoVisual();
+
+
+    }
+
+    private void UpdateAmmoVisual()
+    {
+        EventBus<OnAmmoChanged>.Raise(new OnAmmoChanged
+        {
+            currentAmmo = m_CurrentAmmo,
+            maxAmmo = m_maxAmmo
+        });
+    }
+
+    public virtual void Attack()
+    {
+        if (!m_CanAttack) return;
+        if (m_MuzzleGO == null) return;
+
+        GameObject _muzzle = Instantiate(m_MuzzleGO, _firePoint.position, _firePoint.rotation);
+        Destroy(_muzzle, 5f);
+
+    }
+
+    public bool IsReloading()
+    {
+        return m_IsReloading;
+    }
 }

@@ -1,36 +1,49 @@
+using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AI;
-
-[RequireComponent(typeof(Enemy))]
+using UnityEngine.Events;
 public class StateMachine : MonoBehaviour
 {
     [Header("Data")]
-    private EnemySO enemyData;
-    private Enemy _enemyReference;
+    public EnemySO data;
     private NavMeshAgent _navMeshAgent;
     [Header("State Machine States")]
     private State initialState;
     public State currentState;
     public State remainState;
 
-    
 
-    private bool isActive = false; 
- 
-    public UniTask InitializeStateMachine()
+
+    private bool isActive = false;
+
+
+    //Events
+    [Space]
+    public UnityEvent m_OnAttack;
+    public UnityEvent<int> m_OnTakeDamage;
+
+    public UniTask InitializeStateMachine(EnemySO enemyData)
     {
         _navMeshAgent = GetComponent<NavMeshAgent>();
-        _enemyReference = GetComponent<Enemy>();
 
-        enemyData = _enemyReference.enemyData; 
+        data = enemyData;
 
-        initialState = enemyData.initialState;
+        initialState = data.m_InitialState;
         currentState = Instantiate(initialState);
 
         isActive = true;
 
         remainState = Resources.Load<State>("FSM/RemainInState");
+
+        m_OnAttack = new UnityEvent();
+        m_OnTakeDamage = new UnityEvent<int>();
+
+        // Debug.Log("StateMachine Initialized");
+
+        currentState.BeginState(this);
+
+
 
         return UniTask.CompletedTask;
     }
@@ -39,6 +52,8 @@ public class StateMachine : MonoBehaviour
     void Update()
     {
         if (!isActive) return;
+
+        // Debug.Log("Update State Machine");
         currentState.UpdateState(this);
     }
     public void TransitionToState(State trueState)
@@ -48,25 +63,22 @@ public class StateMachine : MonoBehaviour
 
         currentState.ExitState(this);
         Destroy(currentState);
-        currentState = Instantiate(trueState); 
+        currentState = Instantiate(trueState);
         currentState.BeginState(this);
     }
-
-    private void OnEnemyDie()
+    void OnDisable()
     {
-        Debug.Log("From FSM: Enemy Died");
-        isActive = false;
 
     }
 
-    void OnDisable()
+#nullable enable
+    public GameObject? GetTarget()
     {
-        
-    } 
 
-    public GameObject GetTarget()
-    {
-        return _enemyReference.GetTarget() ? _enemyReference.GetTarget().gameObject : null;
+        if (data.Target != null)
+            return data.Target.gameObject;
+
+        return null;
     }
     public NavMeshAgent GetNavMeshAgent()
     {
@@ -74,17 +86,18 @@ public class StateMachine : MonoBehaviour
     }
 
     public void SetTarget(GameObject gameObject)
-    { 
-        _enemyReference.SetTarget(gameObject.transform);
+    {
+        data.Target = gameObject.transform;
     }
 
     public EnemySO GetEnemyData()
     {
-        return enemyData;
+        return data;
     }
 
     internal void SetMoving(bool newState)
     {
+        if (_navMeshAgent.isStopped != newState) return;
         _navMeshAgent.isStopped = !newState;
     }
 
@@ -93,8 +106,18 @@ public class StateMachine : MonoBehaviour
         _navMeshAgent.SetDestination(targetPosition);
     }
 
-    internal Enemy GetEnemy()
+    internal void Attack()
     {
-        return _enemyReference;
+        m_OnAttack?.Invoke();
+    }
+
+    internal void TakeDamage(int v)
+    {
+        m_OnTakeDamage?.Invoke(v);
+    }
+    public void SetActive(bool isActive)
+    {
+        this.isActive = isActive;
+
     }
 }

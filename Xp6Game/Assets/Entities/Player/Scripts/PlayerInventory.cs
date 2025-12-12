@@ -1,21 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using CMF;
 using StarterAssets;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.VFX;
 
 public class PlayerInventory : MonoBehaviour
 {
+    [Header("Inventory")]
+    bool m_canOpenInventory;
     [SerializeField] bool isInventoryOpen = false;
-
-    [SerializeField] Transform inventoryTransform;
-
-    // private CharacterInput _characterInput;
-    [Header("Inventory KeyCodes")]
-    public KeyCode inventoryKey = KeyCode.E;
-
-    public KeyCode debugComponent = KeyCode.O;
-    public KeyCode debugWeapon = KeyCode.P;
+    bool m_isTutorialFinished = false;
 
 
     [Header("Weapons and Components")]
@@ -24,18 +21,30 @@ public class PlayerInventory : MonoBehaviour
     public GameObject[] weapons;
 
     [SerializeField] private int componentCount = 10;
-    public GameObject[] components;
+    public List<ComponentSO> components;
 
     [Space]
     [Header("Debug Prefabs")]
     public GameObject simpleComponentPrefab;
     public GameObject simpleWeaponPrefab;
 
+    private PlayerEntity m_PlayerEntity;
+
+    [Header("Currency")]
+    public int m_currency = 0;
+    public VisualEffect m_soulsVFX;
 
     #region Events
 
-    public delegate void PlayerInventoryHandler(bool isOpen);
-    public static event PlayerInventoryHandler OnPlayerInventoryToggle;
+    EventBinding<OnCollectSouls> m_OnCollectSouls;
+    EventBinding<OnGameStart> m_OnGameStartBinding;
+
+    EventBinding<OnGameWin> m_OnGameWinBinding;
+    EventBinding<OnGameOver> m_OnGameOverBinding;
+
+    //Tutorial
+
+    EventBinding<OnMapCollected> m_OnTutorialMapCollected;
 
     public delegate void PlayerGetWeapon(AbstractWeapon weapon, int slot);
     public static event PlayerGetWeapon OnPlayerGetWeapon;
@@ -43,51 +52,126 @@ public class PlayerInventory : MonoBehaviour
     #endregion
     void Start()
     {
-        // isInventoryOpen = true;
-        // ToggleInventory();
-
+        BindObjects();
+        BindEvents();
         Initialize();
+
+
+    }
+    void BindObjects()
+    {
+        if (m_soulsVFX == null)
+        {
+            Debug.LogError("NO Soul VFX found");
+        }
+        m_soulsVFX.enabled = false;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        CheckInput();
-    }
     private void Initialize()
     {
+
+
         _weaponHolder = GetComponent<WeaponHolder>();
         if (!_weaponHolder) Debug.LogWarning("Weapon Holder not find");
         weapons = new GameObject[weaponCount];
-        components = new GameObject[componentCount];
-        HandleEvents();
+        components = new List<ComponentSO>();
+
+        // EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent{isOpen = false});
+
+        m_PlayerEntity = GetComponent<PlayerEntity>();
+
+        if (m_PlayerEntity.m_debug)
+        {
+
+            StartCoroutine(AddDebugWeapon());
+
+        }
+
+    }
+    #region BindEvents
+    private void BindEvents()
+    { //Input
+        StarterAssetsInputs.OnPlayerInventoryToggle += ToggleInventory;
+        StarterAssetsInputs.OnChangeWeapon += ChangeWeapon;
+
+        m_OnCollectSouls = new EventBinding<OnCollectSouls>(HandleCollectSoulsEvent);
+        EventBus<OnCollectSouls>.Register(m_OnCollectSouls);
+
+        m_OnGameStartBinding = new EventBinding<OnGameStart>(HandleGameStartEvent);
+        EventBus<OnGameStart>.Register(m_OnGameStartBinding);
+
+        m_OnGameWinBinding = new EventBinding<OnGameWin>(() =>
+        {
+            ToggleInventory(false);
+        });
+        EventBus<OnGameWin>.Register(m_OnGameWinBinding);
+
+        m_OnGameOverBinding = new EventBinding<OnGameOver>(() =>
+        {
+            ToggleInventory(false);
+        });
+        EventBus<OnGameOver>.Register(m_OnGameOverBinding);
+
+        m_OnTutorialMapCollected = new EventBinding<OnMapCollected>(() =>
+        {
+            m_canOpenInventory = true;
+
+        });
+        EventBus<OnMapCollected>.Register(m_OnTutorialMapCollected);
+
+
+
+
+
+    }
+
+    #endregion
+    #region Events Handlers
+    private void HandleCollectSoulsEvent(OnCollectSouls eventData)
+    {
+        m_currency += eventData.amount;
+        EventBus<OnUpdateSouls>.Raise(new OnUpdateSouls { amount = m_currency });
+    }
+
+    private void HandlePlayerCollectComponent(OnCollectComponent arg0)
+    {
+        if (components.Capacity >= componentCount)
+        {
+            return;
+        }
+        components.Add(arg0.data);
+    }
+
+
+    private void HandleGameStartEvent(OnGameStart arg0)
+    {
+
         StartCoroutine(AddDebugWeapon());
 
+        m_currency = 0;
 
 
+        // EventBus<OnCollectSouls>.Raise(new OnCollectSouls { amount = 550 });
     }
-    private void HandleEvents()
+    #endregion
+
+
+    void ToggleInventory(bool newState)
     {
-        StarterAssetsInputs.OnChangeWeapon += ChangeWeapon;
-    }
+        if (!m_canOpenInventory) return;
 
-
-
-    void CheckInput()
-    {
-        if (Input.GetKeyDown(inventoryKey))
+        if (!m_isTutorialFinished)
         {
-            ToggleInventory();
+            EventBus<OnTutorialFinished>.Raise(new OnTutorialFinished());
+            m_isTutorialFinished = true;
         }
-        InputDebugWeapon();
-    }
 
-    void ToggleInventory()
-    {
-        isInventoryOpen = !isInventoryOpen;
-        OnPlayerInventoryToggle?.Invoke(isInventoryOpen);
-    }
 
+        isInventoryOpen = newState;
+        // OnPlayerInventoryToggle?.Invoke(isInventoryOpen);
+        EventBus<OnInventoryInputEvent>.Raise(new OnInventoryInputEvent { isOpen = newState });
+    }
+    #region Weapons
     public void AddWeapon(AbstractWeapon weapon)
     {
         if (!hasWeaponSlot())
@@ -124,33 +208,15 @@ public class PlayerInventory : MonoBehaviour
         _weaponHolder.currentWeapon = null;
         _weaponHolder.currentWeaponGO = null;
     }
-    public void AddComponent(GameObject component)
-    {
+    #endregion
 
-    }
-
-    public void DebugComponent()
-    {
-        if (Input.GetKeyDown(debugWeapon))
-        {
-            GameObject comp = Instantiate(simpleComponentPrefab);
-            AddComponent(comp);
-        }
-    }
-    public void InputDebugWeapon()
-    {
-        if (Input.GetKeyDown(debugWeapon))
-        {
-            AddDebugWeapon();
-        }
-    }
 
     public IEnumerator AddDebugWeapon()
     {
         if (!hasWeaponSlot())
             yield break;
 
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.1f); ;
         GameObject weapon = Instantiate(simpleWeaponPrefab, this.transform);
         weapon.GetComponent<AbstractWeapon>().InitializeWeapon();
         AddWeapon(weapon.GetComponent<AbstractWeapon>());
@@ -167,16 +233,43 @@ public class PlayerInventory : MonoBehaviour
 
         return true;
     }
-
-    public Transform GetInventoryTransform()
+    #region Getters
+    public bool IsInventoryOpen()
     {
-        return inventoryTransform;
+        return isInventoryOpen;
+    }
+    public int GetCurrency()
+    {
+        return m_currency;
+    }
+    #endregion
+
+    #region Unbind methods
+
+    void OnDestroy()
+    {
+        UnbindEvents();
     }
 
-
-    void OnDisable()
+    void UnbindEvents()
     {
         StarterAssetsInputs.OnChangeWeapon -= ChangeWeapon;
+        EventBus<OnCollectSouls>.Unregister(m_OnCollectSouls);
+        EventBus<OnGameStart>.Unregister(m_OnGameStartBinding);
     }
 
+    internal void RemoveCurrency(int m_SoulsPerInteraction)
+    {
+        m_currency -= m_SoulsPerInteraction;
+        EventBus<OnUpdateSouls>.Raise(new OnUpdateSouls { amount = m_currency });
+
+        //VFX 
+        m_soulsVFX.Play();
+    }
+    #endregion
+}
+
+public class OnInventoryInputEvent : IEvent
+{
+    public bool isOpen;
 }

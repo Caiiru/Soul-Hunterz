@@ -1,10 +1,5 @@
-using System.Collections;
-using UnityEditor;
 using UnityEngine;
-using Cysharp.Threading.Tasks;
-using UnityEngine.SceneManagement;
-using Unity.VisualScripting;
-using System.Collections.Specialized;
+using Cysharp.Threading.Tasks; 
 
 public class GameInitiator : MonoBehaviour
 {
@@ -23,7 +18,7 @@ public class GameInitiator : MonoBehaviour
 
     //Events
 
-    EventBinding<MainMenuPlayButtonClickedEvent> menuPlayButtonBinding; 
+    EventBinding<StartGameEvent> menuPlayButtonBinding; 
     EventBinding<GameStartLoadingEvent> loadingEventBinding;
 
     EventBinding<LoadMenuEvent> loadMenuBinding;
@@ -32,13 +27,10 @@ public class GameInitiator : MonoBehaviour
 
     public async void Start()
     {
-
-
         BindObjects();
         BindEvents();
         await _sceneLoader.Initialize();
-        await InitializeMainMenu();
-        await InitializeAudio();
+        await InitializeMainMenu(); 
         await InitializeLoadingScreen();
     }
 
@@ -47,11 +39,7 @@ public class GameInitiator : MonoBehaviour
         if (TryGetComponent<SceneLoader>(out SceneLoader comp))
         {
             _sceneLoader = comp;
-        }
-        else
-        {
-            _sceneLoader = this.transform.AddComponent<SceneLoader>();
-        }
+        } 
         var _gameManagerGO = Instantiate(GameManagerPrefab);
         _gameManager = _gameManagerGO.GetComponent<GameManager>();
         var _audioManagerGO = Instantiate(AudioManagerPrefab);
@@ -62,8 +50,8 @@ public class GameInitiator : MonoBehaviour
 
     void BindEvents()
     {
-        menuPlayButtonBinding = new EventBinding<MainMenuPlayButtonClickedEvent>(OnMainMenuPlayButtonClicked);
-        EventBus<MainMenuPlayButtonClickedEvent>.Register(menuPlayButtonBinding);
+        menuPlayButtonBinding = new EventBinding<StartGameEvent>(OnMainMenuPlayButtonClicked);
+        EventBus<StartGameEvent>.Register(menuPlayButtonBinding);
  
 
 
@@ -140,12 +128,7 @@ public class GameInitiator : MonoBehaviour
 
         await InitializeMainMenu();
 
-    }
-    public async UniTask InitializeAudio()
-    {
-        await _audioManager.Initialize();
-    }
-
+    } 
 
 
 

@@ -1,94 +1,255 @@
 using System;
 using UnityEngine;
 using UnityEngine.AI;
+using Unity.Cinemachine;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
+
 
 [RequireComponent(typeof(Collider))]
-public class Enemy : Entity
+public abstract class Enemy<T> : Entity<T> where T : EnemySO
 {
-    [HideInInspector] public EnemySO enemyData;
     [Space(1)]
     [Header("Enemy Stats")]
-    protected float speed = 3.5f;
-    protected float attackRange = 1.5f;
+    protected float m_speed = 3.5f;
+    protected float m_attackRange = 1.5f;
+    protected float m_attackCooldown = 2f;
+    private float m_attackTimer = 0;
 
     [Tooltip("Does this enemy use a NavMeshAgent for movement?")]
-    [SerializeField] bool hasNavMesh;
-    protected NavMeshAgent _navMesh;
-    StateMachine _stateMachine;
+    protected bool m_hasNavMesh = true;
+    protected NavMeshAgent m_navMesh;
+    protected StateMachine m_stateMachine;
 
 
-    [SerializeField] private Transform _targetTransform; 
+    protected Transform m_targetTransform;
+
 
 
     #region Visual 
-    private GameObject _hitVFXInstance;
+    [SerializeField] private GameObject m_hitVFXInstance;
+    public CinemachineImpulseSource m_impulseSource;
+
 
     #endregion
 
+    //Events
+    EventBinding<OnGameWin> m_OnGameWinEventBinding;
+    EventBinding<OnGameOver> m_OnGameOverBinding;
+    EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
 
-    public virtual void SetData(EnemySO newData)
-    {
-        enemyData = newData; 
-        entityData = enemyData; 
-    }
+    protected Animator m_animator;
+
+    private int k_Milliseconds = 1000;
+
+    #region Initialize
 
     override protected void OnEnable()
     {
 
         // entityData = enemyData;
         // base.OnEnable();
+        // SetData(entityData as EnemySO);
+        Initialize();
+        m_hasNavMesh = true;
+        m_animator = GetComponentInChildren<Animator>();
 
-        
+
+
     }
-    
+
     public override void Initialize()
     {
         base.Initialize();
-        attackRange = enemyData.attackRange;
-        speed = enemyData.movementSpeed;
-
+        // transform.name = m_entityData.m_name;
         // Debug.Log($"Enemy Enabled: {gameObject.name} with Speed: {speed} and Attack Range: {attackRange}");
 
-        if (hasNavMesh)
-        {
-            _navMesh = GetComponent<NavMeshAgent>();
-            _navMesh.speed = speed;
-            _navMesh.stoppingDistance = attackRange;
-        }
-        if(TryGetComponent(out StateMachine comp)){
-            _stateMachine = comp;
+        m_attackRange = m_entityData.m_AttackRange;
+        m_speed = m_entityData.m_MoveSpeed;
+        m_attackCooldown = m_entityData.m_AttackCooldown;
 
-            _stateMachine.InitializeStateMachine();
-        } 
-        
+
+        if (TryGetComponent<NavMeshAgent>(out m_navMesh))
+        {
+            // Debug.Log("Im have navmesh");
+            m_navMesh.enabled = true;
+        }
+        else
+        {
+            Debug.LogError($"Enemy without navmesh:{transform.name} ");
+        }
+
+        m_navMesh.speed = m_speed;
+        m_navMesh.stoppingDistance = m_attackRange;
+
+
+
+        if (TryGetComponent(out StateMachine comp))
+        {
+            m_stateMachine = comp;
+
+            m_stateMachine.InitializeStateMachine(m_entityData as EnemySO);
+
+            if (!m_hasNavMesh)
+                m_stateMachine.SetActive(false);
+
+
+        }
+        m_impulseSource = GetComponent<CinemachineImpulseSource>();
+
+        this.GetComponent<Collider>().enabled = true;
+
+
+        BindEvents();
     }
+
+    #endregion
+    #region Bind Events
+    void BindEvents()
+    {
+        //Local Events
+        if (m_stateMachine != null)
+        {
+            m_stateMachine.m_OnAttack.AddListener(OnAttackEventListener);
+            m_stateMachine.m_OnTakeDamage.AddListener(OnTakeDamageEventListener);
+        }
+        //Event Bus
+        m_OnGameOverBinding = new EventBinding<OnGameOver>(() =>
+        {
+            EndGame();
+        });
+        EventBus<OnGameOver>.Register(m_OnGameOverBinding);
+
+        
+
+        // Debug.Log($"{transform.name} binded events");
+
+
+    }
+
+    private void OnTakeDamageEventListener(int v)
+    {
+        TakeDamage(v);
+    }
+
+    private void OnAttackEventListener()
+    {
+        Attack();
+    }
+
+    UniTask UnbindEvents()
+    {
+        EventBus<OnGameOver>.Unregister(m_OnGameOverBinding);
+        EventBus<OnGameWin>.Unregister(m_OnGameWinEventBinding);
+
+
+        m_stateMachine.m_OnAttack.RemoveListener(OnAttackEventListener);
+        m_stateMachine.m_OnTakeDamage.RemoveListener(OnTakeDamageEventListener);
+
+        return UniTask.CompletedTask;
+    }
+    #endregion
+    #region End Game
+    async void EndGame()
+    {
+        // await Die();
+        // m_stateMachine.SetTarget(null);
+        m_stateMachine.SetActive(false);
+
+        // await UnbindEvents();
+        // Debug.Log("DEstroying ENEMY"); 
+    }
+
+    #endregion
+    #region Update
+
+    public virtual void Update()
+    {
+        HandleAttackTimer();
+    }
+
+    #endregion
 
 
     #region Take Damage & Death
-    protected override void TakeDamage(int damage)
+    public override void TakeDamage(int damage)
     {
         base.TakeDamage(damage);
 
+        if (m_animator)
+            m_animator.SetTrigger("TakeDamage");
+
+
+
+        // if (cameraShakeManager.instance != null && m_impulseSource != null)
+        //    cameraShakeManager.instance.CameraShake(m_impulseSource);
+
 
     }
 
-    protected override void Die()
+    protected async override UniTask Die()
     {
-        EventBus<EnemyDiedEvent>.Raise(new EnemyDiedEvent());
-        Debug.Log("Enemy died");
-        base.Die();
+        if (m_hasNavMesh)
+        {
+            m_navMesh.enabled = false;
+        }
+
+        if (m_stateMachine != null)
+        {
+            m_stateMachine.SetActive(false);
+        }
+        this.GetComponent<Collider>().enabled = false;
+
+        m_animator.SetTrigger("isDead");
+
+        DropSoul();
+
+        await UniTask.Delay(2 * k_Milliseconds);
+        var m_AnimationClipInfo = m_animator.GetCurrentAnimatorClipInfo(0)[0].clip.length;
+
+
+        await UniTask.Delay((int)m_AnimationClipInfo * k_Milliseconds);
+
+        EventBus<OnEnemyDied>.Raise(new OnEnemyDied
+        {
+            enemyID = m_entityData.m_name,
+            deathPosition = transform.position,
+            enemy = this.gameObject,
+
+        });
+        transform.DOMoveY(transform.position.y - 2f, 2).SetEase(Ease.Linear);
+
+
+
+        await UniTask.Delay(3 * k_Milliseconds);
+
+
+
+
+
+
+        // Debug.Log("Enemy died");
+        // await base.Die();
+        // Destroy(this.gameObject);
     }
 
+    private void DropSoul()
+    {
+
+        var m_DeathEvent = new SpawnSoulEvent { spawnPosition = this.transform.position, soulAmount = GetSoulValue() };
+        EventBus<SpawnSoulEvent>.Raise(m_DeathEvent);
+
+    }
     protected virtual void SpawnHitVFX()
     {
-        if (enemyData.hitVFXPrefab != null)
+        if (m_entityData.m_takeDamageVFX != null)
         {
-            if (_hitVFXInstance != null)
+            if (m_hitVFXInstance != null)
             {
-                Destroy(_hitVFXInstance);
+                Destroy(m_hitVFXInstance);
             }
-            _hitVFXInstance = Instantiate(enemyData.hitVFXPrefab, transform.position + Vector3.up * 1.5f, Quaternion.identity);
-            Destroy(_hitVFXInstance, 2f);
+            m_hitVFXInstance = Instantiate(m_entityData.m_takeDamageVFX, transform.position + Vector3.up * 1.5f, Quaternion.identity);
+            Destroy(m_hitVFXInstance, 2f);
         }
     }
 
@@ -97,22 +258,10 @@ public class Enemy : Entity
     #region Movement
     public void MoveTowards(Vector3 targetPosition)
     {
-        if (!hasNavMesh || _navMesh == null) return;
+        if (!m_hasNavMesh || m_navMesh == null) return;
 
-        _navMesh.SetDestination(targetPosition);
-        // }
-        // else
-        // {
-        //     // Simple movement without NavMesh
-        //     Vector3 direction = (targetPosition - transform.position).normalized;
-        //     transform.position += direction * speed * Time.deltaTime;
-        //     // Optional: Rotate to face the target
-        //     if (direction != Vector3.zero)
-        //     {
-        //         Quaternion toRotation = Quaternion.LookRotation(direction, Vector3.up);
-        //         transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 5f);
-        //     }
-        // }
+        m_navMesh.SetDestination(targetPosition);
+
     }
 
     #endregion
@@ -121,33 +270,47 @@ public class Enemy : Entity
 
     public virtual void Attack()
     {
+        // PlayOneShotAtPosition
+        m_attackTimer = m_attackCooldown;
 
     }
     public virtual void SetTarget(Transform targetTransform)
     {
-        this._targetTransform = targetTransform;
+        this.m_targetTransform = targetTransform;
 
     }
     public virtual bool HasTarget()
-    { 
-        return _targetTransform != null;
+    {
+        return m_targetTransform != null;
     }
     public virtual Transform GetTarget()
     {
-        return _targetTransform;
+        return m_targetTransform;
     }
 
     public virtual bool CanAttack()
     {
-        if (!HasTarget()) return false;
+        if (m_currentHealth <= 0) return false;
 
-        float distanceToTarget = Vector3.Distance(transform.position, GetTarget().transform.position);
-        return distanceToTarget <= attackRange;
+        if (m_attackTimer >= 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public virtual void HandleAttackTimer()
+    {
+        if (m_attackTimer >= 0)
+        {
+            m_attackTimer -= Time.deltaTime;
+        }
     }
 
     public float GetAttackRange()
     {
-        return attackRange;
+        return m_attackRange;
     }
 
     #endregion

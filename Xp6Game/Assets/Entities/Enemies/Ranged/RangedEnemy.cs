@@ -1,56 +1,86 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public class RangedEnemy : Enemy
+public class RangedEnemy : Enemy<RangedEnemySO>
 {
-    [HideInInspector] public RangedEnemySO rangedEnemyData;
     [SerializeField] private Transform _firePoint;
 
-
+    public float _rotationVelocity = 15f;
     private float _shotCooldown;
     private float _timer;
+
+    // [Header("Debug")]
+    // public bool m_Initialize = true;
     protected override void OnEnable()
     {
-        // base.OnEnable();
-    }
-    public override void SetData(EnemySO newData)
-    {
-        rangedEnemyData = newData as RangedEnemySO; 
-        base.SetData(rangedEnemyData);
+        base.OnEnable();
+        // if (m_Initialize)
+        // {
+        //     SetData(entityData as EnemySO);
+        //     Initialize();
+        // }
 
-        // Initialize();
+
+
     }
 
     public override void Initialize()
     {
         base.Initialize();
 
-        _shotCooldown = rangedEnemyData.timeBetweenShots;
-        _timer = _shotCooldown; // So it can shoot immediately on spawn 
-        _firePoint = _visualTransform.Find("FirePoint");
+        m_attackRange = m_entityData.m_AttackRange;
+        m_speed = m_entityData.m_MoveSpeed;
+
+
+        _firePoint = transform.Find("FirePoint");
     }
     public override bool CanAttack()
     {
-        if (_timer < _shotCooldown)
-        {
-            _timer += Time.deltaTime;
-            return false;
-        }
-        _timer = 0;
-
         return base.CanAttack();
     }
 
     public override void Attack()
     {
-        if (rangedEnemyData.bulletPrefab != null && _firePoint != null)
+        if (!CanAttack()) return;
+
+        if (m_targetTransform == null)
         {
-            Instantiate(rangedEnemyData.bulletPrefab, _firePoint.position, _firePoint.rotation);
+            SetTarget(GameObject.FindGameObjectWithTag("Player").transform);
+        }
+
+
+
+        base.Attack();
+
+        if (m_animator)
+        {
+            m_animator.SetTrigger("Shoot");
+        }
+        if (m_entityData.bulletPrefab != null && _firePoint != null)
+        {
+            Instantiate(m_entityData.bulletPrefab, _firePoint.position, _firePoint.rotation);
 
         }
     }
-    protected override void Die()
+    void RotateTowardsTarget()
     {
-        base.Die();
+        float rot = Mathf.Atan2(m_targetTransform.position.x, m_targetTransform.position.z) * Mathf.Rad2Deg;
+        float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, rot, ref _rotationVelocity,
+                          0.15f);
+        // // rotate to face input direction relative to camera position
+        transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
     }
+    public override void Update()
+    {
+        base.Update();
+
+        if (m_targetTransform == null) return;
+
+        // RotateTowardsTarget();
+        Vector3 _targetPos = m_targetTransform.transform.position;
+        _targetPos.y = transform.position.y;
+        transform.LookAt(_targetPos);
+    }
+
 
 }

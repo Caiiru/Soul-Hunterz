@@ -1,15 +1,13 @@
 using System;
 using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Triggers;
 using UnityEngine;
 
-public class DummyEnemy : Enemy
+public class DummyEnemy : Enemy<EnemySO>
 {
-
-    private Animator _animator;
-
-    public float attackCooldown = 5;
-    private float _attackTimer;
-    private bool _canAttack = false;
+    [Header("Dummy Debug")]
+    public bool m_AlwaysShooting = true;
+    public bool _canAttack = true;
 
     [SerializeField] private Transform _firePoint;
     [Space]
@@ -17,27 +15,17 @@ public class DummyEnemy : Enemy
 
     public GameObject bulletPrefab;
     public GameObject fireVFXPrefab;
+
+    //Animations
+
     protected override void OnEnable()
     {
         base.OnEnable();
         VFXDebugManager.OnInputPressed += OnInputPressed;
-        _animator = GetComponentInChildren<Animator>();
-        _attackTimer = 0;
-    }
-    async void Update()
-    { 
-        await HandleTimer();
-    }
 
-    private async UniTask HandleTimer()
-    {
-        if (!_canAttack) return;
-        _attackTimer += Time.deltaTime;
-        if (_attackTimer >= attackCooldown)
-        {
-            // _attackTimer = 0;
-            await Aim();
-        }
+
+        if (m_AlwaysShooting)
+            StartShooting();
     }
 
 
@@ -63,23 +51,46 @@ public class DummyEnemy : Enemy
 
 
     async UniTask Aim()
-    { 
-        await UniTask.Delay(1000);
-        _animator.SetTrigger("aim"); 
-        
+    {
+        await UniTask.Delay(10);
+        m_animator.SetTrigger("Shoot");
+        if (CanAttack())
+            Attack();
+
         await UniTask.CompletedTask;
+        await CastAim();
         // Attack();
     }
     public override void Attack()
-    { 
+    {
         base.Attack();
-        _attackTimer = 0;
+
         GameObject bullet = Instantiate(bulletPrefab, _firePoint.transform.position, Quaternion.identity);
         // bullet.transform.position = _firePoint.transform.position;
         if (!fireVFXPrefab) return;
         GameObject fireVFX = Instantiate(fireVFXPrefab);
         fireVFX.transform.position = _firePoint.transform.position;
         Destroy(fireVFX, 2f);
+    }
+
+    public override void TakeDamage(int damage)
+    {
+        base.TakeDamage(damage);
+
+    }
+    protected override UniTask Die()
+    {
+        return base.Die();
+    }
+
+    private async UniTask CastAim()
+    {
+        // await UniTask.Delay(1000);
+        await UniTask.Delay((int)m_entityData.m_AttackCooldown * 1000);
+        await Aim();
+
+
+        return;
     }
 
 }

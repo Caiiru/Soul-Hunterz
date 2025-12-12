@@ -1,23 +1,68 @@
+using UnityEngine;
 
-public class GameReadyToStartEvent : IEvent
+public class OnGameReadyToStart : IEvent
+{
+
+}
+public class OnGameStart : IEvent
+{
+
+}
+
+public class OnGameWin : IEvent
+{
+
+}
+public class OnGameOver : IEvent
+{
+
+}
+
+public class OnEnemyDied : IEvent
+{
+    public string enemyID;
+    public Vector3 deathPosition;
+    public GameObject enemy;
+}
+public class SpawnSoulEvent : IEvent
+{
+    public Vector3 spawnPosition;
+    public int soulAmount;
+}
+
+public class OnStartAltarActivation : IEvent
+{
+    public AltarDirection m_Direction;
+}
+public class OnAltarActivated : IEvent
+{
+    public int m_AltarActivatedIndex;
+    public AltarDirection m_Direction;
+    public Transform m_SpawnPointHolder;
+}
+
+public class WaveStartEvent : IEvent
+{
+    public int waveIndex;
+}
+public class WaveEndEvent : IEvent
+{
+    public int waveIndex;
+}
+
+public class OnWaveClearedEvent : IEvent
 {
     
 }
-public class GameStartEvent : IEvent
+public class OnFinalAltarActivated : IEvent
 {
 
 }
 
-public class GameWinEvent : IEvent
-{
+//Tutorial
 
-}
-public class GameOverEvent : IEvent
+public class OnMapCollected : IEvent
 {
 
 }
 
-public class EnemyDiedEvent : IEvent
-{
-    
-}

@@ -39,7 +39,7 @@ public class UIWeaponVisual : MonoBehaviour
     public void UpdateVisual(AbstractWeapon weapon, GameObject componentUIPrefab)
     {
         this.weapon = weapon;
-        int componentsLength = weapon.weaponComponents.Length;
+        int componentsLength = weapon.m_weaponComponents.Length;
         Slots = new GameObject[componentsLength];
 
         Transform _inventoryTransform = GetInventoryTransform();
@@ -48,32 +48,35 @@ public class UIWeaponVisual : MonoBehaviour
         {
             GameObject slot = Instantiate(SlotPrefab, ComponentsPanel);
             Slots[i] = slot;
-            slot.GetComponent<ComponentSlot>().SetWeapon(weapon,i);
+            slot.GetComponent<ComponentSlot>().SetWeapon(weapon, i);
 
-            if (weapon.weaponComponents[i] != null)
+            if (weapon.m_weaponComponents[i] != null)
             {
                 GameObject componentGO = Instantiate(componentUIPrefab, _inventoryTransform);
                 ComponentUI component = componentGO.GetComponent<ComponentUI>();
-                component.SetComponentVisual(weapon.weaponComponents[i]);
+                component.SetComponentVisual(weapon.m_weaponComponents[i]);
 
-                
+
                 slot.GetComponent<ComponentSlot>().OverrideComponent(component);
 
             }
         }
 
-        // Bullet
-        GameObject bulletGO = Instantiate(componentUIPrefab, BulletPanel);
-        ComponentUI bullet = bulletGO.GetComponent<ComponentUI>();
-        bullet.SetComponentSprite(weapon.GetBullet().Icon);
-        bulletGO.transform.localPosition = Vector3.zero;
-        bulletGO.transform.DOScale(Vector3.one, 0.1f);
-        bullet.SetDraggable(false);
-    }
+        // // Bullet
+        // GameObject bulletGO = Instantiate(componentUIPrefab, BulletPanel);
+        // // ComponentUI bullet = bulletGO.GetComponent<ComponentUI>();
+        // // bullet.SetComponentSprite(weapon.GetBullet().Icon);
 
+        // bulletGO.transform.localPosition = Vector3.zero;
+        // bulletGO.transform.DOScale(Vector3.one, 0.1f);
+
+        // bullet.enabled = false;
+    }
     Transform GetInventoryTransform()
     {
-        GameObject player = GameManager.Instance.GetPlayer();
-        return player.GetComponentInChildren<PlayerInventory>().GetInventoryTransform();
+        if (PlayerHUD.Instance != null)
+            return PlayerHUD.Instance.transform;
+
+        return null;
     }
 }

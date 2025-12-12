@@ -1,20 +1,20 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Enemy Data", menuName = "Entity/Enemies/Enemy Data")]
 public class EnemySO : EntitySO
 {
     [Header("Enemy Settings")]
-    public float movementSpeed = 3.5f;
-    public float attackRange = 1.5f;
+    public float m_MoveSpeed = 3.5f;
+    public float m_AttackRange = 1.5f;
+    public float m_AttackCooldown = 2f;
+    public int m_AttackMeleeDamage = 0;
+    public Transform Target;
 
     [Header("VFX Settings")]
-    public GameObject hitVFXPrefab;
+    public GameObject m_takeDamageVFX;
 
     [Header("State Machine")]
-    public State initialState;
-    public State remainState;
+    public State m_InitialState;
 
-    [HideInInspector] public LayerMask playerMask = 1 << 7;
- 
-    
+    [HideInInspector]
+    public LayerMask playerMask = 1 << 7;
 }

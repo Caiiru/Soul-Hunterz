@@ -9,14 +9,20 @@ public class SceneLoader : MonoBehaviour
 {
     public List<SceneRef> scenes = new List<SceneRef>();
 
-    EventBinding<MainMenuPlayButtonClickedEvent> playButtonBinding;
+    EventBinding<StartGameEvent> playButtonBinding;
 
-    EventBinding<GameWinEvent> gameWinBinding;
+    EventBinding<OnGameWin> gameWinBinding;
 
     EventBinding<GameSceneLoaded> gameSceneLoadedBinding;
-    EventBinding<GameOverEvent> gameOverBinding;
+    EventBinding<OnGameOver> gameOverBinding;
 
 
+
+    async void Start()
+    {
+        
+        await Initialize();
+    }
 
     public async UniTask Initialize()
     {
@@ -34,11 +40,10 @@ public class SceneLoader : MonoBehaviour
     }
     async UniTask BindEvents()
     {
-        playButtonBinding = new EventBinding<MainMenuPlayButtonClickedEvent>(OnMainMenuPlayButtonClicked);
-        EventBus<MainMenuPlayButtonClickedEvent>.Register(playButtonBinding);
+        playButtonBinding = new EventBinding<StartGameEvent>(OnMainMenuPlayButtonClicked);
+        EventBus<StartGameEvent>.Register(playButtonBinding);
 
-        gameWinBinding = new EventBinding<GameWinEvent>(OnGameWin);
-        EventBus<GameWinEvent>.Register(gameWinBinding);
+        gameWinBinding = new EventBinding<OnGameWin>(OnGameWin); 
 
         gameSceneLoadedBinding = new EventBinding<GameSceneLoaded>(() =>
         {
@@ -48,8 +53,8 @@ public class SceneLoader : MonoBehaviour
 
 
 
-        gameOverBinding = new EventBinding<GameOverEvent>(OnGameOver);
-        EventBus<GameOverEvent>.Register(gameOverBinding);
+        gameOverBinding = new EventBinding<OnGameOver>(OnGameOver);
+        EventBus<OnGameOver>.Register(gameOverBinding);
 
 
 
@@ -57,7 +62,7 @@ public class SceneLoader : MonoBehaviour
         await UniTask.CompletedTask;
     }
 
-    private async void OnGameOver(GameOverEvent arg0)
+    private async void OnGameOver(OnGameOver arg0)
     {
         await CreateSceneByName("GameOver");
         ActivateSceneByName("GameOver");
@@ -67,7 +72,7 @@ public class SceneLoader : MonoBehaviour
         // UnloadSceneByName("LoadingScreen");
     }
 
-    private async void OnGameWin(GameWinEvent arg0)
+    private async void OnGameWin(OnGameWin arg0)
     {
         await CreateSceneByName("GameWin");
         ActivateSceneByName("GameWin");
@@ -135,6 +140,7 @@ public class SceneLoader : MonoBehaviour
 
     private void ChangeRootObjectsState(Scene scene, bool isVisible)
     {
+        Debug.Log(scene.name);
         GameObject[] rootObjects = scene.GetRootGameObjects();
         foreach (var rootObject in rootObjects)
         {

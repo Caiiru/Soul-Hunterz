@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -19,23 +20,39 @@ public class GameManager : MonoBehaviour
         else
         {
             Instance = this;
-            DontDestroyOnLoad(this.gameObject);
+            // DontDestroyOnLoad(this.gameObject);
         }
     }
     #endregion
     public GameState CurrentGameState;
 
+    public int m_MaxAltars = 3;
+    public int m_AltarsActivated = 0;
+
     #region Events
     public delegate void GameStateChangeHandler(GameState newState);
     public static event GameStateChangeHandler OnGameStateChange;
 
-
-    EventBinding<MainMenuLoadedEvent> mainMenuLoadedBinding;
-    EventBinding<GameSceneLoaded> gameLoadedBinding;
-    EventBinding<GameStartLoadingEvent> gameStartLoadingBinding;
-    EventBinding<GameStartEvent> gameStartEventBinding;
     //INGAME
-    EventBinding<EnemyDiedEvent> enemyDiedEventBinding;
+    EventBinding<OnEnemyDied> enemyDiedEventBinding;
+
+    EventBinding<OnPlayerDied> m_OnPlayerDiedBinding;
+
+    EventBinding<StartGameEvent> m_OnMainMenuPlayButtonClicked;
+
+    EventBinding<OnAltarActivated> m_OnAltarActivatedBinding;
+
+    EventBinding<OnStartAltarActivation> m_OnStartAltarActivationBinding;
+
+
+    EventBinding<OnFinalAltarActivated> m_OnFinalAltarActivatedBinding;
+
+    EventBinding<OnWaveClearedEvent> m_OnWaveClearedEventBinding;
+
+
+    EventBinding<OnMapCollected> m_OnMapCollectedBinding;
+
+
 
     #endregion
 
@@ -52,35 +69,34 @@ public class GameManager : MonoBehaviour
 
     [Space]
     public GameObject PlayerPrefab;
-    public GameObject CameraPrefab;
-    public GameObject StartZonePrefab;
     public GameObject EndZonePrefab;
-    public GameObject EnemyPrefab;
-    public GameObject EnvironmentPrefab;
+
+    [Space]
+    [Header("Generic Manager")]
+    public GameObject GenericManager;
+
 
 
 
     [Space]
     [Header("Binded Objects")]
-    [SerializeField] private GameObject _playerGO;
-    private GameObject _popupManagerGO;
-    private GameObject _cameraGO;
-    private CinemachineCamera _cinemachineCamera;
-    private GameObject _environment;
-    private GameObject _startZone;
-    private GameObject _endZone;
+    public GameObject _playerGO;
     private EnemyManager _enemyManager;
+    private GameObject m_GenericManager;
 
-    [Space]
-    [Header("Start Settings")]
+    public GameObject[] m_Altars;
 
-    public List<GameObject> altarSpawnPositions;
 
-    [Space]
-    [Header("Win Settings")]
-    public Transform[] winAltarSpawnPositions;
-    public int enemiesToDefeatToWin = 10;
-    [SerializeField] private int enemiesDefeated = 0;
+
+    [Header("Game Scene")]
+    public Transform m_FOGHolder;
+    private Vector3 m_FOGStartScale;
+
+    public Material m_FogStartMaterial;
+    public Material m_FogAltarMaterial;
+    //261C4B
+    //red 891B17
+
 
 
     #region Begin Game
@@ -88,58 +104,11 @@ public class GameManager : MonoBehaviour
     {
         BindEvents();
         BindEnemiesEvents();
-        // BindObjects();
-        // await SpawnObjects();
-        // PrepareGame();
 
-        // await BeginGame();
+        m_FOGHolder.GetComponent<MeshRenderer>().material = m_FogStartMaterial;
+        // mat.DOColor(m_FogStartColor, 1f);
+        // EventBus<OnGameReadyToStart>.Raise(new OnGameReadyToStart());
     }
-
-
-    void BindEvents()
-    {
-        mainMenuLoadedBinding = new EventBinding<MainMenuLoadedEvent>(OnMainMenuLoadedHandler);
-        EventBus<MainMenuLoadedEvent>.Register(mainMenuLoadedBinding);
-
-        gameLoadedBinding = new EventBinding<GameSceneLoaded>(OnGameSceneLoaded);
-        EventBus<GameSceneLoaded>.Register(gameLoadedBinding);
-
-        gameStartLoadingBinding = new EventBinding<GameStartLoadingEvent>(() =>
-        {
-            ChangeGameState(GameState.Loading);
-
-        });
-
-
-
-    }
-    void BindEnemiesEvents()
-    {
-        enemyDiedEventBinding = new EventBinding<EnemyDiedEvent>(OnEnemyDied);
-        EventBus<EnemyDiedEvent>.Register(enemyDiedEventBinding); 
-    }
-
-
-    #region Events Methods
-    private async void OnGameSceneLoaded(GameSceneLoaded arg0)
-    {
-        await Initialize();
-    }
-    private void OnMainMenuLoadedHandler()
-    {
-        ChangeGameState(GameState.MainMenu);
-    }
-
-    private void OnEnemyDied(EnemyDiedEvent arg0)
-    { 
-        enemiesDefeated++;
-        if (!IsGameState(GameState.Playing)) return;
-        if (enemiesDefeated >= enemiesToDefeatToWin)
-        {
-            ActivateWinAltar();
-        }
-    }
-    #endregion
 
     private async UniTask Initialize()
     {
@@ -147,62 +116,167 @@ public class GameManager : MonoBehaviour
         await SpawnObjects();
         PrepareGame();
 
-        EventBus<GameReadyToStartEvent>.Raise(new GameReadyToStartEvent());
         ChangeGameState(GameState.StartingGame);
 
         await BeginGame();
 
-        EventBus<GameStartEvent>.Raise(new GameStartEvent());
+        EventBus<OnGameStart>.Raise(new OnGameStart());
+
+        ChangeGameState(GameState.Playing);
+
         await UniTask.CompletedTask;
     }
 
+
+    void BindEvents()
+    {
+        m_OnMainMenuPlayButtonClicked = new EventBinding<StartGameEvent>(StartGameHandler);
+        EventBus<StartGameEvent>.Register(m_OnMainMenuPlayButtonClicked);
+
+        m_OnPlayerDiedBinding = new EventBinding<OnPlayerDied>(() =>
+        {
+            LoseGame();
+        });
+        EventBus<OnPlayerDied>.Register(m_OnPlayerDiedBinding);
+        m_OnAltarActivatedBinding = new EventBinding<OnAltarActivated>(HandleAltarActivated);
+        EventBus<OnAltarActivated>.Register(m_OnAltarActivatedBinding);
+
+
+        m_OnFinalAltarActivatedBinding = new EventBinding<OnFinalAltarActivated>(HandleFinalAltarActivated);
+        EventBus<OnFinalAltarActivated>.Register(m_OnFinalAltarActivatedBinding);
+
+        m_OnMapCollectedBinding = new EventBinding<OnMapCollected>(HandleTutorialFinished);
+        EventBus<OnMapCollected>.Register(m_OnMapCollectedBinding);
+
+        m_OnStartAltarActivationBinding = new EventBinding<OnStartAltarActivation>((args) =>
+        {
+
+            m_FOGHolder.GetComponent<MeshRenderer>().material = m_FogAltarMaterial;
+            foreach (var altar in m_Altars)
+            {
+                if (args.m_Direction == altar.GetComponent<WinAltar>().m_AltarDirection)
+                {
+                    SetFogPosition(altar.transform.position);
+                    SetFogScale(new Vector3(6f, 6f, 1f), 1f, false);
+
+                    return;
+                }
+            }
+        });
+        EventBus<OnStartAltarActivation>.Register(m_OnStartAltarActivationBinding);
+
+        m_OnWaveClearedEventBinding = new EventBinding<OnWaveClearedEvent>(() =>
+        {
+            SetFogScale(Vector3.one * 300, 5f, true);
+        });
+        EventBus<OnWaveClearedEvent>.Register(m_OnWaveClearedEventBinding);
+
+
+
+
+    }
+
+
+
     private void BindObjects()
     {
-        _cameraGO = Instantiate(CameraPrefab);
-        _cinemachineCamera = _cameraGO.GetComponentInChildren<CinemachineCamera>();
-
-        Instantiate(GlobalVolumePrefab);
-        Instantiate(EventSystemPrefab);
-
-        _popupManagerGO = Instantiate(PopupManagerPrefab);
         _enemyManager = Instantiate(EnemyManagerPrefab).GetComponent<EnemyManager>();
+
+        // m_GenericManager = Instantiate(GenericManager);
+        if (this.transform.childCount > 0)
+            m_GenericManager = this.transform.GetChild(0).gameObject;
+        else
+        {
+            m_GenericManager = Instantiate(GenericManager);
+            m_GenericManager.transform.parent = this.transform;
+        }
+        if (m_FOGHolder != null)
+        {
+            m_FOGStartScale = m_FOGHolder.transform.localScale;
+        }
+
     }
     private async UniTask SpawnObjects()
     {
-        _environment = Instantiate(EnvironmentPrefab);
-        altarSpawnPositions = GameObject.FindGameObjectsWithTag("AltarSpawnPos").ToList();
+        // _environment = Instantiate(EnvironmentPrefab); 
 
-        SpawnStartAltar();
-        await SpawnWinAltar();
-        SpawnPlayer();
+        // SpawnStartAltar();
+        // await SpawnWinAltar();
+        // SpawnPlayer();
         await _enemyManager.Initialize();
         //Spawn enemies pool 
         await UniTask.CompletedTask;
     }
     private void PrepareGame()
     {
-        ActivateStartAltar();
-        ChangePlayerPosition(_startZone.transform.position + Vector3.up);
+        // ActivateStartAltar();
+        // ChangePlayerPosition(_startZone.transform.position + Vector3.up);
 
     }
     async UniTask BeginGame()
     {
         ChangeGameState(GameState.Playing);
-        _enemyManager.StartSpawning();
+
+
+        // _enemyManager.StartSpawning();
         await UniTask.CompletedTask;
     }
     #endregion
 
-
-    private void FixedUpdate()
+    void SetFogScale(Vector3 scale, float duration, bool disappear)
     {
-        // HandleSpawning();
+        if (!disappear)
+            m_FOGHolder.gameObject.SetActive(true);
+        m_FOGHolder.transform.DOScale(scale, duration).SetEase(Ease.InOutSine).OnComplete(() =>
+        {
+            if (disappear)
+            {
+                m_FOGHolder.gameObject.SetActive(false);
+            }
+        });
     }
+    void SetFogPosition(Vector3 pos)
+    {
+        m_FOGHolder.transform.position = pos;
+    }
+
+
+    private async void StartGameHandler(StartGameEvent arg0)
+    {
+        await Initialize();
+    }
+
+    void BindEnemiesEvents()
+    {
+    }
+
+
+    #region Events Methods
+
+
+
+    private void HandleFinalAltarActivated(OnFinalAltarActivated arg0)
+    {
+        m_FOGHolder.transform.position = new Vector3(-7.79f, -4.49f, 6.76f);
+        m_FOGHolder.gameObject.SetActive(true);
+        m_FOGHolder.transform.DOScale(m_FOGStartScale, 0.5f);
+    }
+
+    private async void HandleTutorialFinished(OnMapCollected arg0)
+    {
+        SetFogScale(Vector3.one * 200f, 5f, true);
+        EventBus<OnDisplayMessage>.Raise(new OnDisplayMessage { m_Message = "Use o mapa para encontrar e ativar todos os altares " });
+
+
+        // cameraShakeManager.instance.CameraShake(GetComponent<CinemachineImpulseSource>());
+    }
+
+    #endregion
+
     void SpawnPlayer()
     {
         GameObject player = Instantiate(PlayerPrefab);
         _playerGO = player;
-        _cinemachineCamera.Target.TrackingTarget = _playerGO.transform;
 
     }
     void ChangePlayerPosition(Vector3 newPosition)
@@ -217,97 +291,86 @@ public class GameManager : MonoBehaviour
         {
             CurrentGameState = newState;
             OnGameStateChange?.Invoke(newState);
-            Debug.Log("Game State changed to: " + newState);
         }
 
-        HandleGameState();
     }
 
     public bool IsGameState(GameState state)
     {
         return CurrentGameState == state;
     }
-    public void HandleGameState()
-    {
-        switch (CurrentGameState)
-        {
-            case GameState.MainMenu:
-                // Handle Main Menu logic
-                break;
-            case GameState.Loading:
-                // Handle Loading logic
-                break;
-            case GameState.StartingGame:
-                break;
-            case GameState.Playing:
-                // Handle Playing logic
-                break;
-            case GameState.Paused:
-                // Handle Paused logic
-                break;
-            case GameState.GameOver:
-                // Handle Game Over logic
-                break;
-            case GameState.Win:
-                // Handle Win 
 
-                break;
-
-            default:
-                break;
-        }
-    }
 
     #region Altar Handling
 
-    async UniTask SpawnWinAltar()
-    {
-        _endZone = Instantiate(EndZonePrefab, Vector3.zero, Quaternion.identity);
 
-        await UniTask.WaitForSeconds(0.1f);
-        Debug.Log("Win Altar Spawned and Desactivated");
-        _endZone.SetActive(false);
-    }
-    void ActivateWinAltar()
-    {
-        if (_endZone.activeSelf) return;
-        Debug.Log("Win altar instancied");
-        _endZone.SetActive(true);
-        _endZone.transform.position = GetRandomAltarSpawn().transform.position;
-    }
 
-    void SpawnStartAltar()
+    private async void HandleAltarActivated(OnAltarActivated arg0)
     {
-        _startZone = Instantiate(StartZonePrefab);
-        _startZone.SetActive(false);
-    }
-    void ActivateStartAltar()
-    {
-        _startZone.transform.position = GetRandomAltarSpawn().transform.position;
-        _startZone.SetActive(true);
+        m_AltarsActivated++;
+
+
+        return;
+        if (m_AltarsActivated == m_MaxAltars)
+        {
+            // WinGame();
+            EventBus<OnDisplayMessage>.Raise(new OnDisplayMessage { m_Message = "Retorne para ativar o portal" });
+            return;
+        }
+
+
+        // await SpawnNewAltar();
+
+
+
+
     }
 
-    GameObject GetRandomAltarSpawn()
-    {
-        System.Random random = new System.Random();
-        int spawnIndex = random.Next(altarSpawnPositions.Count);
-        GameObject altarSpawnPosition = altarSpawnPositions[spawnIndex];
-        altarSpawnPositions.RemoveAt(spawnIndex);
 
-        return altarSpawnPosition;
-    }
     #endregion
-
+    #region Game End Methods
     public void WinGame()
     {
-        ChangeGameState(GameState.Win);
-        EventBus<GameWinEvent>.Raise(new GameWinEvent());
+        EventBus<OnGameWin>.Raise(new OnGameWin());
+        // EventBus<OnGameOver>.Raise(new OnGameOver());
+
+
+
+        // EventBus<>.Raise(new OnGameWin());
     }
     public void LoseGame()
     {
         ChangeGameState(GameState.GameOver);
+        ResetGame();
+        EventBus<OnGameOver>.Raise(new OnGameOver());
+
+        // UnbindEvents();
     }
 
+    private async UniTask DestroyObjects()
+    {
+        // Destroy(_enemyManager.gameObject);
+        await UniTask.Delay(100);
+        // Destroy(m_GenericManager);
+        // Destroy(_popupManagerGO);
+        // Destroy(_environment);
+        // Destroy(_startZone);
+        // Destroy(_endZone);
+        // Destroy(_playerGO);
+    }
+
+    private void ResetGame()
+    {
+        m_AltarsActivated = 0;
+        _enemyManager.SetCurrentWave(0);
+        m_FOGHolder.gameObject.SetActive(true);
+        m_FOGHolder.transform.localScale = m_FOGStartScale;
+        // EventBus<OnGameOver>.Raise(new OnGameOver());
+
+    }
+
+    #endregion
+    #region Getters
     public GameObject GetPlayer()
     {
         return _playerGO;
@@ -318,6 +381,16 @@ public class GameManager : MonoBehaviour
         return _enemyManager;
     }
 
+
+    void UnbindEvents()
+    {
+        EventBus<StartGameEvent>.Unregister(m_OnMainMenuPlayButtonClicked);
+        EventBus<OnAltarActivated>.Unregister(m_OnAltarActivatedBinding);
+        EventBus<OnPlayerDied>.Unregister(m_OnPlayerDiedBinding);
+        EventBus<OnEnemyDied>.Unregister(enemyDiedEventBinding);
+        EventBus<OnFinalAltarActivated>.Unregister(m_OnFinalAltarActivatedBinding);
+    }
+    #endregion
 }
 
 public enum GameState
@@ -329,4 +402,9 @@ public enum GameState
     Paused,
     Win,
     GameOver
+}
+
+public static class GameSettings
+{
+    public const float k_AltarTimeActivation = 10;
 }

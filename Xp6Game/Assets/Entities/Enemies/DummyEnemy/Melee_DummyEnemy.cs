@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
 
-public class Melee_DummyEnemy : Enemy
+public class Melee_DummyEnemy : Enemy<EnemySO>
 {
     public float attackCooldown = 5f;
     private float _attackTimer = 0f;
@@ -13,13 +13,12 @@ public class Melee_DummyEnemy : Enemy
     [Header("VFX")]
     public Transform SwordJoint;
 
-    private Animator _animator;
     public List<SlashVFX> slashes;
     public int currentSlash = 0;
     protected override void OnEnable()
     {
         base.OnEnable();
-        _animator = GetComponent<Animator>();
+        m_animator = GetComponent<Animator>();
         VFXDebugManager.OnInputPressed += OnInputPressed;
 
     }
@@ -38,8 +37,9 @@ public class Melee_DummyEnemy : Enemy
 
     // Update is called once per frame
 
-    protected void Update()
-    { 
+    public override void Update()
+    {
+        base.Update();
         HandleTimer();
     }
 
@@ -57,15 +57,16 @@ public class Melee_DummyEnemy : Enemy
     }
     public override void Attack()
     {
-        
-        _animator.SetTrigger("Attack");
+
+        m_animator.SetTrigger("Attack");
 
     }
 
     IEnumerator SpawnSlash()
     {
-        if(slashes[currentSlash]==null){
-            yield break; 
+        if (slashes[currentSlash] == null)
+        {
+            yield break;
         }
         GameObject _slash = Instantiate(slashes[currentSlash].SlashPrefab, transform.position, SwordJoint.rotation);
         _slash.GetComponentInChildren<VisualEffect>().Stop();

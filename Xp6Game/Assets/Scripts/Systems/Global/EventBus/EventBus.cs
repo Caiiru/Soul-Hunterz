@@ -35,8 +35,11 @@ public static class EventBus<T> where T : IEvent
     /// <param name="event">The event data to pass to the listeners.</param>
     public static void Raise(T @event)
     {
-        foreach (var binding in bindings)
+        var listenersCopy = new List<IEventBinding<T>>(bindings);
+        UnityEngine.Debug.Log($"Event '{typeof(T).Name}' raised.");
+        foreach (var binding in listenersCopy)
         {
+
             binding.OnEvent.Invoke(@event);
             binding.OnEventNoArgs.Invoke();
         }
@@ -114,7 +117,7 @@ public static class PredefinedAssemblyUtil
     /// <param name="assembly">The array of types from an assembly.</param>
     /// <param name="types">The collection to add the found types to.</param>
     ///<param name="interfaceType">The interface type to check for implementation.</param>
-    
+
     static void AddTypesFromAssembly(Type[] assembly, ICollection<Type> types, Type interfaceType)
     {
         if (assembly == null) return;

@@ -1,77 +1,108 @@
+using Cysharp.Threading.Tasks;
 using FMODUnity;
 using UnityEngine;
 
-public class Entity : MonoBehaviour
+public abstract class Entity<T> : MonoBehaviour where T : EntitySO
 {
+    [Header("Life Settings")]
+    public T m_Data;
+    [HideInInspector] public T m_entityData;
 
-    [SerializeField] protected EntitySO entityData;
-    [SerializeField] protected int currentHealth = 30;
+    public int m_MaxHealth;
+    [SerializeField] protected int m_currentHealth = 30;
     [SerializeField] public bool canBeDamaged = true;
 
-    protected Transform _visualTransform;
 
- 
+
     protected virtual void OnEnable()
     {
         Initialize();
     }
     public virtual void Initialize()
     {
-        if (entityData == null)
+        if (m_Data == null)
         {
-            Debug.LogError("EntitySO is not assigned in " + gameObject.name);
-            return;
+            Debug.LogError($"Entity Data not assigned in: {gameObject.name}");
         }
-        currentHealth = entityData.maxHealth;
-        canBeDamaged = entityData.canBeDamaged;
-        if (_visualTransform) { Destroy(_visualTransform.gameObject); }
-        if (entityData.visualPrefab != null)
-        {
+        m_entityData = Instantiate(m_Data);
 
-            _visualTransform = Instantiate(entityData.visualPrefab, transform).transform;
-        }
+        m_MaxHealth = m_entityData.m_MaxHealth;
+        m_currentHealth = this.m_MaxHealth;
+        canBeDamaged = m_entityData.m_CanBeDamaged;
 
-        
-
-        transform.name = entityData.name;
+        // transform.name = m_entityData.name;
     }
 
-    protected virtual void TakeDamage(int damage)
+    public virtual async void TakeDamage(int damage)
     {
-        PopupTextManager.instance.ShowPopupText(
-            damage.ToString(),
-            new Vector3(transform.position.x, transform.position.y + transform.localScale.y + 1, transform.position.z),
-            Color.red);
+
         if (!canBeDamaged)
             return;
 
-        currentHealth -= damage;
-        PlayOneShotAtPosition(entityData.takeDamageSound);
+        if (PopupTextManager.instance != null)
+        {
+            PopupTextManager.instance.ShowPopupText(
+                damage.ToString(),
+                new Vector3(transform.position.x, transform.position.y + transform.localScale.y + 1, transform.position.z),
+                Color.red,
+                new Vector3(0.5f, 0.5f, 0.5f));
 
-        if (currentHealth <= 0)
-            Die();
+        }
+        m_currentHealth -= damage;
+
+
+        PlayOneShotAtPosition(EntitySoundType.TakeDamage);
+
+        if (m_currentHealth <= 0)
+            await Die();
 
 
     }
 
-    protected virtual void Die()
+    protected async virtual UniTask Die()
     {
-        PlayOneShotAtPosition(entityData.dieSound);
+        //PlayOneShotAtPosition(EntitySoundType.Die);
         canBeDamaged = false;
         gameObject.SetActive(false);
 
+        await UniTask.CompletedTask;
+
+    }
+
+    protected int GetSoulValue()
+    {
+        int _min = m_entityData.m_minSoulAmount;
+        int _max = m_entityData.m_maxSoulAmount;
+        return Random.Range(_min, _max + 1);
     }
 
     #region Sounds 
-    protected void PlayOneShotAtPosition(EventReference audioEvent)
-    { 
-        if (audioEvent.IsNull)
-        {
-            Debug.LogWarning("No Audio Event");
-            return;
-        } 
-        AudioManager.Instance.PlayOneShotAtPosition(audioEvent, transform.position);
+    public void PlayOneShotAtPosition(EntitySoundType audioType)
+    {
+        EventReference? audioEvent = GetAudioFromString(audioType);
 
+        if (audioEvent == null) return;
+
+        if (AudioManager.Instance == null)
+            return;
+
+
+        AudioManager.Instance.PlayOneShotAtPosition((EventReference)audioEvent, transform.position);
+
+    }
+
+    private EventReference? GetAudioFromString(EntitySoundType audioName)
+    {
+        for (int i = 0; i < m_entityData.m_SoundsList.Length; i++)
+        {
+            // Debug.Log($"Comparing {audioName} with {m_entityData.m_SoundsList[i].m_SoundType}");
+            if (m_entityData.m_SoundsList[i].m_SoundType == audioName)
+            {
+                return m_entityData.m_SoundsList[i].m_SoundReference;
+            }
+        }
+
+        return null;
     }
 
     #endregion

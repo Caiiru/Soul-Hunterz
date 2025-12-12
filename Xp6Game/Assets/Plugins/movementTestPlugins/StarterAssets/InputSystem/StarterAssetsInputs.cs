@@ -13,9 +13,10 @@ namespace StarterAssets
 		public Vector2 look;
 		public bool jump;
 		public bool sprint;
-
 		public bool interact;
 		public bool inventory;
+		public bool attack;
+		public bool reload;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -32,6 +33,11 @@ namespace StarterAssets
 		#region Events
 		public delegate void ChangeWeaponHandler(int slot);
 		public static event ChangeWeaponHandler OnChangeWeapon;
+
+		public delegate void PlayerInventoryHandler(bool isOpen);
+		public static event PlayerInventoryHandler OnPlayerInventoryToggle;
+
+
 
 		#endregion
 
@@ -84,12 +90,26 @@ namespace StarterAssets
 
 		}
 
+		public void OnAttack(InputValue value)
+		{
+			AttackInput(value.isPressed);
+		}
+		public void OnReload(InputValue value)
+		{
+			reload = value.isPressed;
+		}
+
+
 
 #endif
 
 		public void InventoryInput(bool newInventoryState)
 		{
-			inventory = newInventoryState;
+			if (newInventoryState == true)
+			{
+				inventory = !inventory;
+				OnPlayerInventoryToggle?.Invoke(inventory);
+			}
 		}
 		public void InteractInput(bool newInteractState)
 		{
@@ -119,6 +139,12 @@ namespace StarterAssets
 		{
 			OnChangeWeapon?.Invoke(slot);
 		}
+		public void AttackInput(bool newAttackState)
+		{
+			attack = newAttackState;
+		}
+
+
 
 
 		private void OnApplicationFocus(bool hasFocus)
@@ -145,6 +171,7 @@ namespace StarterAssets
 			Instance = this;
 
 		}
+
 		#endregion
 
 

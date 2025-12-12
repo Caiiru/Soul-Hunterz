@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 /// <summary>
 /// Contém os dados para a criação e modificação de uma bala.
 /// Os componentes da arma modificam uma instância deste payload antes do disparo.
@@ -9,9 +11,18 @@ public class BulletPayload
 
     // Modificadores de Comportamento de Disparo
     public int BulletCount { get; set; } = 1;
-    public float SpreadDistance { get; set; } = 0f; 
+    public float SpreadDistance { get; set; } = 0f;
 
     // Modificadores de Atributos da Bala
+    public float SpeedFlat { get; set; } = 0f;
     public float SpeedMultiplier { get; set; } = 1.0f;
     public float LifetimeMultiplier { get; set; } = 1.0f;
+    public float FlatLifeTime { get; set; } = 0f;
+    public float AttackDelay { get; set; } = 0f;
+    public float RechargeTime { get; set; } = 0f;
+    public int MaxAmmo { get; set; } = 0;
+
+
+    public List<ComponentSO> UpdatePayload = new List<ComponentSO>();
 }
+
