@@ -13,8 +13,7 @@ namespace DeveloperConsole
 
             string htmlValue = EditorGUI.TextField(htmlField, label, "#" + ColorUtility.ToHtmlStringRGBA(property.colorValue));
 
-            Color newCol;
-            if (ColorUtility.TryParseHtmlString(htmlValue, out newCol))
+            if (ColorUtility.TryParseHtmlString(htmlValue, out var newCol))
                 property.colorValue = newCol;
 
             property.colorValue = EditorGUI.ColorField(colorField, property.colorValue);

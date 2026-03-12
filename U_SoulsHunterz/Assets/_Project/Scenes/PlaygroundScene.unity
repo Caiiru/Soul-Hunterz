@@ -501,6 +501,8 @@ GameObject:
   - component: {fileID: 1676344410}
   - component: {fileID: 1676344409}
   - component: {fileID: 1676344408}
+  - component: {fileID: 1676344412}
+  - component: {fileID: 1676344411}
   - component: {fileID: 1676344407}
   m_Layer: 0
   m_Name: Player
@@ -605,6 +607,30 @@ Transform:
   - {fileID: 1652344707}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1676344411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1676344406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7d16c17743058f44bbd83884f4716df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
+--- !u!114 &1676344412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1676344406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abb084b541c2f0345b278c9e51c6f523, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerController
 --- !u!1 &1683652340
 GameObject:
   m_ObjectHideFlags: 0
